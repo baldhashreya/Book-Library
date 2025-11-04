@@ -1,0 +1,227 @@
+To build a robust library book borrowing system in Node.js with MongoDB, you'll need a wide array of REST API endpoints to cover all admin, librarian, and member operations as detailed in your project description. Below is a comprehensive set of 75+ API endpoints grouped by feature area, followed by a scalable MongoDB schema design for optimal performance and clarity.
+
+### API Endpoint List
+
+#### User & Access Management (Auth, Roles, Permissions)
+- POST /api/auth/login
+- POST /api/auth/logout
+- POST /api/auth/refresh-token
+- POST /api/users
+- GET /api/users
+- GET /api/users/:id
+- PATCH /api/users/:id
+- DELETE /api/users/:id
+- PATCH /api/users/:id/status
+- GET /api/roles
+- POST /api/roles
+- PATCH /api/roles/:id
+- DELETE /api/roles/:id
+- GET /api/permissions
+- POST /api/permissions
+- PATCH /api/permissions/:id
+- DELETE /api/permissions/:id
+- GET /api/profile
+- PATCH /api/profile
+
+#### Book & Category Management
+- POST /api/books
+- GET /api/books
+- GET /api/books/:id
+- PATCH /api/books/:id
+- DELETE /api/books/:id
+- PUT /api/books/:id/cover
+- GET /api/books/search
+- GET /api/books/filter
+- GET /api/books/sort
+- GET /api/books/paginate
+- GET /api/authors
+- POST /api/authors
+- GET /api/authors/:id
+- PATCH /api/authors/:id
+- DELETE /api/authors/:id
+- GET /api/categories
+- POST /api/categories
+- PATCH /api/categories/:id
+- DELETE /api/categories/:id
+- PATCH /api/categories/:id/status
+
+#### Member Management
+- POST /api/members
+- GET /api/members
+- GET /api/members/:id
+- PATCH /api/members/:id
+- DELETE /api/members/:id
+- PATCH /api/members/:id/status
+- GET /api/members/:id/borrowing-history
+
+#### Borrowing & Return Workflows
+- POST /api/borrow
+- GET /api/borrow
+- GET /api/borrow/:id
+- PATCH /api/borrow/:id
+- PATCH /api/borrow/:id/return
+- GET /api/borrow/status/:status
+- GET /api/borrow/filter
+- PATCH /api/borrow/:id/fine
+- GET /api/borrow/overdue
+- GET /api/borrow/member/:memberId
+- GET /api/borrow/date-range
+
+#### Search, Lookups & Dropdowns
+- GET /api/lookups/books?typeahead=term
+- GET /api/lookups/members?typeahead=term
+- GET /api/lookups/categories
+- GET /api/lookups/statuses
+
+#### Dashboards & Reports
+- GET /api/dashboard/tiles
+- GET /api/reports/borrowed-books
+- GET /api/reports/overdue-books
+- GET /api/reports/top-borrowed-books
+- GET /api/reports/members
+- GET /api/reports/books
+- GET /api/reports/borrowed/export
+- GET /api/reports/overdue/export
+
+#### Audit Logs & Notifications
+- GET /api/audit-logs
+- POST /api/notifications
+- GET /api/notifications
+- PATCH /api/notifications/:id/read
+- GET /api/notifications/member/:memberId
+
+#### Utility & Metadata
+- GET /api/health
+- GET /api/version
+- GET /api/meta/status-options
+- GET /api/meta/fine-policies
+
+
+Each API in your library management system can utilize JWT and refresh tokens for authentication and authorization, ensuring security and role-based access control. Here’s how these tokens are used with different API endpoints:
+
+### API Usage with JWT & Refresh Tokens
+
+#### 1. Public APIs (No Token Needed)
+- **POST /api/auth/login**: Receives user credentials, authenticates the user, and returns both an access (JWT) and refresh token.
+- **POST /api/auth/refresh-token**: Accepts a refresh token, validates it, and issues a new access token (JWT). No JWT required to call this endpoint, but a refresh token must be provided.
+
+#### 2. Protected APIs (JWT Required in Authorization Header)
+All other endpoints (CRUD for users, books, members, borrowing, roles, dashboard, reports, etc.) require a valid JWT in the `Authorization` header.
+
+##### Example:
+```http
+GET /api/books
+Authorization: Bearer <jwt-token>
+```
+
+##### Common Protected API Usage:
+- **Access Control**: Middleware checks for a valid JWT token before granting access. If the token is missing, invalid, or expired, the server rejects the request with an error (401 Unauthorized).
+- **Role-Based Permissions**: The JWT payload contains user role info, so only authorized roles (admin, librarian, member) can access/modify related resources.
+
+##### API Cases:
+
+| API Endpoint                         | JWT Required? | Role (Example)      | Usage                                                                      |
+|---------------------------------------|:-------------:|---------------------|----------------------------------------------------------------------------|
+| POST /api/auth/login                  |   ❌          | -                   | Authenticate user, issue JWT + refresh token                               |
+| POST /api/auth/refresh-token          |   ❌          | -                   | Exchange refresh token for new JWT                                         |
+| GET /api/books                        |   ✅          | Librarian/Member    | List/search books, needs valid JWT                                         |
+| POST /api/books                       |   ✅          | Librarian           | Add new book (JWT indicates librarian)                                     |
+| PATCH /api/books/:id                  |   ✅          | Librarian           | Edit book details (JWT indicates librarian)                                |
+| DELETE /api/books/:id                 |   ✅          | Librarian           | Remove a book                                                              |
+| GET /api/members/:id/borrowing-history|   ✅          | Librarian/Member    | Members (view own), librarians (view anyone’s)                             |
+| POST /api/borrow                      |   ✅          | Librarian           | Record book issue                                                          |
+| PATCH /api/borrow/:id/return          |   ✅          | Librarian           | Mark book as returned                                                      |
+| GET /api/dashboard/tiles              |   ✅          | Admin/Librarian     | View library dashboard                                                     |
+| GET /api/notifications                |   ✅          | Member              | View notifications (JWT shows which member)                                |
+| GET /api/audit-logs                   |   ✅          | Admin               | Only admins can view                                                       |
+
+#### 3. Token Refresh Workflow
+- **Access Token Expiry**: JWT usually expires in a short time (e.g. 1 hour). After expiry, protected APIs return 401.
+- **Refreshing Token**: The client sends the refresh token to `/api/auth/refresh-token`. If valid, server issues new access token, so the user can keep using the system without logging in again.
+
+#### 4. Logging Out
+- **POST /api/auth/logout**: Optionally invalidate the refresh token (e.g., by deleting from DB or blocklisting). JWT on client simply expires.
+
+***
+
+### How API Security Works in Practice
+
+- All sensitive and modifying actions (add, edit, delete, view private info) use JWT-based authentication.
+- Endpoints can check the user’s role and permissions via JWT payload for fine-grained access control.
+- The refresh token is only sent to the dedicated endpoint for renewing access tokens, reducing risk if intercepted.
+
+***
+
+### MongoDB Schema Design
+
+#### 1. users
+```js
+{
+  _id, username, email, passwordHash, role (ref), status, createdAt, updatedAt, lastLogin
+}
+```
+
+#### 2. roles
+```js
+{
+  _id, name (Admin, Librarian, Member), permissions, description
+}
+```
+
+#### 3. members
+```js
+{
+  _id, userId (ref: users), name, contactInfo: { phone, email, address }, status, createdAt, updatedAt
+}
+```
+
+#### 4. books
+```js
+{
+  _id, title, authors: [ref], category (ref), isbn, publisher, quantity, description, coverImage, addedAt, updatedAt, status
+}
+```
+
+#### 5. authors
+```js
+{
+  _id, name, bio, birthDate, books: [ref]
+}
+```
+
+#### 6. categories
+```js
+{
+  _id, name, status, createdAt, updatedAt
+}
+```
+
+#### 7. borrow_records
+```js
+{
+  _id, bookId (ref), memberId (ref), issuedBy (user ref), issueDate, dueDate, returnDate, overdueDays, fine, status, notes, createdAt, updatedAt
+}
+```
+
+#### 8. audit_logs
+```js
+{
+  _id, action, performedBy (user ref), targetType, targetId, timestamp, details
+}
+```
+
+#### 9. notifications
+```js
+{
+  _id, memberId (ref), type, message, read, createdAt
+}
+```
+
+***
+
+### Key MongoDB Design Notes
+
+- All primary entities (books, members, authors) are normalized using ObjectID references to enable efficient lookups and avoid data duplication.[1][2]
+- Index on fields like books.category, books.authors, borrow_records.status, and borrow_records.issueDate for performance.
+- Statuses such as book availability, member activity, and borrow record workflows use strict enums for controlled progression.
+- Audit and notifications collections log every security/transaction event and in-app notice activity for traceability.
