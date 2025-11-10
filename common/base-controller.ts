@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthOperation, HttpStatusCode, SuccessResponse } from "./interface";
+import * as jwt from "jsonwebtoken";
+import { SuccessResponse } from "./interface";
 import { getMessageByCode } from "./common-functions";
+import { AuthOperations, HttpStatusCode } from "./enum";
+import { logger } from "./logger";
+import Users from "./database/models/users";
 export class ErrorResult {
   constructor(message: string, errorCode?: string, data?: unknown) {
     this.message = message;
@@ -21,6 +25,7 @@ class BaseController {
   ): Promise<Response> {
     let successObject: any;
     successObject = { data } as SuccessResponse;
+    console.log(':::::::::::::::::::messageKey', messageKey);
     if (!messageKey) {
       delete successObject.message;
     } else {
@@ -48,21 +53,26 @@ export const authorizationUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.headers.userid;
+  const verifiedUser = jwt.verify(
+    req.headers.authorization as string,
+    process.env.ACCESS_TOKEN || ""
+  );
+  logger.info("verifiedUser", verifiedUser);
+  const userId = verifiedUser && (verifiedUser as any)._id;
   if (!userId) {
     return baseController.getErrorResult(
       res,
       HttpStatusCode.BadRequest,
-      getMessageByCode(AuthOperation.INVALID_CRED)
+      getMessageByCode(AuthOperations.INVALID_CRED)
     );
   }
-  // const user = await Users.findById({ _id: userId });
-  // if (!user) {
-  //   return baseController.getErrorResult(
-  //     res,
-  //     HttpStatusCode.BadRequest,
-  //     getMessageByCode(AuthOperation.INVALID_CRED)
-  //   );
-  // }
+  const user = await Users.findById({ _id: userId });
+  if (!user) {
+    return baseController.getErrorResult(
+      res,
+      HttpStatusCode.BadRequest,
+      getMessageByCode(AuthOperations.INVALID_CRED)
+    );
+  }
   next();
 };

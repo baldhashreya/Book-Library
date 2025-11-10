@@ -6,13 +6,28 @@ export const messages = {
   AuthorizationsMessages: {
     LoginSuccess: "Login successful",
     InvalidCredentials: "Invalid username or password",
-    UserNotFound: "User not found",
-    AlreadyLoggedIn: "User already logged in",
+    RefreshToken: "Refresh token successful",
     LogoutSuccess: "Logout successful",
-    EmailInUse: "Email already in use",
     SignupSuccess: "Signup successful",
-    InvalidPassword: "Invalid password",
     PasswordUpdate: "Password update successfully.",
-    UserDetails: "User Detail fetch successfully."
+  },
+  RoleMessages: {
+    Create: "Role Created successfully.",
+    Update: "Role Updated successfully.",
+    Search: "Roles fetched successfully.",
+    Get: "Role fetched successfully.",
+    Delete: "Role deleted successfully.",
+    NotFound: "Role not found.",
+    RoleIsUnique: "Role already exists.",
+  },
+  UsersMessages: {
+    UserNotFound: "User not found.",
+    UserIsUnique: "User already exists",
+    UsersCreated: "Users Created successfully.",
+    UsersFetched: "Users fetched successfully.",
+    Updated: "User updated successfully.",
+    Deleted: "User deleted successfully.",
+    UserIsInactive: "User is not active.",
+    create: "User created successfully.",
   },
 };

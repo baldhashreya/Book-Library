@@ -1,12 +1,14 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
+import { UserStatusEnum } from "../../enum";
 
 export interface UsersModel extends Document {
   userName: string;
   email: string;
   password: string;
   role: Types.ObjectId;
-  status: "Active" | "In-Active";
+  status: UserStatusEnum;
   lastLogin: Date;
+  refreshToken?: string | null;
 }
 
 const UserSchema = new Schema<UsersModel>(
@@ -20,9 +22,10 @@ const UserSchema = new Schema<UsersModel>(
     },
     status: {
       type: String,
-      enum: ["Active", "In-Active"],
+      enum: UserStatusEnum,
     },
     lastLogin: { type: Date },
+    refreshToken: { type: String },
   },
   { timestamps: true }
 );

@@ -1,0 +1,212 @@
+[
+  {
+    "userName": "user1",
+    "email": "user1@tatvasoft.co",
+    "password": "Pass123",
+    "role": "user"
+  },
+  {
+    "userName": "user2",
+    "email": "user2@tatvasoft.co",
+    "password": "Pass456",
+    "role": "manager"
+  },
+  {
+    "userName": "user3",
+    "email": "user3@tatvasoft.co",
+    "password": "Pass7891",
+    "role": "admin"
+  },
+  {
+    "userName": "user4",
+    "email": "user4@tatvasoft.co",
+    "password": "Pass7892",
+    "role": "user"
+  },
+  {
+    "userName": "user5",
+    "email": "user5@tatvasoft.co",
+    "password": "Pass7893",
+    "role": "manager"
+  },
+  {
+    "userName": "user6",
+    "email": "user6@tatvasoft.co",
+    "password": "Pass7894",
+    "role": "admin"
+  },
+  {
+    "userName": "user7",
+    "email": "user7@tatvasoft.co",
+    "password": "Pass7895",
+    "role": "user"
+  },
+  {
+    "userName": "user8",
+    "email": "user8@tatvasoft.co",
+    "password": "Pass7896",
+    "role": "manager"
+  },
+  {
+    "userName": "user9",
+    "email": "user9@tatvasoft.co",
+    "password": "Pass7897",
+    "role": "admin"
+  },
+  {
+    "userName": "user10",
+    "email": "user10@tatvasoft.co",
+    "password": "Pass7898",
+    "role": "user"
+  },
+  {
+    "userName": "user11",
+    "email": "user11@tatvasoft.co",
+    "password": "Pass7899",
+    "role": "manager"
+  },
+  {
+    "userName": "user12",
+    "email": "user12@tatvasoft.co",
+    "password": "Pass78910",
+    "role": "admin"
+  },
+  {
+    "userName": "user13",
+    "email": "user13@tatvasoft.co",
+    "password": "Pass78911",
+    "role": "user"
+  },
+  {
+    "userName": "user14",
+    "email": "user14@tatvasoft.co",
+    "password": "Pass78912",
+    "role": "manager"
+  },
+  {
+    "userName": "user15",
+    "email": "user15@tatvasoft.co",
+    "password": "Pass78913",
+    "role": "admin"
+  },
+  {
+    "userName": "user16",
+    "email": "user16@tatvasoft.co",
+    "password": "Pass78914",
+    "role": "user"
+  },
+  {
+    "userName": "user17",
+    "email": "user17@tatvasoft.co",
+    "password": "Pass78915",
+    "role": "manager"
+  },
+  {
+    "userName": "user18",
+    "email": "user18@tatvasoft.co",
+    "password": "Pass78916",
+    "role": "admin"
+  },
+  {
+    "userName": "user19",
+    "email": "user19@tatvasoft.co",
+    "password": "Pass78917",
+    "role": "user"
+  },
+  {
+    "userName": "user20",
+    "email": "user20@tatvasoft.co",
+    "password": "Pass78918",
+    "role": "manager"
+  },
+  {
+    "userName": "user21",
+    "email": "user21@tatvasoft.co",
+    "password": "Pass78919",
+    "role": "admin"
+  },
+  {
+    "userName": "user22",
+    "email": "user22@tatvasoft.co",
+    "password": "Pass78920",
+    "role": "user"
+  },
+  {
+    "userName": "user23",
+    "email": "user23@tatvasoft.co",
+    "password": "Pass78921",
+    "role": "manager"
+  },
+  {
+    "userName": "user24",
+    "email": "user24@tatvasoft.co",
+    "password": "Pass78922",
+    "role": "admin"
+  },
+  {
+    "userName": "user25",
+    "email": "user25@tatvasoft.co",
+    "password": "Pass78923",
+    "role": "user"
+  },
+  {
+    "userName": "user26",
+    "email": "user26@tatvasoft.co",
+    "password": "Pass78924",
+    "role": "user"
+  },
+  {
+    "userName": "user27",
+    "email": "user27@tatvasoft.co",
+    "password": "Pass78925",
+    "role": "user"
+  },
+  {
+    "userName": "user28",
+    "email": "user28@tatvasoft.co",
+    "password": "Pass178926",
+    "role": "user"
+  },
+  {
+    "userName": "user29",
+    "email": "user29@tatvasoft.co",
+    "password": "Pass278926",
+    "role": "user"
+  },
+  {
+    "userName": "user30",
+    "email": "user30@tatvasoft.co",
+    "password": "Pass378926",
+    "role": "user"
+  },
+  {
+    "userName": "user31",
+    "email": "user31@tatvasoft.co",
+    "password": "Pass478926",
+    "role": "user"
+  },
+  {
+    "userName": "user32",
+    "email": "user32@tatvasoft.co",
+    "password": "Pass578926",
+    "role": "user"
+  },
+  {
+    "userName": "user33",
+    "email": "user33@tatvasoft.co",
+    "password": "Pass678926",
+    "role": "user"
+  },
+  {
+    "userName": "user34",
+    "email": "user34@tatvasoft.co",
+    "password": "Pass778926",
+    "role": "user"
+  },
+  {
+    "userName": "user35",
+    "email": "user35@tatvasoft.co",
+    "password": "Pass878926",
+    "role": "user"
+  }
+]

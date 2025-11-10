@@ -3,19 +3,20 @@ To build a robust library book borrowing system in Node.js with MongoDB, you'll 
 ### API Endpoint List
 
 #### User & Access Management (Auth, Roles, Permissions)
-- POST /api/auth/login
-- POST /api/auth/logout
-- POST /api/auth/refresh-token
-- POST /api/users
-- GET /api/users
-- GET /api/users/:id
-- PATCH /api/users/:id
-- DELETE /api/users/:id
-- PATCH /api/users/:id/status
-- GET /api/roles
-- POST /api/roles
-- PATCH /api/roles/:id
-- DELETE /api/roles/:id
+- POST /api/auth/login    --> done
+- POST /api/auth/logout   --> done
+- POST /api/auth/refresh-token   --> done
+- POST /api/users     --> done
+- GET /api/users      --> done
+- GET /api/users/:id    --> done
+- PATCH /api/users/:id    --> done
+- DELETE /api/users/:id    --> done
+- PATCH /api/users/:id/status   --> done
+- GET /api/roles    --> done
+- POST /api/roles   --> done
+- GET /api/roles/:id    --> done
+- PATCH /api/roles/:id    --> done
+- DELETE /api/roles/:id     --> done
 - GET /api/permissions
 - POST /api/permissions
 - PATCH /api/permissions/:id

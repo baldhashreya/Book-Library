@@ -13,7 +13,7 @@
 // | `status`      | `"available"`, `"checked_out"`, `"reserved"`, `"lost"`       |
 
 import mongoose, { model, Schema, Types } from "mongoose";
-import { BookStatusEnum } from "../enum";
+import { BookStatusEnum } from "../../enum";
 
 export interface booksModel {
   title: string;
@@ -47,7 +47,7 @@ const booksSchema = new Schema<booksModel>(
     quantity: { type: Number, required: true },
     description: { type: String },
     coverImage: { type: String },
-    status: { type: String, required: true , enum: BookStatusEnum},
+    status: { type: String, required: true, enum: BookStatusEnum },
   },
   { timestamps: true }
 );
