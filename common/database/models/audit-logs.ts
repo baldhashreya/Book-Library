@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { AuditLogsActionEnum } from "../enum";
+import { AuditLogsActionEnum } from "../../enum";
 
 export interface auditLogsModel extends Document {
   action: AuditLogsActionEnum;

@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-import { RolePermission } from "../enum";
+import { RolePermission } from "../../enum";
 
 // | _id | name          | permissions                                                                                     | description                                                                |
 // | --- | ------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |

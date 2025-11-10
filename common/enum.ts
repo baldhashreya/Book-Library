@@ -15,6 +15,7 @@ export enum RolePermission {
   VIEW_REPORTS = "VIEW_REPORTS",
   ISSUE_BOOKS = "ISSUE_BOOKS",
   RETURN_BOOKS = "RETURN_BOOKS",
+  VIEW_BORROW_HISTORY = "VIEW_BORROW_HISTORY",
 }
 
 export enum BorrowRecordsEnum {
@@ -37,4 +38,68 @@ export enum AuditLogsActionEnum {
   DELETE_RECORD = "DELETE_RECORD",
   ISSUE_BOOK = "ISSUE_BOOK",
   RETURN_BOOK = "RETURN_BOOK",
+}
+
+export enum UserStatusEnum {
+  ACTIVE = "ACTIVE",
+  IN_ACTIVE = "IN_ACTIVE",
+}
+
+export enum RoleOperations {
+  CREATE = "ROLE_CREATE",
+  UPDATE = "ROLE_UPDATE",
+  DELETE = "ROLE_DELETE",
+  SEARCH = "ROLE_SEARCH",
+  GET = "ROLE_GET",
+}
+
+export enum HttpStatusCode {
+  BadRequest = 400,
+  ConflictError = 409,
+  Forbidden = 403,
+  InternalServerError = 500,
+  NotFound = 404,
+  Ok = 200,
+  ServiceUnavailable = 503,
+  Unauthorized = 401,
+  Found = 302,
+  MethodNotAllowed = 405,
+  BadGateway = 502,
+}
+
+export enum ErrorType {
+  NotFound = "NotFound",
+  BadRequest = "BadRequest",
+  Unauthorized = "Unauthorized",
+  InternalServerError = "InternalServerError",
+  SequelizeDatabaseError = "SequelizeDatabaseError",
+  Conflict = "Conflict",
+  RoleNotFound = "RoleNotFound",
+  UserNotFound = "UserNotFound",
+  RoleIsUnique = "RoleIsUnique",
+  UserIsUnique = "UserIsUnique",
+  BookIsUnique = "BookIsUnique",
+  AuthorIsUnique = "AuthorIsUnique",
+  CategoryIsUnique = "CategoryIsUnique",
+  MemberIsUnique = "MemberIsUnique",
+  UserIsInactive = "UserIsInactive",
+  InvalidCredentials = "InvalidCredentials"
+}
+
+export enum AuthOperations {
+  LOGIN = "AUTH_LOGIN",
+  LOGOUT = "AUTH_LOGOUT",
+  SIGNUP = "AUTH_SIGNUP",
+  INVALID_CRED = "AUTH_INVALID_CRED",
+  REFRESH_TOKEN = "AUTH_REFRESH_TOKEN",
+  RESET_PASSWORD = "AUTH_RESET_PASSWORD",
+}
+
+export enum UsersOperations {
+  USERS_CREATED = "USERS_CREATED",
+  UPDATED = "USER_UPDATED",
+  DELETED = "USER_DELETED",
+  SEARCH = "USER_SEARCH",
+  GET = "USER_GET",
+  CREATE = "USER_CREATE",
 }

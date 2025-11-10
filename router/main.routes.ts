@@ -1,21 +1,23 @@
-import { Router } from "express";
+import * as Express from "express";
+import authRouters from "./authorization.routes";
+import roleRouters from "./roles.routes";
+import userRouters from "./users.routes";
 
-const router = Router();
+const router = Express.Router();
 
-router.use('/auth');
-router.use('/users');
-router.use('/roles');
-router.use('/permissions');
-router.use('/profile');
+router.use("/auth", authRouters);
+router.use('/users', userRouters);
+router.use("/roles", roleRouters);
+// router.use('/permissions');
+// router.use('/profile');
 
-router.use('/books');
-router.use('/author');
-router.use('/categories');
+// router.use('/books');
+// router.use('/author');
+// router.use('/categories');
 
-router.use('/members');
+// router.use('/members');
 
-router.use('/borrow');
-router.use('/reports');
-
+// router.use('/borrow');
+// router.use('/reports');
 
 export default router;
