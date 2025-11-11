@@ -1,10 +1,9 @@
 import winston from "winston";
 
-export const logger = winston.createLogger({
-  level: "info",
-  format: winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-    winston.format.printf((info) => {
+const transports = [];
+transports.push(
+  new winston.transports.Console({
+    format: winston.format.printf((info) => {
       const logObject = {
         level: info.level,
         message: info.message,
@@ -12,10 +11,28 @@ export const logger = winston.createLogger({
         timestamp: new Date().toISOString(),
       };
       return JSON.stringify(logObject);
-    })
+    }),
+  })
+);
+
+const logger = winston.createLogger({
+  levels: winston.config.npm.levels,
+  format: winston.format.combine(
+    winston.format.timestamp({
+      format: "YYYY-MM-DD HH:mm:ss",
+    }),
+    winston.format.errors({ stack: true }),
+    winston.format.splat(),
+    winston.format.json()
   ),
-  transports: [
-    new winston.transports.Console(), // logs to console
-    // new winston.transports.File({ filename: "app.log" }), // logs to file
-  ],
+  transports,
 });
+
+export function addLog(level: string, message: string, data?: unknown) {
+  logger.log({
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    data,
+  });
+}

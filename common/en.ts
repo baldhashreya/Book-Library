@@ -30,4 +30,12 @@ export const messages = {
     UserIsInactive: "User is not active.",
     create: "User created successfully.",
   },
+  CategoriesMessages: {
+    CategoryNotFound: "Category not found.",
+    CategoryIsUnique: "Category already exists",
+    Created: "Category created successfully.",
+    Fetched: "Categories fetched successfully.",
+    Updated: "Category updated successfully.",
+    Deleted: "Category deleted successfully.",
+  },
 };

@@ -40,10 +40,10 @@ To build a robust library book borrowing system in Node.js with MongoDB, you'll 
 - GET /api/authors/:id
 - PATCH /api/authors/:id
 - DELETE /api/authors/:id
-- GET /api/categories
-- POST /api/categories
-- PATCH /api/categories/:id
-- DELETE /api/categories/:id
+- GET /api/categories/:id     --> done
+- POST /api/categories    --> done
+- PATCH /api/categories/:id     --> done
+- DELETE /api/categories/:id    --> done
 - PATCH /api/categories/:id/status
 
 #### Member Management

@@ -6,3 +6,15 @@ export interface RolesSearchParams extends SearchParams {
   permissions?: RolePermission[];
   description?: string;
 }
+
+export interface UsersSearchParams extends SearchParams {
+  name?: string;
+  email?: string;
+  status?: string;
+  role?: string;
+}
+
+export interface CategoriesSearchParams extends SearchParams {
+  name?: string;
+  status?: string;
+}

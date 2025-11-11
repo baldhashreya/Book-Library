@@ -1,6 +1,5 @@
-import { UpdateResult } from "mongoose";
 import Users, { UsersModel } from "../../common/database/models/users";
-import { UsersSearchParams } from "../interface/users.interface";
+import { UsersSearchParams } from "../interface/common.interface";
 
 export class UsersRepository {
   public async createUsers(param: UsersModel[]): Promise<void> {

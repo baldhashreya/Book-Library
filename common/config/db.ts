@@ -1,16 +1,14 @@
 import { MongoClient, Db } from "mongodb";
-import { logger } from "../logger";
 import mongoose from "mongoose";
-// import dotenv from "dotenv";
-
-// dotenv.config();
+import { LogLevel } from "../enum";
+import { addLog } from "../logger";
 
 export const connectDB = async () => {
   try {
     await mongoose.connect("mongodb://127.0.0.1:27017/book-library");
-    logger.info("MongoDB Connected");
+    addLog(LogLevel.info, "MongoDB Connected");
   } catch (error) {
-    logger.error("MongoDB Connection Failed", error as Error);
+    addLog(LogLevel.error, "MongoDB Connection Failed", error as Error);
   }
 
   process.on("SIGINT", async () => {      // This is sent when you press Ctrl + C in the terminal.

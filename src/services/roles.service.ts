@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { RoleModel } from "../../common/database/models/roles";
 import { ErrorType } from "../../common/enum";
-import { RolesSearchParams } from "../interface/role.interface";
+import { RolesSearchParams } from "../interface/common.interface";
 import { CommonRepository } from "../repositories/common.repository";
 import { RolesRepository } from "../repositories/roles.repository";
 

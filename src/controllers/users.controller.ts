@@ -1,7 +1,6 @@
 import { baseController } from "../../common/base-controller";
-import { UsersModel } from "../../common/database/models/users";
-import { UsersOperations } from "../../common/enum";
-import { logger } from "../../common/logger";
+import { LogLevel, UsersOperations } from "../../common/enum";
+import { addLog } from "../../common/logger";
 import { UsersServices } from "../services/users.service";
 import { Request, Response } from "express";
 
@@ -13,7 +12,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("create User", req.body);
+    addLog(LogLevel.info, "create User", req.body);
     const result = await this.usersServices.createUser(req.body);
     return baseController.getResult(res, 200, result, UsersOperations.CREATE);
   };
@@ -22,7 +21,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("create Users", req.body);
+    addLog(LogLevel.info, "create Users", req.body);
     const result = await this.usersServices.createUsers();
     return baseController.getResult(
       res,
@@ -36,7 +35,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("update User", req.body);
+    addLog(LogLevel.info, "update User", req.body);
     const result = await this.usersServices.updateUser(
       req.body,
       req.params.id as string
@@ -47,7 +46,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("delete User", req.body);
+    addLog(LogLevel.info, "delete User", req.body);
     const result = await this.usersServices.deleteUser(req.params.id as string);
     return baseController.getResult(res, 200, result, UsersOperations.DELETED);
   };
@@ -56,7 +55,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("search User", req.body);
+    addLog(LogLevel.info, "search User", req.body);
     const result = await this.usersServices.searchUsers(req.body);
     return baseController.getResult(res, 200, result, UsersOperations.SEARCH);
   };
@@ -65,10 +64,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("get User", req.body);
-    console.log(req.headers);
-    console.log("url::::::::",(req.baseUrl + req.url));
-    console.log("params::::::::",req.method);
+    addLog(LogLevel.info, "get User", req.body);
     const result = await this.usersServices.getUserById(
       req.params.id as string
     );
@@ -79,7 +75,7 @@ export class UsersControllers {
     req: Request,
     res: Response
   ): Promise<Response> => {
-    logger.info("update User Status", req.body);
+    addLog(LogLevel.info, "update User Status", req.body);
     const result = await this.usersServices.updateUserStatus(
       req.params.id as string,
       req.body.status

@@ -17,7 +17,7 @@ import { BookStatusEnum } from "../../enum";
 
 export interface booksModel {
   title: string;
-  authors: [Types.ObjectId];
+  author: Types.ObjectId;
   category: Types.ObjectId;
   isbn: string;
   publisher: string;
@@ -30,13 +30,11 @@ export interface booksModel {
 const booksSchema = new Schema<booksModel>(
   {
     title: { type: String, required: true },
-    authors: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "authors",
-        required: true,
-      },
-    ],
+    author: {
+      type: mongoose.Schema.ObjectId,
+      ref: "authors",
+      required: true,
+    },
     category: {
       type: mongoose.Schema.ObjectId,
       ref: "categories",

@@ -1,13 +1,16 @@
 import Roles, { RoleModel } from "../../common/database/models/roles";
-import { RolesSearchParams } from "../interface/role.interface";
+import { RolesSearchParams } from "../interface/common.interface";
 
 export class RolesRepository {
   public async createRole(params: RoleModel): Promise<RoleModel> {
     return Roles.create(params);
   }
 
-  public async updateRoleById(param: RoleModel, id: string): Promise<RoleModel | null> {
-    return Roles.findByIdAndUpdate({ _id: id },{ ...param });
+  public async updateRoleById(
+    param: RoleModel,
+    id: string
+  ): Promise<RoleModel | null> {
+    return Roles.findByIdAndUpdate({ _id: id }, { ...param });
   }
 
   public async deleteRoleById(id: string): Promise<RoleModel | null> {
