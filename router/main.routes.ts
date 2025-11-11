@@ -2,6 +2,7 @@ import * as Express from "express";
 import authRouters from "./authorization.routes";
 import roleRouters from "./roles.routes";
 import userRouters from "./users.routes";
+import categoryRouters from "./categories.routes";
 
 const router = Express.Router();
 
@@ -13,7 +14,7 @@ router.use("/roles", roleRouters);
 
 // router.use('/books');
 // router.use('/author');
-// router.use('/categories');
+router.use('/categories', categoryRouters);
 
 // router.use('/members');
 

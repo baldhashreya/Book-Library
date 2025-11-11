@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken";
 import { UsersModel } from "../../common/database/models/users";
 import { AuthorizationRepository } from "../repositories/authorization.repository";
 import { UsersServices } from "./users.service";
-import { ErrorType, UserStatusEnum } from "../../common/enum";
+import { ErrorType, LogLevel, UserStatusEnum } from "../../common/enum";
 import { CommonRepository } from "../repositories/common.repository";
 import { UpdateResult } from "mongoose";
 import { hashPassword, verifyPassword } from "../../common/common-functions";
-import { logger } from "../../common/logger";
+import { addLog } from "../../common/logger";
 
 export class AuthorizationServices {
   constructor(
@@ -27,54 +27,48 @@ export class AuthorizationServices {
   public async loginUser(
     params: UsersModel
   ): Promise<{ access_token: string; refresh_token: string } | any> {
-    console.log("params", params);
-    try {
-      const existingUser = await this.authorizationRepository.getUserByEmail(
-        params.email
-      );
-      if (!existingUser) {
-        const err = new Error();
-        err.name = ErrorType.InvalidCredentials;
-        return Promise.reject(err);
-      }
-      if (existingUser.status !== UserStatusEnum.ACTIVE) {
-        const err = new Error();
-        err.name = ErrorType.UserIsInactive;
-        return Promise.reject(err);
-      }
-
-      const passwordVerified = await verifyPassword(
-        existingUser.password,
-        params.password
-      );
-      console.log(":::::::::::::::::::passwordVerified", passwordVerified);
-      if (!passwordVerified) {
-        const err = new Error();
-        err.name = ErrorType.UserIsInactive;
-        return Promise.reject(err);
-      }
-
-      const access_token = jwt.sign(
-        { _id: existingUser._id, email: existingUser.email },
-        process.env.ACCESS_TOKEN || "",
-        { expiresIn: "5m" }
-      );
-
-      const refresh_token = jwt.sign(
-        { _id: existingUser._id, email: existingUser.email },
-        process.env.REFRESH_TOKEN || "",
-        { expiresIn: "30m" }
-      );
-
-      await this.commonRepository.updateUser(
-        { refreshToken: refresh_token, lastLogin: new Date() } as UsersModel,
-        existingUser._id as unknown as string
-      );
-
-      return { access_token, refresh_token };
-    } catch (err) {
-      console.log(err);
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      params.email
+    );
+    if (!existingUser) {
+      const err = new Error();
+      err.name = ErrorType.InvalidCredentials;
+      return Promise.reject(err);
     }
+    if (existingUser.status !== UserStatusEnum.ACTIVE) {
+      const err = new Error();
+      err.name = ErrorType.UserIsInactive;
+      return Promise.reject(err);
+    }
+
+    const passwordVerified = await verifyPassword(
+      existingUser.password,
+      params.password
+    );
+    if (!passwordVerified) {
+      const err = new Error();
+      err.name = ErrorType.UserIsInactive;
+      return Promise.reject(err);
+    }
+
+    const access_token = jwt.sign(
+      { _id: existingUser._id, email: existingUser.email },
+      process.env.ACCESS_TOKEN || "",
+      { expiresIn: "5m" }
+    );
+
+    const refresh_token = jwt.sign(
+      { _id: existingUser._id, email: existingUser.email },
+      process.env.REFRESH_TOKEN || "",
+      { expiresIn: "30m" }
+    );
+
+    await this.commonRepository.updateUser(
+      { refreshToken: refresh_token, lastLogin: new Date() } as UsersModel,
+      existingUser._id as unknown as string
+    );
+
+    return { access_token, refresh_token };
   }
 
   public async logOutUser(id: string): Promise<UpdateResult> {
@@ -120,23 +114,17 @@ export class AuthorizationServices {
     password: string,
     id: string
   ): Promise<UpdateResult | any> {
-    console.log("password", password);
-    try {
-      const existingUser = await this.commonRepository.getUserById(id);
-      if (!existingUser) {
-        const err = new Error();
-        err.name = ErrorType.UserNotFound;
-        return Promise.reject(err);
-      }
-      console.log("password", password);
-      const hashedPassword = await hashPassword(password);
-      logger.info("hashedPassword", hashedPassword);
-      return this.commonRepository.updateUser(
-        { password: hashedPassword } as UsersModel,
-        existingUser._id as unknown as string
-      );
-    } catch (err) {
-      console.log(err);
+    const existingUser = await this.commonRepository.getUserById(id);
+    if (!existingUser) {
+      const err = new Error();
+      err.name = ErrorType.UserNotFound;
+      return Promise.reject(err);
     }
+    const hashedPassword = await hashPassword(password);
+    addLog(LogLevel.info, "hashedPassword", hashedPassword);
+    return this.commonRepository.updateUser(
+      { password: hashedPassword } as UsersModel,
+      existingUser._id as unknown as string
+    );
   }
 }

@@ -3,14 +3,16 @@ import argon2, { Options } from "argon2";
 import { messages } from "./en";
 import { ErrorStatusAndKey } from "./interface";
 import { baseController } from "./base-controller";
-import { logger } from "./logger";
 import {
   RoleOperations,
   HttpStatusCode,
   ErrorType,
   AuthOperations,
   UsersOperations,
+  CategoriesOperations,
+  LogLevel,
 } from "./enum";
+import { addLog } from "./logger";
 
 export function getMessageByCode(messageKey: string): string {
   switch (messageKey) {
@@ -46,6 +48,15 @@ export function getMessageByCode(messageKey: string): string {
       return messages.AuthorizationsMessages.RefreshToken;
     case AuthOperations.RESET_PASSWORD:
       return messages.AuthorizationsMessages.PasswordUpdate;
+
+    case CategoriesOperations.CREATE:
+      return messages.CategoriesMessages.Created;
+    case CategoriesOperations.UPDATED:
+      return messages.CategoriesMessages.Updated;
+    case CategoriesOperations.DELETED:
+      return messages.CategoriesMessages.Deleted;
+    case CategoriesOperations.SEARCH:
+      return messages.CategoriesMessages.Fetched;
 
     default:
       return "";
@@ -99,6 +110,15 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       errorKey = messages.AuthorizationsMessages.InvalidCredentials;
       break;
 
+    case ErrorType.CategoryIsUnique:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.CategoriesMessages.CategoryIsUnique;
+      break;
+    case ErrorType.CategoryNotFound:
+      statusCode = HttpStatusCode.NotFound;
+      errorKey = messages.CategoriesMessages.CategoryNotFound;
+      break;
+
     default:
       statusCode = HttpStatusCode.InternalServerError;
       errorKey = messages.internalServerError;
@@ -135,13 +155,13 @@ const argon2Options: Options & { raw?: false } = {
 };
 
 export async function hashPassword(password: string): Promise<string> {
-  logger.info("hashPassword", password);
+  addLog(LogLevel.info, "hashPassword", password);
   try {
-    const hashedpassword = await argon2.hash(password, argon2Options);
-    logger.info("hashedpassword", hashedpassword);
-    return hashedpassword;
+    const hashedPassword = await argon2.hash(password, argon2Options);
+    addLog(LogLevel.info, "hashedPassword", hashedPassword);
+    return hashedPassword;
   } catch (err) {
-    logger.error("Password hashing error:", err);
+    addLog(LogLevel.error, "Password hashing error:", err);
     return "";
   }
 }
@@ -153,7 +173,7 @@ export async function verifyPassword(
   try {
     return await argon2.verify(hash, plainPassword);
   } catch (error) {
-    logger.error("Password verification error:", error);
+    addLog(LogLevel.error, "Password verification error:", error);
     return false;
   }
 }

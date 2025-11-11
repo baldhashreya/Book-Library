@@ -1,13 +1,13 @@
 import { Types, UpdateResult } from "mongoose";
 import { UsersModel } from "../../common/database/models/users";
-import { ErrorType, UserStatusEnum } from "../../common/enum";
-import { UsersSearchParams } from "../interface/users.interface";
+import { ErrorType, LogLevel, UserStatusEnum } from "../../common/enum";
 import { CommonRepository } from "../repositories/common.repository";
 import { UsersRepository } from "../repositories/users.repository";
 import { hashPassword } from "../../common/common-functions";
-import { logger } from "../../common/logger";
 import fs from "fs";
 import path from "path";
+import { UsersSearchParams } from "../interface/common.interface";
+import { addLog } from "../../common/logger";
 
 export class UsersServices {
   constructor(
@@ -51,7 +51,7 @@ export class UsersServices {
           });
         }
       }
-      logger.info("Users Model", data);
+      addLog(LogLevel.info, "Users Model", data);
       await this.usersRepository.createUsers(data);
     } catch (err) {
       console.error(err);

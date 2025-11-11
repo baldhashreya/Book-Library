@@ -83,7 +83,9 @@ export enum ErrorType {
   CategoryIsUnique = "CategoryIsUnique",
   MemberIsUnique = "MemberIsUnique",
   UserIsInactive = "UserIsInactive",
-  InvalidCredentials = "InvalidCredentials"
+  InvalidCredentials = "InvalidCredentials",
+  CategoryNotFound = "CategoryNotFound",
+  BookNotFound = "BookNotFound",
 }
 
 export enum AuthOperations {
@@ -103,3 +105,24 @@ export enum UsersOperations {
   GET = "USER_GET",
   CREATE = "USER_CREATE",
 }
+
+export enum CategoriesOperations {
+  UPDATED = "CATEGORIES_UPDATED",
+  DELETED = "CATEGORIES_DELETED",
+  SEARCH = "CATEGORIES_SEARCH",
+  CREATE = "CATEGORIES_CREATE",
+}
+export enum BooksOperations {
+  UPDATED = "BOOKS_UPDATED",
+  DELETED = "BOOKS_DELETED",
+  SEARCH = "BOOKS_SEARCH",
+  GET = "BOOKS_GET",
+  CREATE = "BOOKS_CREATE",
+}
+
+export const LogLevel = Object.freeze({
+  info: 'info',
+  error: 'error',
+  warn: 'warn',
+  debug: 'debug'
+});
