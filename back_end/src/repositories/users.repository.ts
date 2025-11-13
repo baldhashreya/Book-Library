@@ -36,7 +36,7 @@ export class UsersRepository {
     } else {
       order = { createdAt: -1 };
     }
-    return Users.find(query)
+    return Users.find(query).populate("role", "name")
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);

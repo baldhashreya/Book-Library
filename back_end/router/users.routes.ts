@@ -17,39 +17,13 @@ const usersServices = new UsersServices(usersRepository, commonRepository);
 const usersController = new UsersControllers(usersServices);
 
 router.get("/create-users", usersController.createUsers);
-router.post(
-  "/",
-  authorizationUser,
-  celebrate(Create),
-  usersController.createUser
-);
-router.post(
-  "/search",
-  authorizationUser,
-  celebrate(Search),
-  usersController.searchUsers
-);
-router.get(
-  "/:id",
-  authorizationUser,
-  celebrate(Get),
-  usersController.getUserById
-);
-router.put(
-  "/:id",
-  authorizationUser,
-  celebrate(Update),
-  usersController.updateUsers
-);
-router.delete(
-  "/:id",
-  authorizationUser,
-  celebrate(Get),
-  usersController.deleteUser
-);
+router.post("/", celebrate(Create), usersController.createUser);
+router.post("/search", celebrate(Search), usersController.searchUsers);
+router.get("/:id", celebrate(Get), usersController.getUserById);
+router.put("/:id", celebrate(Update), usersController.updateUsers);
+router.delete("/:id", celebrate(Get), usersController.deleteUser);
 router.patch(
   "/:id/status",
-  authorizationUser,
   celebrate(UpdateStatus),
   usersController.updateUserStatus
 );

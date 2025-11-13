@@ -5,7 +5,7 @@ export const UserModel = {
   Create: {
     params: {},
     body: {
-      name: Joi.string().required(),
+      userName: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
     },
@@ -14,7 +14,7 @@ export const UserModel = {
   Update: {
     params: { id: Joi.string().required() },
     body: {
-      name: Joi.string().required(),
+      userName: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
       status: Joi.string().required().valid(...Object.values(UserStatusEnum)),
@@ -29,7 +29,7 @@ export const UserModel = {
   Search: {
     params: {},
     body: {
-      name: Joi.string().optional(),
+      userName: Joi.string().optional(),
       email: Joi.string().optional(),
       role: Joi.string().optional(),
       status: Joi.string().optional().valid(...Object.values(UserStatusEnum)),

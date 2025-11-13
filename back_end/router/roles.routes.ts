@@ -16,34 +16,9 @@ const { Create, Update, Get, Search } = RolesModel;
 
 const router = Router();
 
-router.post(
-  "/search",
-  authorizationUser,
-  celebrate(Search),
-  rolesController.searchRoles
-);
-router.post(
-  "/",
-  authorizationUser,
-  celebrate(Create),
-  rolesController.createRole
-);
-router.put(
-  "/:id",
-  authorizationUser,
-  celebrate(Update),
-  rolesController.updateRole
-);
-router.delete(
-  "/:id",
-  authorizationUser,
-  celebrate(Get),
-  rolesController.deleteRole
-);
-router.get(
-  "/:id",
-  authorizationUser,
-  celebrate(Get),
-  rolesController.getRoleById
-);
+router.post("/search", celebrate(Search), rolesController.searchRoles);
+router.post("/", celebrate(Create), rolesController.createRole);
+router.put("/:id", celebrate(Update), rolesController.updateRole);
+router.delete("/:id", celebrate(Get), rolesController.deleteRole);
+router.get("/:id", celebrate(Get), rolesController.getRoleById);
 export default router;
