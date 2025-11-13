@@ -35,7 +35,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     { id: 'book', label: 'Book', icon: '📚', path: '/books' },
     { id: 'category', label: 'Category', icon: '📑', path: '/categories' },
     { id: 'users', label: 'Users', icon: '👥', path: '/users' },
-    { id: 'roles', label: 'Roles', icon: '👑', path: '/roles' },
+    // { id: 'roles', label: 'Roles', icon: '👑', path: '/roles' },
   ];
 
   const handleMenuClick = (menuId: string, path: string) => {
@@ -44,9 +44,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   const handleProfileClick = () => {

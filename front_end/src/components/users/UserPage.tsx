@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../MainLayout";
 import UserModal from "../users/UserModal";
-import type { User, UserFormData } from "../../types/user";
+import type { User, UserFormData, UsersSearchParams } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./UserPage.css";
+import { useNavigate } from "react-router-dom";
 
 const UserPage: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,23 +16,23 @@ const UserPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    loadUsers();
+    loadUsers({ limit: 10, offset: 0 } as UsersSearchParams);
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (params: UsersSearchParams) => {
+    console.log("Loading users with params:", params);
+    if (!params) {
+      params = { limit: 10, offset: 0 } as UsersSearchParams;
+    }
     try {
       setLoading(true);
-      console.log("UserPage: Loading users...");
-      const usersData = await userService.getUsers();
-      console.log("UserPage: Raw users data received:", usersData);
-
-      // Handle different response formats
+      const usersData = await userService.getUsers(params);
       let usersArray: User[] = [];
 
       if (Array.isArray(usersData)) {
         console.log("Response is direct array");
         usersArray = usersData;
-      }  else if (usersData && usersData.data && Array.isArray(usersData.data)) {
+      } else if (usersData && usersData.data && Array.isArray(usersData.data)) {
         console.log("Response has nested data array");
         usersArray = usersData.data;
       } else {
@@ -38,24 +40,16 @@ const UserPage: React.FC = () => {
         usersArray = [];
       }
       setUsers(usersArray);
+      console.log("Users loaded successfully.");
     } catch (error) {
       console.error("UserPage: Error loading users:", error);
-      alert(
-        "Failed to load users. Check if backend is running on http://localhost:5000"
-      );
       setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    console.log("Users state updated:", users);
-    console.log("Number of users:", users.length);
-    if (users.length > 0) {
-      console.log("First user sample:", users[0]);
-    }
-  }, [users]);
+  useEffect(() => {}, [users]);
 
   const handleAddUser = () => {
     setModalMode("add");
@@ -64,7 +58,6 @@ const UserPage: React.FC = () => {
   };
 
   const handleEditUser = (user: User) => {
-    console.log("Editing user:", user);
     setModalMode("edit");
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -73,12 +66,10 @@ const UserPage: React.FC = () => {
   const handleDeleteUser = async (userId: string, userName: string) => {
     if (window.confirm(`Are you sure you want to delete user "${userName}"?`)) {
       try {
-        console.log("🗑️ Deleting user:", userId);
         await userService.deleteUser(userId);
-        setUsers((prev) => prev.filter((user) => user.id !== userId));
-        console.log("✅ User deleted successfully");
+        setUsers((prev) => prev.filter((user) => user._id !== userId));
       } catch (error) {
-        console.error("💥 Error deleting user:", error);
+        console.error("Error deleting user:", error);
         alert("Error deleting user. Please try again.");
       }
     }
@@ -86,17 +77,14 @@ const UserPage: React.FC = () => {
 
   const handleSaveUser = async (userData: UserFormData) => {
     try {
-      console.log("Saving user:", userData);
       if (modalMode === "add") {
         const newUser = await userService.createUser(userData);
-        console.log("New user created:", newUser);
         setUsers((prev) => [...prev, newUser]);
       } else if (modalMode === "edit" && selectedUser) {
         const updatedUser = await userService.updateUser(
           selectedUser._id,
           userData
         );
-        console.log("User updated:", updatedUser);
         if (updatedUser) {
           setUsers((prev) =>
             prev.map((user) =>
@@ -105,6 +93,9 @@ const UserPage: React.FC = () => {
           );
         }
       }
+      await loadUsers({ limit: 10, offset: 0 } as UsersSearchParams);
+      setIsModalOpen(false);
+      console.log("User saved successfully.");
     } catch (error) {
       console.error("Error saving user:", error);
       throw error;
@@ -124,15 +115,15 @@ const UserPage: React.FC = () => {
     );
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
+  const filteredUsers = users.filter((user) => {
+    console.log("Filtering user:", user);
+    if (!user) return false;
+    return (
       user.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getRoleDisplay(user).toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  console.log("🔍 Filtered users:", filteredUsers);
-
+    );
+  });
   return (
     <MainLayout>
       <div className="user-page">
@@ -190,7 +181,7 @@ const UserPage: React.FC = () => {
                   </thead>
                   <tbody>
                     {filteredUsers.map((user) => (
-                      <tr key={user.id}>
+                      <tr key={user._id}>
                         <td>
                           <div className="user-name">
                             <strong>{user.userName || "N/A"}</strong>
@@ -199,10 +190,7 @@ const UserPage: React.FC = () => {
                         <td>{user.email || "N/A"}</td>
                         <td>
                           <span className="role-tag">
-                            {
-                              // getRoleDisplay(user)
-                              user.role ? (user as any).role.name : "N/A"
-                            }
+                            {user.role ? (user as any).role.name : "N/A"}
                           </span>
                         </td>
                         <td>{getStatusBadge(user.status)}</td>
@@ -217,9 +205,9 @@ const UserPage: React.FC = () => {
                             </button>
                             <button
                               className="action-btn delete-btn"
-                              onClick={() =>
-                                handleDeleteUser(user.id, user.userName)
-                              }
+                              onClick={() => {
+                                handleDeleteUser(user._id, user.userName);
+                              }}
                               title="Delete User"
                             >
                               🗑️

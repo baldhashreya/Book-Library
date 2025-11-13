@@ -4,7 +4,7 @@ import { UserStatusEnum } from "../../enum";
 export interface UsersModel extends Document {
   userName: string;
   email: string;
-  password: string;
+  password?: string;
   role: Types.ObjectId;
   status: UserStatusEnum;
   lastLogin: Date;
@@ -15,7 +15,7 @@ const UserSchema = new Schema<UsersModel>(
   {
     userName: { type: String, required: true },
     email: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String },
     role: {
       type: mongoose.Schema.ObjectId,
       ref: "roles",
