@@ -13,5 +13,18 @@ export interface UserFormData {
   userName: string;
   email: string;
   role: string;
-  status: 'active' | 'inactive';
+  status?: 'active' | 'inactive';
+}
+
+export interface UsersSearchParams extends SearchParams {
+  name?: string;
+  email?: string;
+  status?: string;
+  role?: string;
+}
+
+export interface SearchParams {
+  offset?: number;
+  limit?: number;
+  order?: string[];
 }

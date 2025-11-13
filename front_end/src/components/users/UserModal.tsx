@@ -36,7 +36,7 @@ const UserModal: React.FC<UserModalProps> = ({
         setFormData({
           userName: user.userName,
           email: user.email,
-          role: user.role.name,
+          role: user.role._id,
           status: user.status,
         });
       } else {
@@ -44,7 +44,6 @@ const UserModal: React.FC<UserModalProps> = ({
           userName: "",
           email: "",
           role: "",
-          status: "active",
         });
       }
     }
@@ -80,7 +79,7 @@ const UserModal: React.FC<UserModalProps> = ({
     e.preventDefault();
     setLoading(true);
     setError("");
-
+    console.log(formData);
     try {
       // Validate form
       if (!formData.userName.trim()) {
@@ -173,12 +172,17 @@ const UserModal: React.FC<UserModalProps> = ({
               <select
                 id="role"
                 name="role"
-                value={formData.role.name}
-                onChange={handleChange}
+                value={formData.role || ""}
+                onChange={(e) => {
+                  const selectedRoleId = e.target.value;
+                  setFormData((prev) => ({
+                    ...prev,
+                    role: selectedRoleId,
+                  }));
+                }}
+                disabled={loading}
                 required
-                disabled
               >
-                <option value="">Select Role</option>
                 {roles.map((role) => (
                   <option
                     key={role.value}
@@ -190,20 +194,22 @@ const UserModal: React.FC<UserModalProps> = ({
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="status">Status *</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
+            {mode === "edit" && user && (
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {mode === "edit" && user && (

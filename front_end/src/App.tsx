@@ -11,13 +11,12 @@ import Dashboard from "./components/Dashboard";
 import BookPage from "./components/book/BookPage";
 import CategoryPage from "./components/category/CategoryPage";
 import UserPage from "./components/users/UserPage";
-import RolePage from "./components/role/RolePage";
+// import RolePage from "./components/role/RolePage";
 import AboutMePage from "./components/aboutMe/AboutMePage";
 import "./App.css";
 
 const isAuthenticated = () => {
-  // return localStorage.getItem("token") !== null;
-  return true;
+  return localStorage.getItem("token") !== null;
 };
 const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
   const location = useLocation();
@@ -38,6 +37,7 @@ const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
 };
 
 const App: React.FC = () => {
+  console.log("App component rendered");
   return (
     <Router>
       <div className="App">
@@ -74,10 +74,10 @@ const App: React.FC = () => {
             path="/users"
             element={<ProtectedRoute element={<UserPage />} />}
           />
-          <Route
+          {/* <Route
             path="/roles"
             element={<ProtectedRoute element={<RolePage />} />}
-          />
+          /> */}
           <Route
             path="/about-me"
             element={<ProtectedRoute element={<AboutMePage />} />}

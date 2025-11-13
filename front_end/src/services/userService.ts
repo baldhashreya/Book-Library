@@ -1,4 +1,4 @@
-import type { User, UserFormData } from '../types/user';
+import type { User, UserFormData, UsersSearchParams } from '../types/user';
 import { apiService } from './api';
 
 export interface UserExistsResponse {
@@ -21,10 +21,10 @@ export const userService = {
   },
 
   // Get all users
-  async getUsers(): Promise<User[]> {
+  async getUsers(params: UsersSearchParams): Promise<User[]> {
     try {
 
-      const result = await apiService.post('/users/search', {});
+      const result = await apiService.post('/users/search', params);
       return JSON.parse(JSON.stringify(result.data)) || [];
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -71,10 +71,10 @@ export const userService = {
   // Delete user
   async deleteUser(id: string): Promise<void> {
     try {
-      console.log(`🔄 userService.deleteUser(${id}) called`);
+      console.log(`userService.deleteUser(${id}) called`);
       await apiService.delete(`/users/${id}`);
     } catch (error) {
-      console.error('💥 Error deleting user:', error);
+      console.error('Error deleting user:', error);
       throw error;
     }
   },
@@ -85,11 +85,11 @@ export const userService = {
       console.log('userService.getRolesForDropdown() called');
       const result = await apiService.post('/roles/search', {});
       return (result.data || []).map((role: any) => ({
-        value: role.id,
+        value: role._id,
         label: role.name
       }));
     } catch (error) {
-      console.error('💥 Error fetching roles:', error);
+      console.error('Error fetching roles:', error);
       return [];
     }
   }

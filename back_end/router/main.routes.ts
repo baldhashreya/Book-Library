@@ -10,7 +10,7 @@ router.use("/auth", authRouters);
 router.use('/users', userRouters);
 router.use("/roles", roleRouters);
 // router.use('/permissions');
-// router.use('/profile');
+router.use('/profile');
 
 // router.use('/books');
 // router.use('/author');

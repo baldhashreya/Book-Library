@@ -42,8 +42,8 @@ export class AuthorizationServices {
     }
 
     const passwordVerified = await verifyPassword(
-      existingUser.password,
-      params.password
+      existingUser.password || "",
+      params.password || ""
     );
     if (!passwordVerified) {
       const err = new Error();
