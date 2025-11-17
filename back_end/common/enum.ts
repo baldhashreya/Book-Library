@@ -86,6 +86,7 @@ export enum ErrorType {
   InvalidCredentials = "InvalidCredentials",
   CategoryNotFound = "CategoryNotFound",
   BookNotFound = "BookNotFound",
+  AuthorNotFound = "AuthorNotFound",
 }
 
 export enum AuthOperations {
@@ -116,7 +117,6 @@ export enum BooksOperations {
   UPDATED = "BOOKS_UPDATED",
   DELETED = "BOOKS_DELETED",
   SEARCH = "BOOKS_SEARCH",
-  GET = "BOOKS_GET",
   CREATE = "BOOKS_CREATE",
 }
 
@@ -126,3 +126,10 @@ export const LogLevel = Object.freeze({
   warn: 'warn',
   debug: 'debug'
 });
+
+export enum AuthorOperations {
+  UPDATED = "AUTHORS_UPDATED",
+  DELETED = "AUTHORS_DELETED",
+  SEARCH = "AUTHORS_SEARCH",
+  CREATE = "AUTHORS_CREATE",
+}

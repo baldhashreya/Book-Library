@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, Book, ChartColumnStacked, Users, LibraryBig, LogOut, User, ChevronDown  } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './MainLayout.css';
@@ -31,10 +32,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', path: '/dashboard' },
-    { id: 'book', label: 'Book', icon: '📚', path: '/books' },
-    { id: 'category', label: 'Category', icon: '📑', path: '/categories' },
-    { id: 'users', label: 'Users', icon: '👥', path: '/users' },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard />, path: '/dashboard' },
+    { id: 'book', label: 'Book', icon: <Book />, path: '/books' },
+    { id: 'category', label: 'Category', icon: <ChartColumnStacked />, path: '/categories' },
+    { id: 'users', label: 'Users', icon: <Users />, path: '/users' },
     // { id: 'roles', label: 'Roles', icon: '👑', path: '/roles' },
   ];
 
@@ -44,9 +45,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('refresh_token');
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login', { replace: true });
+    navigate('/login');
   };
 
   const handleProfileClick = () => {
@@ -75,8 +76,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <div className="main-layout">
       <div className="sidebar">
         <div className="sidebar-header">
-          <h2 className="logo">📖 BookLib</h2>
-          <p className="tagline">Your Digital Library</p>
+          <h2 className="logo"><LibraryBig /> TatvaLib</h2>
         </div>
         
         <nav className="sidebar-nav">
@@ -94,7 +94,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
-            <span className="nav-icon">🚪</span>
+            <span className="nav-icon"><LogOut /></span>
             <span className="nav-label">Logout</span>
           </button>
         </div>
@@ -109,9 +109,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
           <div className="header-right">
             <button className="profile-btn" onClick={handleProfileClick}>
-              <span className="profile-icon">👤</span>
-              <span className="profile-name">{currentUser.name}</span>
-              <span className="dropdown-arrow">▼</span>
+              <span className="profile-icon"><User /></span>
+              <span className="profile-name">{currentUser.userName}</span>
+              <span className="dropdown-arrow"><ChevronDown /></span>
             </button>
           </div>
         </header>

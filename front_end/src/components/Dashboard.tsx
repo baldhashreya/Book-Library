@@ -3,13 +3,13 @@ import MainLayout from './MainLayout';
 
 const Dashboard: React.FC = () => {
   const userData = localStorage.getItem('user');
-  const user = userData ? JSON.parse(userData) : { name: 'User' };
+  const user = userData ? JSON.parse(userData) : {  };
 
   return (
     <MainLayout>
       <div className="dashboard-content">
         <div className="welcome-section">
-          <h2>Welcome back, {user.name}! 👋</h2>
+          <h2>Welcome back, {user.userName}!</h2>
           <p>Login successful! You are now on the dashboard.</p>
         </div>
       </div>

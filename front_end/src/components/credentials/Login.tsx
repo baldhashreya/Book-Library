@@ -30,6 +30,13 @@ const Login: React.FC<LoginProps> = ({ onSwitchToSignup = () => {} }) => {
       if (response.data && response.data.access_token) {
         localStorage.setItem("token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
+        const user = await authService.getCurrentUser();
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+        else{
+          localStorage.setItem("user", JSON.stringify({ email }));
+        }
         await login(email, password);
 
         console.log("Login successful, redirecting to dashboard...");

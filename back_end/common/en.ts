@@ -38,4 +38,20 @@ export const messages = {
     Updated: "Category updated successfully.",
     Deleted: "Category deleted successfully.",
   },
+  BooksMessages: {
+    BookNotFound: "Book not found.",
+    BookIsUnique: "Book already exists", 
+    Created: "Book created successfully.",
+    Fetched: "Books fetched successfully.",
+    Updated: "Book updated successfully.",
+    Deleted: "Book deleted successfully.",
+  },
+  AuthorsMessages: {
+    AuthorNotFound: "Author not found.",
+    AuthorIsUnique: "Author already exists",
+    Created: "Author created successfully.",
+    Fetched: "Authors fetched successfully.",
+    Updated: "Author updated successfully.",
+    Deleted: "Author deleted successfully.",
+  },
 };

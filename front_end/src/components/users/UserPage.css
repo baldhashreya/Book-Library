@@ -202,6 +202,7 @@
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s ease;
+  color: #721c24;
 }
 
 .view-btn:hover {
@@ -238,60 +239,4 @@
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .user-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    max-width: none;
-  }
-
-  .user-stats {
-    justify-content: space-between;
-  }
-
-  .users-table-container {
-    overflow-x: auto;
-  }
-
-  .users-table {
-    min-width: 700px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .action-btn {
-    padding: 6px;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-content h1 {
-    font-size: 24px;
-  }
-
-  .users-table th,
-  .users-table td {
-    padding: 12px 15px;
-    font-size: 13px;
-  }
-
-  .user-stats {
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-  }
 }

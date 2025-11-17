@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { PencilLine, Trash } from "lucide-react";
 import MainLayout from "../MainLayout";
 import UserModal from "../users/UserModal";
 import type { User, UserFormData, UsersSearchParams } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./UserPage.css";
-import { useNavigate } from "react-router-dom";
 
 const UserPage: React.FC = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -166,9 +165,6 @@ const UserPage: React.FC = () => {
               </div>
             ) : (
               <>
-                <div className="table-info">
-                  Showing {filteredUsers.length} of {users.length} users
-                </div>
                 <table className="users-table">
                   <thead>
                     <tr>
@@ -201,7 +197,7 @@ const UserPage: React.FC = () => {
                               onClick={() => handleEditUser(user)}
                               title="Edit User"
                             >
-                              ✏️
+                              <PencilLine />
                             </button>
                             <button
                               className="action-btn delete-btn"
@@ -210,7 +206,7 @@ const UserPage: React.FC = () => {
                               }}
                               title="Delete User"
                             >
-                              🗑️
+                              <Trash />
                             </button>
                           </div>
                         </td>

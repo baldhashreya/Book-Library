@@ -18,6 +18,6 @@ export class CommonRepository {
   }
 
   public async getUserById(id: string): Promise<UsersModel | null> {
-    return Users.findById({ _id: id });
+    return Users.findById({ _id: id }).populate("role","name");
   }
 }
