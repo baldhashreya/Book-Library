@@ -4,12 +4,12 @@ const API_BASE_URL = 'http://localhost:5000/api';
 class ApiService {
   private async request(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { 'Authorization': `${token}` }),
         ...options.headers,
       },
       ...options,

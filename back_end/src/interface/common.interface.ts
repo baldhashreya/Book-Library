@@ -18,3 +18,10 @@ export interface CategoriesSearchParams extends SearchParams {
   name?: string;
   status?: string;
 }
+
+export interface AuthorsSearchParams extends SearchParams {
+  name?: string;
+  bio?: string;
+  start_birth_date?: Date;
+  end_birth_date?: Date;
+}

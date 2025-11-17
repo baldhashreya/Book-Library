@@ -15,7 +15,7 @@
 import mongoose, { model, Schema, Types } from "mongoose";
 import { BookStatusEnum } from "../../enum";
 
-export interface booksModel {
+export interface BooksModel {
   title: string;
   author: Types.ObjectId;
   category: Types.ObjectId;
@@ -27,7 +27,7 @@ export interface booksModel {
   status: BookStatusEnum;
 }
 
-const booksSchema = new Schema<booksModel>(
+const BooksSchema = new Schema<BooksModel>(
   {
     title: { type: String, required: true },
     author: {
@@ -50,5 +50,5 @@ const booksSchema = new Schema<booksModel>(
   { timestamps: true }
 );
 
-const books = model<booksModel>("books", booksSchema);
-export default books;
+const Books = model<BooksModel>("books", BooksSchema);
+export default Books;

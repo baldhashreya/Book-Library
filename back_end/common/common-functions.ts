@@ -11,6 +11,8 @@ import {
   UsersOperations,
   CategoriesOperations,
   LogLevel,
+  BooksOperations,
+  AuthorOperations,
 } from "./enum";
 import { addLog } from "./logger";
 
@@ -57,6 +59,24 @@ export function getMessageByCode(messageKey: string): string {
       return messages.CategoriesMessages.Deleted;
     case CategoriesOperations.SEARCH:
       return messages.CategoriesMessages.Fetched;
+
+    case BooksOperations.CREATE:
+      return messages.BooksMessages.Created;
+    case BooksOperations.UPDATED:
+      return messages.BooksMessages.Updated;
+    case BooksOperations.DELETED:
+      return messages.BooksMessages.Deleted;
+    case BooksOperations.SEARCH:
+      return messages.BooksMessages.Fetched;
+
+    case AuthorOperations.CREATE:
+      return messages.AuthorsMessages.Created;
+    case AuthorOperations.UPDATED:
+      return messages.AuthorsMessages.Updated;
+    case AuthorOperations.DELETED:
+      return messages.AuthorsMessages.Deleted;
+    case AuthorOperations.SEARCH:
+      return messages.AuthorsMessages.Fetched;
 
     default:
       return "";
@@ -117,6 +137,14 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
     case ErrorType.CategoryNotFound:
       statusCode = HttpStatusCode.NotFound;
       errorKey = messages.CategoriesMessages.CategoryNotFound;
+      break;
+    case ErrorType.AuthorIsUnique:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.AuthorsMessages.AuthorIsUnique;
+      break;
+      case ErrorType.AuthorNotFound:
+      statusCode = HttpStatusCode.NotFound;
+      errorKey = messages.AuthorsMessages.AuthorNotFound;
       break;
 
     default:

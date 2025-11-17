@@ -52,6 +52,7 @@ export const authorizationUser = async (
   res: Response,
   next: NextFunction
 ) => {
+  addLog(LogLevel.info, "authorizationUser", req.headers.authorization);
   const verifiedUser = jwt.verify(
     req.headers.authorization as string,
     process.env.ACCESS_TOKEN || ""
@@ -73,5 +74,6 @@ export const authorizationUser = async (
       getMessageByCode(AuthOperations.INVALID_CRED)
     );
   }
+  (req as any).userId = userId;
   next();
 };

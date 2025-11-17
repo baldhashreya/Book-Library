@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Pencil, Lock } from "lucide-react";
 import MainLayout from "../MainLayout";
 import { useAuth } from "../../contexts/AuthContext";
-import { userService } from "../../services/userService";
 import "./AboutMePage.css";
 
 const AboutMePage: React.FC = () => {
@@ -21,12 +21,7 @@ const AboutMePage: React.FC = () => {
         }
 
         // Optionally fetch fresh data from API
-        if (currentUser?._id) {
-          const apiUser = await userService.getUserById(currentUser._id);
-          setUserData(apiUser);
-        } else {
-          setUserData(currentUser);
-        }
+        setUserData(currentUser);
       } catch (error) {
         console.error("Error fetching user info:", error);
       } finally {
@@ -94,8 +89,8 @@ const AboutMePage: React.FC = () => {
               <div className="detail-section">
                 <h3>Quick Actions</h3>
                 <div className="action-buttons">
-                  <button className="action-btn primary">✏️ Edit Profile</button>
-                  <button className="action-btn secondary">🔒 Change Password</button>
+                  <button className="action-btn primary"><Pencil /> Edit Profile</button>
+                  <button className="action-btn secondary"><Lock /> Change Password</button>
                 </div>
               </div>
             </div>

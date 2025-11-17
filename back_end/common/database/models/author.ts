@@ -1,16 +1,16 @@
 import { model, Schema, Types } from "mongoose";
 
-export interface authorModel {
+export interface AuthorModel {
   name: string;
   bio: string;
-  birthdate: Date;
+  birthDate: Date;
 }
 
-const authorSchema = new Schema<authorModel>({
+const authorSchema = new Schema<AuthorModel>({
   name: { type: String, required: true },
   bio: { type: String, required: true },
-  birthdate: { type: Date, required: true },
+  birthDate: { type: Date, required: true },
 });
 
-const authors = model<authorModel>("authors", authorSchema);
-export default authors;
+const Authors = model<AuthorModel>("authors", authorSchema);
+export default Authors;
