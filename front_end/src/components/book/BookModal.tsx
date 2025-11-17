@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Book, BookFormData } from '../../types/book';
 import { bookService } from '../../services/bookService';
 import './BookModal.css';
+import type { SearchParams } from '../../types/role';
 
 interface BookModalProps {
   isOpen: boolean;
@@ -53,7 +54,7 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
 
   const loadCategories = async () => {
     try {
-      const cats = await bookService.getCategories();
+      const cats = await bookService.searchCategories({ limit: 100, offset: 0 } as SearchParams);
       setCategories(cats);
     } catch (error) {
       console.error('Error loading categories:', error);

@@ -6,6 +6,7 @@ export const CategoriesModel = {
     params: {},
     body: {
       name: Joi.string().required(),
+      description: Joi.string(),
     },
     query: {},
   },
@@ -13,6 +14,7 @@ export const CategoriesModel = {
     params: { id: Joi.string().required() },
     body: {
       name: Joi.string().required(),
+      description: Joi.string(),
       status: Joi.string().valid(...Object.values(UserStatusEnum)),
     },
     query: {},

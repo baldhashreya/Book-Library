@@ -1,80 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import type { Category, CategoryFormData } from '../../types/category';
-import { categoryService } from '../../services/categoryService';
-import './CategoryModal.css';
+import React, { useState, useEffect } from "react";
+import type { Category, CategoryFormData } from "../../types/category";
+import "./CategoryModal.css";
 
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (categoryData: CategoryFormData) => void;
   category?: Category | null;
-  mode: 'add' | 'edit';
+  mode: "add" | "edit";
 }
 
-const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose, onSave, category, mode }) => {
+const CategoryModal: React.FC<CategoryModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  category,
+  mode,
+}) => {
   const [formData, setFormData] = useState<CategoryFormData>({
-    name: '',
-    description: ''
+    name: "",
+    description: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      setError('');
-      if (mode === 'edit' && category) {
+      setError("");
+      if (mode === "edit" && category) {
         setFormData({
           name: category.name,
-          description: category.description || ''
+          description: category.description || "",
         });
       } else {
         setFormData({
-          name: '',
-          description: ''
+          name: "",
+          description: "",
         });
       }
     }
   }, [isOpen, mode, category]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Validate category name
       if (!formData.name.trim()) {
-        setError('Category name is required');
+        setError("Category name is required");
         return;
       }
 
-      // Check if category already exists
-      const exists = await categoryService.categoryExists(
-        formData.name, 
-        mode === 'edit' ? category?.id : undefined
-      );
-      
-      if (exists) {
-        setError('A category with this name already exists');
+      if (!formData.description.trim()) {
+        setError("Category description is required");
         return;
       }
-
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving category:', error);
-      setError('An error occurred while saving the category');
+      console.error("Error saving category:", error);
+      setError("An error occurred while saving the category");
     } finally {
       setLoading(false);
     }
@@ -86,16 +86,20 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose, onSave, 
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>{mode === 'add' ? 'Add New Category' : 'Edit Category'}</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <h2>{mode === "add" ? "Add New Category" : "Edit Category"}</h2>
+          <button
+            className="close-button"
+            onClick={onClose}
+          >
+            ×
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="category-form">
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+        <form
+          onSubmit={handleSubmit}
+          className="category-form"
+        >
+          {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
             <label htmlFor="name">Category Name *</label>
@@ -124,22 +128,38 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ isOpen, onClose, onSave, 
               rows={4}
               placeholder="Optional category description"
               maxLength={200}
+              required
             />
-            <div className="char-count">{formData.description?.length || 0}/200</div>
+            <div className="char-count">
+              {formData.description?.length || 0}/200
+            </div>
           </div>
 
-          {mode === 'edit' && category?.bookCount !== undefined && (
+          {mode === "edit" && category?.bookCount !== undefined && (
             <div className="book-count-info">
-              <span>📚 This category contains {category.bookCount} book(s)</span>
+              <span>
+                This category contains {category.bookCount} book(s)
+              </span>
             </div>
           )}
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} disabled={loading}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+            >
               Cancel
             </button>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (mode === 'add' ? 'Add Category' : 'Update Category')}
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Saving..."
+                : mode === "add"
+                ? "Add Category"
+                : "Update Category"}
             </button>
           </div>
         </form>
