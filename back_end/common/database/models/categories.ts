@@ -4,6 +4,7 @@ import { UserStatusEnum } from "../../enum";
 export interface CategoriesModel extends Document {
   name: string;
   status: UserStatusEnum;
+  description?: string;
 }
 
 const CategoriesSchema = new Schema<CategoriesModel>(
@@ -14,6 +15,7 @@ const CategoriesSchema = new Schema<CategoriesModel>(
       enum: Object.values(UserStatusEnum),
       required: true,
     },
+    description: { type: String }
   },
   { timestamps: true }
 );

@@ -1,12 +1,13 @@
 import type { Category, CategoryFormData } from '../types/category';
+import type { SearchParams } from '../types/role';
 import { apiService } from './api';
 
 export const categoryService = {
   // Get all categories
-  async getCategories(): Promise<Category[]> {
+  async searchCategories(SearchParams: SearchParams): Promise<Category[]> {
     try {
-      const data = await apiService.get('/categories');
-      return data.categories || [];
+      const result = await apiService.post('/categories/search', SearchParams);
+      return result.data || [];
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;

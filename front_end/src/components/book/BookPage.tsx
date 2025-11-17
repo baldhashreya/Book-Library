@@ -195,14 +195,14 @@ const BookPage: React.FC = () => {
                             onClick={() => handleEditBook(book)}
                             title="View/Edit Book"
                           >
-                            👁️
+                             <PencilLine />
                           </button>
                           <button
                             className="action-btn delete-btn"
                             onClick={() => handleDeleteBook(book.id)}
                             title="Delete Book"
                           >
-                            🗑️
+                            <Trash />
                           </button>
                         </div>
                       </td>
