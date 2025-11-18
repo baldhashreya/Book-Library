@@ -14,6 +14,7 @@ import UserPage from "./components/users/UserPage";
 // import RolePage from "./components/role/RolePage";
 import AboutMePage from "./components/aboutMe/AboutMePage";
 import "./App.css";
+import AuthorPage from "./components/Author/AuthorPage";
 
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
@@ -73,6 +74,10 @@ const App: React.FC = () => {
           <Route
             path="/users"
             element={<ProtectedRoute element={<UserPage />} />}
+          />
+          <Route
+            path="/author"
+            element={<ProtectedRoute element={<AuthorPage />} />}
           />
           {/* <Route
             path="/roles"

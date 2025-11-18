@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../MainLayout";
 import BookModal from "./BookModal";
-import type { Book, BookFormData } from "../../types/Book";
+import type { Book, BookFormData } from "../../types/book";
+import { PencilLine, Trash } from "lucide-react"
 import { bookService } from "../../services/bookService";
 import "./BookPage.css";
 
