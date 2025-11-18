@@ -1,4 +1,4 @@
-import type { Book, BookFormData } from '../types/Book';
+import type { Book, BookFormData } from '../types/book';
 import { apiService } from './api';
 
 export const bookService = {

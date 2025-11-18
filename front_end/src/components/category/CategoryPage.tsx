@@ -64,8 +64,12 @@ const CategoryPage: React.FC = () => {
     ) {
       try {
         await categoryService.deleteCategory(categoryId);
-        setCategories((prev) => prev.filter((cat) => cat._id !== categoryId));
-        await loadCategories({ limit: 10, offset: 0 } as SearchParams);
+        const updatedCategories = await categoryService.searchCategories({
+          limit: 10,
+          offset: 0,
+        } as SearchParams);
+        setCategories(updatedCategories);
+        setIsModalOpen(false);
       } catch (error) {
         console.error("Error deleting category:", error);
         alert("Error deleting category. Please try again.");
