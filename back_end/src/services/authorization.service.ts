@@ -20,6 +20,16 @@ export class AuthorizationServices {
   }
 
   public async signUpUser(params: UsersModel): Promise<UsersModel> {
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      params.email
+    );
+    if (existingUser) {
+      const err = new Error();
+      err.name = ErrorType.InvalidCredentials;
+      return Promise.reject(err);
+    }
+    params.password = await hashPassword(params.password || "");
+    params.status = UserStatusEnum.ACTIVE;
     const usersModel = await this.usersService.createUser(params);
     return usersModel;
   }
@@ -30,6 +40,7 @@ export class AuthorizationServices {
     const existingUser = await this.authorizationRepository.getUserByEmail(
       params.email
     );
+    console.log(existingUser);
     if (!existingUser) {
       const err = new Error();
       err.name = ErrorType.InvalidCredentials;
@@ -45,6 +56,7 @@ export class AuthorizationServices {
       existingUser.password || "",
       params.password || ""
     );
+    console.log(passwordVerified);
     if (!passwordVerified) {
       const err = new Error();
       err.name = ErrorType.UserIsInactive;
@@ -112,9 +124,11 @@ export class AuthorizationServices {
 
   public async resetPassword(
     password: string,
-    id: string
+    email: string
   ): Promise<UpdateResult | any> {
-    const existingUser = await this.commonRepository.getUserById(id);
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      email
+    );
     if (!existingUser) {
       const err = new Error();
       err.name = ErrorType.UserNotFound;

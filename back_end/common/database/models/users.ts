@@ -2,7 +2,8 @@ import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { UserStatusEnum } from "../../enum";
 
 export interface UsersModel extends Document {
-  userName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password?: string;
   role: Types.ObjectId;
@@ -13,7 +14,8 @@ export interface UsersModel extends Document {
 
 const UserSchema = new Schema<UsersModel>(
   {
-    userName: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String },
     role: {

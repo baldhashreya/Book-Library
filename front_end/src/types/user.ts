@@ -1,16 +1,18 @@
 export interface User {
   id: string;
-  userName: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  role: string; // Role ID
-  roleName?: string; // For display
+  role: string;
+  roleName?: string; 
   status: 'active' | 'inactive';
   createdAt: string;
   lastLogin?: string;
 }
 
 export interface UserFormData {
-  userName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
   status?: 'active' | 'inactive';

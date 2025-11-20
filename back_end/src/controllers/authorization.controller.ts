@@ -57,7 +57,7 @@ export class AuthorizationController {
     addLog(LogLevel.info, "reset Password", req.body);
     const result = await this.authorizationServices.resetPassword(
       req.body.password,
-      req.params.id as string
+      req.body.email as string
     );
     return baseController.getResult(
       res,

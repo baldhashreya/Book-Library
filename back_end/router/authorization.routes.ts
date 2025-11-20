@@ -34,7 +34,7 @@ router.patch(
   authorizationController.refreshToken
 );
 router.patch(
-  "/reset-password/:id",
+  "/reset-password",
   celebrate(resetPassword),
   authorizationController.resetPassword
 );

@@ -1,80 +1,178 @@
-import React, { useState } from 'react';
-import './Login.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Signup.css";
+import type { signupFormData } from "../../types/auth";
+import { roleService } from "../../services/roleService";
+import type { Role } from "../../types/role";
+import { authService } from "../../services/authService";
 
-interface SignupProps {
-  onSwitchToLogin: () => void;
-  onSignup: (email: string, password: string, confirmPassword: string) => void;
-}
+const Signup: React.FC = () => {
+  const navigate = useNavigate();
 
-const Signup: React.FC<SignupProps> = ({ onSwitchToLogin, onSignup }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState<signupFormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadRoles();
+  }, []);
+
+  const loadRoles = async () => {
+    try {
+      const result = await roleService.searchRoles({ limit: 100, offset: 0 });
+      setRoles(result);
+    } catch (error) {
+      console.error("Error loading roles:", error);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === confirmPassword) {
-      onSignup(email, password, confirmPassword);
-    } else {
-      alert("Passwords don't match!");
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      delete formData.confirmPassword;
+      await authService.register(formData);
+      alert("Account created successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Error creating account:", error);
+      alert("Failed to create account!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>Create Account</h2>
-        <p className="login-subtitle">Join our Book Library community</p>
-        
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="signup-email">Email Address</label>
-            <input
-              type="email"
-              id="signup-email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="signup-password">Password</label>
-            <input
-              type="password"
-              id="signup-password"
-              placeholder="Create a password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+    <div className="signup-container">
+      <div className="signup-card">
+        <h2>Create an Account</h2>
+        <p className="signup-subtitle">Join our Book Library</p>
+
+        <form onSubmit={handleSubmit}>
+          {/* NAME ROW */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>First Name</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                placeholder="Enter first name"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                placeholder="Enter last name"
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input
-              type="password"
-              id="confirm-password"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+          {/* EMAIL + ROLE */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter email"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Select Role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              >
+                <option value="" disabled hidden>
+                  -- Select Role --
+                </option>
+
+                {roles.map((role) => (
+                  <option key={role._id} value={role._id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          
-          <button type="submit" className="login-button">
-            Create Account
+
+          {/* PASSWORD ROW */}
+          <div className="form-row">
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm password"
+                required
+              />
+            </div>
+          </div>
+
+          <button className="signup-button" disabled={loading}>
+            {loading ? "Processing..." : "Sign Up"}
           </button>
         </form>
-        
-        <div className="signup-section">
-          <p>Already have an account? 
-            <button 
-              type="button" 
-              className="signup-link"
-              onClick={onSwitchToLogin}
-            >
+
+        <div className="signup-footer">
+          <p>
+            Already have an account?{" "}
+            <button className="signup-link" onClick={() => navigate("/login")}>
               Sign In
             </button>
           </p>

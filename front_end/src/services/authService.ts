@@ -32,23 +32,19 @@ export const authService = {
 
   // Register new user
   async register(userData: {
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
-    role?: string;
+    role: string;
   }): Promise<LoginResponse> {
     try {
-      const data = await apiService.post("/auth/register", userData);
+      const data = await apiService.post("/auth/signup", userData);
 
-      if (data.success && data.user && data.token) {
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("refreshToken", data.refreshToken || "");
-
+      if (data.success && data.user ) {
         return {
           success: true,
-          user: data.user,
-          token: data.token,
+          user: data.data,
           message: data.message || "Registration successful!",
         };
       } else {
@@ -131,13 +127,13 @@ export const authService = {
 
   // Reset password
   async resetPassword(
-    token: string,
+    email: string,
     newPassword: string
   ): Promise<{ success: boolean; message: string }> {
     try {
       const data = await apiService.post("/auth/reset-password", {
-        token,
-        newPassword,
+        email,
+        password: newPassword,
       });
       return {
         success: data.success,

@@ -16,41 +16,10 @@ export const availablePermissions: { value: RolePermission; label: string }[] = 
 
 export const roleService = {
   // Get all roles
- async searchRoles(params: RoleSearchParams): Promise<{ 
-    roles: Role[]; 
-    total: number;
-    offset: number;
-    limit: number;
-  }> {
+ async searchRoles(params: RoleSearchParams) {
     try {
-      console.log('Advanced role search with params:', params);
-      
       const result = await apiService.post('/roles/search', params);
-      
-      // Handle different response structures
-      if (result && Array.isArray(result.data) && typeof result.total === 'number') {
-        return {
-          roles: result.data,
-          total: result.total,
-          offset: result.offset || 0,
-          limit: result.limit || result.data.length
-        };
-      } else if (Array.isArray(result)) {
-        return {
-          roles: result,
-          total: result.length,
-          offset: 0,
-          limit: result.length
-        };
-      } else {
-        console.warn('Unexpected search response structure:', result);
-        return {
-          roles: [],
-          total: 0,
-          offset: 0,
-          limit: 0
-        };
-      }
+       return result.data || [];
     } catch (error) {
       console.error('Error searching roles:', error);
       throw error;

@@ -40,12 +40,12 @@ const BooksSchema = new Schema<BooksModel>(
       ref: "categories",
       required: true,
     },
-    isbn: { type: String, required: true },
-    publisher: { type: String, required: true },
-    quantity: { type: Number, required: true },
+    isbn: { type: String },
+    publisher: { type: String },
+    quantity: { type: Number },
     description: { type: String },
     coverImage: { type: String },
-    status: { type: String, required: true, enum: BookStatusEnum },
+    status: { type: String, enum: BookStatusEnum },
   },
   { timestamps: true }
 );

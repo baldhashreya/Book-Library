@@ -65,7 +65,7 @@ const AboutMePage: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <span className="label">Name</span>
-                    <span className="value">{userData.userName || "N/A"}</span>
+                    <span className="value">{userData.firstName + " " + userData.lastName|| "N/A"}</span>
                   </div>
                   <div className="detail-item">
                     <span className="label">Email</span>

@@ -10,7 +10,7 @@ export type RolePermission =
   | 'view_borrow_history';
 
 export interface Role {
-  id: string;
+  _id: string;
   name: string;
   permissions: RolePermission[];
   description: string;

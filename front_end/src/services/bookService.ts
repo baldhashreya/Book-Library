@@ -1,12 +1,13 @@
 import type { Book, BookFormData } from '../types/book';
+import type { SearchParams } from '../types/role';
 import { apiService } from './api';
 
 export const bookService = {
   // Get all books
-  async getBooks(): Promise<Book[]> {
+  async searchBooks(params: SearchParams): Promise<Book[]> {
     try {
-      const data = await apiService.get('/books');
-      return data.books || [];
+      const result = await apiService.post('/books/search', params);
+      return result.data || [];
     } catch (error) {
       console.error('Error fetching books:', error);
       throw error;
