@@ -5,19 +5,25 @@ export const UserModel = {
   Create: {
     params: {},
     body: {
-      userName: Joi.string().required(),
+      firstName : Joi.string().required(),
+      lastName: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
+      address: Joi.string().required(),
+      phone: Joi.string().required(),
     },
     query: {},
   },
   Update: {
     params: { id: Joi.string().required() },
     body: {
-      userName: Joi.string().required(),
+      status: Joi.string().required().valid(...Object.values(UserStatusEnum)),
+      firstName : Joi.string().required(),
+      lastName: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
-      status: Joi.string().required().valid(...Object.values(UserStatusEnum)),
+      address: Joi.string().required(),
+      phone: Joi.string().required(),
     },
     query: {},
   },
@@ -42,9 +48,6 @@ export const UserModel = {
   UpdateStatus: {
     params: {
       id: Joi.string().required(),
-    },
-    body: {
-      status: Joi.string().required().valid(...Object.values(UserStatusEnum)),
     },
     query: {},
   },

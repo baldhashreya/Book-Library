@@ -19,7 +19,8 @@ const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    userName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     role: "",
     status: "active",
@@ -33,7 +34,7 @@ const UserModal: React.FC<UserModalProps> = ({
       loadRoles();
       setError("");
       if (mode === "edit" && user) {
-        console.log('📝 Setting form data for edit mode:', user);
+        console.log('Setting form data for edit mode:', user);
         
         // Extract role ID from user object - handle different data structures
         let roleId = "";
@@ -44,14 +45,16 @@ const UserModal: React.FC<UserModalProps> = ({
         }
         
         setFormData({
-          userName: user.userName,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
           role: roleId,
           status: user.status,
         });
       } else {
         setFormData({
-          userName: "",
+          firstName: "",
+          lastName: "",
           email: "",
           role: "",
           status: "active",
@@ -63,7 +66,7 @@ const UserModal: React.FC<UserModalProps> = ({
   const loadRoles = async () => {
     try {
       const rolesData = await userService.getRolesForDropdown();
-      console.log('📋 Loaded roles:', rolesData);
+      console.log('Loaded roles:', rolesData);
       setRoles(rolesData);
 
       // Set default role if adding new user and roles are available
@@ -101,8 +104,8 @@ const UserModal: React.FC<UserModalProps> = ({
 
     try {
       // Validate form
-      if (!formData.userName.trim()) {
-        setError("Username is required");
+      if (!formData.firstName.trim()) {
+        setError("firstName is required");
         return;
       }
 
@@ -121,34 +124,6 @@ const UserModal: React.FC<UserModalProps> = ({
       if (!emailRegex.test(formData.email)) {
         setError("Please enter a valid email address");
         return;
-      }
-
-      // Only check for duplicates if username changed
-      if (mode === "add" || (mode === "edit" && user && formData.userName !== user.userName)) {
-        const usernameExists = await userService.userExists(
-          "userName",
-          formData.userName,
-          mode === "edit" ? user?.id : undefined
-        );
-
-        if (usernameExists) {
-          setError("Username already exists");
-          return;
-        }
-      }
-
-      // Only check for duplicates if email changed
-      if (mode === "add" || (mode === "edit" && user && formData.email !== user.email)) {
-        const emailExists = await userService.userExists(
-          "email",
-          formData.email,
-          mode === "edit" ? user?.id : undefined
-        );
-
-        if (emailExists) {
-          setError("Email already exists");
-          return;
-        }
       }
 
       await onSave(formData);
@@ -205,19 +180,19 @@ const UserModal: React.FC<UserModalProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="userName">Username *</label>
+              <label htmlFor="firstName">First Name *</label>
               <input
                 type="text"
-                id="userName"
-                name="userName"
-                value={formData.userName}
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter username"
+                placeholder="Enter firstName"
                 maxLength={30}
               />
-              <div className="char-count">{formData.userName.length}/30</div>
+              <div className="char-count">{formData.firstName.length}/30</div>
             </div>
 
             <div className="form-group">

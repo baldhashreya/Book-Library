@@ -64,6 +64,6 @@ export class RolesServices {
   }
 
   public async getRoleById(id: string): Promise<RoleModel | null> {
-    return this.commonRepository.getRoleById(id as unknown as Types.ObjectId);
+    return this.commonRepository.getRoleById(id);
   }
 }

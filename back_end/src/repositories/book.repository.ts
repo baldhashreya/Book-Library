@@ -5,7 +5,7 @@ export class BooksRepository {
   public async getBookByTitle(title: string): Promise<BooksModel | null> {
     return Books.findOne({ title });
   }
-  public async createBook(bookData: BooksModel): Promise<BooksModel> {
+  public async createBook(bookData: BooksModel): Promise<BooksModel | any> {
     return Books.create(bookData);
   }
 
@@ -47,7 +47,8 @@ export class BooksRepository {
       order = { createdAt: -1 };
     }
 
-    return Books.find(query)
+    return Books.find(query).populate("author", "name")
+      .populate("category", "name")
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);

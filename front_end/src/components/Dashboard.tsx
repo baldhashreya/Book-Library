@@ -9,7 +9,7 @@ const Dashboard: React.FC = () => {
     <MainLayout>
       <div className="dashboard-content">
         <div className="welcome-section">
-          <h2>Welcome back, {user.userName}!</h2>
+          <h2>Welcome back, {user.firstName}!</h2>
           <p>Login successful! You are now on the dashboard.</p>
         </div>
       </div>

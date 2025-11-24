@@ -7,7 +7,6 @@ import {
   LibraryBig,
   LogOut,
   User,
-  ChevronDown,
   BookA,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -23,13 +22,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Set active menu based on current path
+  const getUserRole = () => {
+    const stored = localStorage.getItem("user");
+    if (!stored) return "";
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed?.role?.name?.toLowerCase() || "";
+    } catch {
+      return "";
+    }
+  };
+
+  const role = getUserRole();
+
   const getActiveMenu = () => {
     if (location.pathname === "/dashboard") return "dashboard";
     if (location.pathname === "/books") return "book";
     if (location.pathname === "/categories") return "category";
     if (location.pathname === "/users") return "users";
-    if (location.pathname === "/roles") return "roles";
     if (location.pathname === "/about-me") return "about-me";
     if (location.pathname === "/author") return "author";
     return "dashboard";
@@ -37,28 +47,53 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   const [activeMenu, setActiveMenu] = useState(getActiveMenu());
 
-  // Update active menu when location changes
   useEffect(() => {
     setActiveMenu(getActiveMenu());
   }, [location.pathname]);
 
-  const menuItems = [
+  /** ------------------------------------
+   * ROLE-BASED SIDEBAR CONTROL
+   * ------------------------------------*/
+  const allMenuItems = [
     {
       id: "dashboard",
       label: "Dashboard",
       icon: <LayoutDashboard />,
       path: "/dashboard",
+      roles: ["admin", "librarian", "member"],
     },
-    { id: "book", label: "Book", icon: <Book />, path: "/books" },
+    {
+      id: "book",
+      label: "Book",
+      icon: <Book />,
+      path: "/books",
+      roles: ["admin", "librarian", "member"],
+    },
     {
       id: "category",
       label: "Category",
       icon: <ChartColumnStacked />,
       path: "/categories",
+      roles: ["admin", "librarian"],
     },
-    { id: "author", label: "Author", icon: <BookA />, path: "/author" },
-    { id: "users", label: "Users", icon: <Users />, path: "/users" },
+    {
+      id: "author",
+      label: "Author",
+      icon: <BookA />,
+      path: "/author",
+      roles: ["admin", "librarian"],
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: <Users />,
+      path: "/users",
+      roles: ["admin", "librarian"],
+    },
   ];
+
+  // Filter sidebar based on role
+  const menuItems = allMenuItems.filter((item) => item.roles.includes(role));
 
   const handleMenuClick = (menuId: string, path: string) => {
     setActiveMenu(menuId);
@@ -68,6 +103,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    console.log("after logout");
     navigate("/login");
   };
 
@@ -75,23 +112,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     navigate("/about-me");
   };
 
-  // Get user data from localStorage as fallback
-  const getUserData = () => {
-    if (user) return user;
-
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
-    }
-
-    return { name: "User", email: "user@example.com" };
-  };
-
-  const currentUser = getUserData();
+  const currentUser = user ||
+    JSON.parse(localStorage.getItem("user") || "{}") || {
+      name: "User",
+      email: "user@example.com",
+    };
 
   return (
     <div className="main-layout">
@@ -144,10 +169,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <span className="profile-icon">
                 <User />
               </span>
-              <span className="profile-name">{currentUser.userName}</span>
-              <span className="dropdown-arrow">
-                <ChevronDown />
-              </span>
+              <span className="profile-name">{currentUser.firstName}</span>
             </button>
           </div>
         </header>

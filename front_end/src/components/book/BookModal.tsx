@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { Book, BookFormData } from '../../types/book';
-import { bookService } from '../../services/bookService';
 import './BookModal.css';
 import type { SearchParams } from '../../types/role';
+import { categoryService } from '../../services/categoryService';
+import type { Category } from '../../types/category';
+import { authorService } from '../../services/authorService';
+import type { Author } from '../../types/author';
 
 interface BookModalProps {
   isOpen: boolean;
@@ -17,25 +20,29 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
     title: '',
     author: '',
     category: '',
-    status: 'available',
+    status: 'AVAILABLE',
     isbn: '',
-    publishedYear: undefined,
+    publisher: undefined,
+    quantity: 1,
     description: ''
   });
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       loadCategories();
+      loadAuthors();
       if (mode === 'edit' && book) {
         setFormData({
           title: book.title,
-          author: book.author,
-          category: book.category,
+          author: typeof book.author === "object" ? book.author._id : book.author,
+          category: typeof book.category === "object" ? book.category._id : book.category,
           status: book.status,
           isbn: book.isbn || '',
-          publishedYear: book.publishedYear,
+          publisher: book.publisher,
+          quantity: book.quantity,
           description: book.description || ''
         });
       } else {
@@ -43,10 +50,11 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
           title: '',
           author: '',
           category: '',
-          status: 'available',
+          status: 'AVAILABLE',
           isbn: '',
-          publishedYear: undefined,
-          description: ''
+          publisher: undefined,
+          description: '',
+          quantity: 1
         });
       }
     }
@@ -54,8 +62,17 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
 
   const loadCategories = async () => {
     try {
-      const cats = await bookService.searchCategories({ limit: 100, offset: 0 } as SearchParams);
+      const cats = await categoryService.searchCategories({ limit: 100, offset: 0 } as SearchParams);
       setCategories(cats);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  const loadAuthors = async () => {
+    try {
+      const authorData = await authorService.searchAuthors({ limit: 100, offset: 0 } as SearchParams);
+      setAuthors(authorData);
     } catch (error) {
       console.error('Error loading categories:', error);
     }
@@ -117,15 +134,19 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
 
             <div className="form-group">
               <label htmlFor="author">Author *</label>
-              <input
-                type="text"
+              <select
                 id="author"
                 name="author"
                 value={formData.author}
                 onChange={handleChange}
                 required
                 disabled={loading}
-              />
+              >
+                <option value="" disabled hidden>-- Select Author --</option>
+                {authors.map(cat => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -140,11 +161,10 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
                 required
                 disabled={loading}
               >
-                <option value="">Select Category</option>
+                <option value="" disabled hidden>-- Select Category --</option>
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
                 ))}
-                <option value="other">Other (please specify in description)</option>
               </select>
             </div>
 
@@ -158,13 +178,13 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
                 required
                 disabled={loading}
               >
-                <option value="available">Available</option>
-                <option value="borrowed">Borrowed</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="CHECKED_OUT">Borrowed</option>
+                <option value="RESERVED">Maintenance</option>
+                <option value="LOST">Lost</option>
               </select>
             </div>
           </div>
-
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="isbn">ISBN</label>
@@ -180,17 +200,30 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
             </div>
 
             <div className="form-group">
-              <label htmlFor="publishedYear">Published Year</label>
+              <label htmlFor="publisher">Published Year</label>
               <input
                 type="number"
-                id="publishedYear"
-                name="publishedYear"
-                value={formData.publishedYear || ''}
+                id="publisher"
+                name="publisher"
+                value={formData.publisher || ''}
                 onChange={handleNumberChange}
                 disabled={loading}
                 min="1000"
                 max="2024"
                 placeholder="Optional"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="Quantity">Quantity</label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity || 1}
+                onChange={handleNumberChange}
+                disabled={loading}
+                min="1"
               />
             </div>
           </div>

@@ -12,15 +12,23 @@ export class AuthorizationServices {
   constructor(
     private readonly authorizationRepository: AuthorizationRepository,
     private readonly commonRepository: CommonRepository,
-    private readonly usersService: UsersServices
   ) {
     this.authorizationRepository = authorizationRepository;
     this.commonRepository = commonRepository;
-    this.usersService = usersService;
   }
 
   public async signUpUser(params: UsersModel): Promise<UsersModel> {
-    const usersModel = await this.usersService.createUser(params);
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      params.email
+    );
+    if (existingUser) {
+      const err = new Error();
+      err.name = ErrorType.InvalidCredentials;
+      return Promise.reject(err);
+    }
+    params.password = await hashPassword(params.password || "");
+    params.status = UserStatusEnum.ACTIVE;
+    const usersModel = await this.commonRepository.createUser(params);
     return usersModel;
   }
 
@@ -30,6 +38,7 @@ export class AuthorizationServices {
     const existingUser = await this.authorizationRepository.getUserByEmail(
       params.email
     );
+    console.log(existingUser);
     if (!existingUser) {
       const err = new Error();
       err.name = ErrorType.InvalidCredentials;
@@ -45,6 +54,7 @@ export class AuthorizationServices {
       existingUser.password || "",
       params.password || ""
     );
+    console.log(passwordVerified);
     if (!passwordVerified) {
       const err = new Error();
       err.name = ErrorType.UserIsInactive;
@@ -112,9 +122,11 @@ export class AuthorizationServices {
 
   public async resetPassword(
     password: string,
-    id: string
+    email: string
   ): Promise<UpdateResult | any> {
-    const existingUser = await this.commonRepository.getUserById(id);
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      email
+    );
     if (!existingUser) {
       const err = new Error();
       err.name = ErrorType.UserNotFound;

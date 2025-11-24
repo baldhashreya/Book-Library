@@ -77,8 +77,7 @@ export class UsersControllers {
   ): Promise<Response> => {
     addLog(LogLevel.info, "update User Status", req.body);
     const result = await this.usersServices.updateUserStatus(
-      req.params.id as string,
-      req.body.status
+      req.params.id as string
     );
     return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
   };

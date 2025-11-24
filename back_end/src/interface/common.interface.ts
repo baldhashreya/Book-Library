@@ -1,4 +1,4 @@
-import { RolePermission } from "../../common/enum";
+import { RolePermission, UserStatusEnum } from "../../common/enum";
 import { SearchParams } from "../../common/interface";
 
 export interface RolesSearchParams extends SearchParams {
@@ -24,4 +24,15 @@ export interface AuthorsSearchParams extends SearchParams {
   bio?: string;
   start_birth_date?: Date;
   end_birth_date?: Date;
+}
+
+export interface UpsertUsersModel{
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
+  role: string;
+  phone: string;
+  status: UserStatusEnum;
+  address: string;
 }

@@ -1,0 +1,86 @@
+import { Request, Response } from "express";
+import { BooksService } from "../services/book.service";
+import { baseController } from "../../common/base-controller";
+import { addLog } from "../../common/logger";
+import { BooksOperations, HttpStatusCode, LogLevel } from "../../common/enum";
+
+export class BookController {
+  constructor(private readonly booksService: BooksService) {
+    this.booksService = booksService;
+  }
+
+  public createBook = async (
+    req: Request,
+    res: Response
+  ) => {
+    addLog(LogLevel.info, "create Book", req.body);
+    const newBook = await this.booksService.createBook(req.body);
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      newBook,
+      BooksOperations.CREATE
+    );
+  };
+
+  public updateBook = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "update Book", req.body);
+    const updatedBook = await this.booksService.updateBook(
+      req.params.id as string,
+      req.body
+    );
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      updatedBook,
+      BooksOperations.UPDATED
+    );
+  };
+
+  public searchBooks = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "search Book", req.body);
+    const books = await this.booksService.searchBooks(req.body);
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      books,
+      BooksOperations.SEARCH
+    );
+  };
+
+  public deleteBook = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "delete Book", req.body);
+    const deletedBook = await this.booksService.deleteBook(
+      req.params.id as string
+    );
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      deletedBook,
+      BooksOperations.DELETED
+    );
+  };
+
+  public getBookById = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "get Book", req.body);
+    const book = await this.booksService.getBookById(req.params.id as string);
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      book,
+      BooksOperations.SEARCH
+    );
+  };
+}

@@ -17,7 +17,8 @@ export const AuthorizationModel = {
   signup: {
     params: {},
     body: {
-      userName: Joi.string().required(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
       email: Joi.string().email().required(),
       password: Joi.string().required(),
       role: Joi.string().required(),
@@ -32,9 +33,10 @@ export const AuthorizationModel = {
     query: {},
   },
   resetPassword: {
-    params: { id: Joi.string().required() },
+    params: {},
     body: {
       password: Joi.string().required(),
+      email: Joi.string().email().required(),
     },
     query: {},
   },

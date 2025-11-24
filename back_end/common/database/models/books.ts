@@ -20,7 +20,7 @@ export interface BooksModel {
   author: Types.ObjectId;
   category: Types.ObjectId;
   isbn: string;
-  publisher: string;
+  publisher: number;
   quantity: number;
   description: string;
   coverImage: string;
@@ -40,12 +40,12 @@ const BooksSchema = new Schema<BooksModel>(
       ref: "categories",
       required: true,
     },
-    isbn: { type: String, required: true },
-    publisher: { type: String, required: true },
-    quantity: { type: Number, required: true },
+    isbn: { type: String },
+    publisher: { type: Number },
+    quantity: { type: Number },
     description: { type: String },
     coverImage: { type: String },
-    status: { type: String, required: true, enum: BookStatusEnum },
+    status: { type: String, enum: BookStatusEnum },
   },
   { timestamps: true }
 );

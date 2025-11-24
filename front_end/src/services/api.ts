@@ -82,6 +82,25 @@ class ApiService {
 
     return await response.json();
   }
+
+  async patch(endpoint:string, formData:FormData) {
+    const token = localStorage.getItem('authToken');
+    const url = `${API_BASE_URL}${endpoint}`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        ...(token && { 'Authorization': `${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Update change status failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  }
 }
 
 export const apiService = new ApiService();

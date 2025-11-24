@@ -1,4 +1,4 @@
-import React, { type JSX } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,25 +6,40 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+
 import Login from "./components/credentials/Login";
+import Signup from "./components/credentials/Signup";
 import Dashboard from "./components/Dashboard";
 import BookPage from "./components/book/BookPage";
 import CategoryPage from "./components/category/CategoryPage";
 import UserPage from "./components/users/UserPage";
-// import RolePage from "./components/role/RolePage";
 import AboutMePage from "./components/aboutMe/AboutMePage";
-import "./App.css";
 import AuthorPage from "./components/Author/AuthorPage";
+import "./App.css";
 
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
 };
-const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
-  const location = useLocation();
-  const authenticated = isAuthenticated();
 
-  if (!authenticated) {
-    // Redirect to login and remember where the user wanted to go
+const getUserRole = () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const role = user?.role?.name || "";
+
+    return String(role).trim().toLowerCase();
+  } catch {
+    return "";
+  }
+};
+
+const ProtectedRoute: React.FC<{ element: JSX.Element; roles?: string[] }> = ({
+  element,
+  roles,
+}) => {
+  const location = useLocation();
+  const auth = isAuthenticated();
+  // user not logged in?
+  if (!auth) {
     return (
       <Navigate
         to="/login"
@@ -34,72 +49,94 @@ const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
     );
   }
 
+  const userRole = getUserRole();
+  console.log("User Role:", userRole);
+  if (roles && !roles.includes(userRole)) {
+    console.log("Access Denied. Allowed:", roles);
+    return (
+      <Navigate
+        to="/dashboard"
+        replace
+      />
+    );
+  }
+
   return element;
 };
 
+// ---------------- APP ----------------
 const App: React.FC = () => {
-  console.log("App component rendered");
   return (
     <Router>
-      <div className="App">
-        <Routes>
-          {/* Public Route */}
-          <Route
-            path="/login"
-            element={
-              isAuthenticated() ? (
-                <Navigate
-                  to="/dashboard"
-                  replace
-                />
-              ) : (
-                <Login />
-              )
-            }
-          />
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={<ProtectedRoute element={<Dashboard />} />}
-          />
-          <Route
-            path="/books"
-            element={<ProtectedRoute element={<BookPage />} />}
-          />
-          <Route
-            path="/categories"
-            element={<ProtectedRoute element={<CategoryPage />} />}
-          />
-          <Route
-            path="/users"
-            element={<ProtectedRoute element={<UserPage />} />}
-          />
-          <Route
-            path="/author"
-            element={<ProtectedRoute element={<AuthorPage />} />}
-          />
-          {/* <Route
-            path="/roles"
-            element={<ProtectedRoute element={<RolePage />} />}
-          /> */}
-          <Route
-            path="/about-me"
-            element={<ProtectedRoute element={<AboutMePage />} />}
-          />
+        <Route
+          path="/signup"
+          element={<Signup />}
+        />
 
-          {/* Default redirect */}
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to="/dashboard"
-                replace
-              />
-            }
-          />
-        </Routes>
-      </div>
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute element={<Dashboard />} />}
+        />
+
+        <Route
+          path="/books"
+          element={<ProtectedRoute element={<BookPage />} />}
+        />
+
+        <Route
+          path="/categories"
+          element={
+            <ProtectedRoute
+              element={<CategoryPage />}
+              roles={["admin", "librarian"]}
+            />
+          }
+        />
+
+        <Route
+          path="/author"
+          element={
+            <ProtectedRoute
+              element={<AuthorPage />}
+              roles={["admin", "librarian"]}
+            />
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute
+              element={<UserPage />}
+              roles={["admin", "librarian"]}
+            />
+          }
+        />
+
+        <Route
+          path="/about-me"
+          element={<ProtectedRoute element={<AboutMePage />} />}
+        />
+
+        {/* Default */}
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to="/login"
+              replace
+            />
+          }
+        />
+      </Routes>
     </Router>
   );
 };
