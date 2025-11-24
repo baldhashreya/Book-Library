@@ -21,7 +21,6 @@ const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
 };
 
-
 const getUserRole = () => {
   try {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -38,9 +37,9 @@ const ProtectedRoute: React.FC<{ element: JSX.Element; roles?: string[] }> = ({
   roles,
 }) => {
   const location = useLocation();
-
+  const auth = isAuthenticated();
   // user not logged in?
-  if (!isAuthenticated()) {
+  if (!auth) {
     return (
       <Navigate
         to="/login"
@@ -73,16 +72,7 @@ const App: React.FC = () => {
         {/* Public Routes */}
         <Route
           path="/login"
-          element={
-            isAuthenticated() ? (
-              <Navigate
-                to="/dashboard"
-                replace
-              />
-            ) : (
-              <Login />
-            )
-          }
+          element={<Login />}
         />
 
         <Route
@@ -126,7 +116,7 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute
               element={<UserPage />}
-              roles={["admin"]}
+              roles={["admin", "librarian"]}
             />
           }
         />

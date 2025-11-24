@@ -10,12 +10,12 @@ export const BooksModel = {
       category: Joi.string().required(),
       description: Joi.string().required(),
       isbn: Joi.string().allow(null, ""),
-      publisher: Joi.string().allow(null, ""),
-      quantity: Joi.number().allow(null, ""),
+      publisher: Joi.number().allow(null, "").required(),
+      quantity: Joi.number().allow(null, "").required(),
       coverImage: Joi.string().allow(null, ""),
       status: Joi.string()
         .required()
-        .valid(...Object.values(BookStatusEnum)),
+        .valid(...Object.values(BookStatusEnum)).required(),
     },
     query: {},
   },
@@ -29,12 +29,12 @@ export const BooksModel = {
       category: Joi.string().required(),
       description: Joi.string().required(),
       isbn: Joi.string(),
-      publisher: Joi.string(),
-      quantity: Joi.number(),
+      publisher: Joi.number().required(),
+      quantity: Joi.number().required(),
       coverImage: Joi.string(),
       status: Joi.string()
         .required()
-        .valid(...Object.values(BookStatusEnum)),
+        .valid(...Object.values(BookStatusEnum)).required(),
     },
     query: {},
   },
@@ -53,7 +53,7 @@ export const BooksModel = {
       category: Joi.string().optional(),
       description: Joi.string().optional(),
       isbn: Joi.string().optional(),
-      publisher: Joi.string().optional(),
+      publisher: Joi.number().optional(),
       quantity: Joi.number().optional(),
       coverImage: Joi.string().optional(),
       status: Joi.string()

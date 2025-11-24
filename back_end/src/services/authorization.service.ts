@@ -12,11 +12,9 @@ export class AuthorizationServices {
   constructor(
     private readonly authorizationRepository: AuthorizationRepository,
     private readonly commonRepository: CommonRepository,
-    private readonly usersService: UsersServices
   ) {
     this.authorizationRepository = authorizationRepository;
     this.commonRepository = commonRepository;
-    this.usersService = usersService;
   }
 
   public async signUpUser(params: UsersModel): Promise<UsersModel> {
@@ -30,7 +28,7 @@ export class AuthorizationServices {
     }
     params.password = await hashPassword(params.password || "");
     params.status = UserStatusEnum.ACTIVE;
-    const usersModel = await this.usersService.createUser(params);
+    const usersModel = await this.commonRepository.createUser(params);
     return usersModel;
   }
 

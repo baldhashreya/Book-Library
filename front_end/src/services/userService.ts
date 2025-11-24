@@ -36,8 +36,8 @@ export const userService = {
   async getUserById(id: string): Promise<User | null> {
     try {
       console.log(`userService.getUserById(${id}) called`);
-      const data = await apiService.get(`/users/${id}`);
-      return data.user || null;
+      const result = await apiService.get(`/users/${id}`);
+      return result.data || null;
     } catch (error) {
       console.error('Error fetching user:', error);
       throw error;
@@ -68,8 +68,8 @@ export const userService = {
     }
   },
 
-  // Delete user
   async deleteUser(id: string): Promise<void> {
+  // Delete user
     try {
       console.log(`userService.deleteUser(${id}) called`);
       await apiService.delete(`/users/${id}`);
@@ -91,6 +91,16 @@ export const userService = {
     } catch (error) {
       console.error('Error fetching roles:', error);
       return [];
+    }
+  },
+
+  async changeUserStatus(id:string) :Promise<void> {
+    try {
+      console.log(`userService.changeUserStatus(${id}) called`);
+      await apiService.patch(`/users/${id}/status`,{} as FormData);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
     }
   }
 };

@@ -8,10 +8,12 @@ Librarian: Manages books, members, and borrowing transactions.
 Member: Searches for books, requests to borrow, and tracks borrowed items.
 
 Core Features
+-----------------------------------  DONE  ----------------------------------------------------
 1. User & Access Management
   Secure login and role-based authorization.
   Permission control for Admin, Librarian, and Member roles.
 
+-------------------------------------  PAGINATION REMAIN  --------------------------------------------
 2. Book Management
   CRUD operations for books: title, author, category, ISBN, publisher, quantity, and description.
   Category management: add, edit, or deactivate categories.

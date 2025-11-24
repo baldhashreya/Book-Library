@@ -3,7 +3,6 @@ import { AuthorizationController } from "../src/controllers/authorization.contro
 import { AuthorizationServices } from "../src/services/authorization.service";
 import { AuthorizationRepository } from "../src/repositories/authorization.repository";
 import { CommonRepository } from "../src/repositories/common.repository";
-import { UsersServices } from "../src/services/users.service";
 import { UsersRepository } from "../src/repositories/users.repository";
 import { AuthorizationModel } from "../src/models/authorization.model";
 import { celebrate } from "celebrate";
@@ -11,12 +10,9 @@ import { celebrate } from "celebrate";
 const router = Express.Router();
 const authorizationRepository = new AuthorizationRepository();
 const commonRepository = new CommonRepository();
-const usersRepository = new UsersRepository();
-const userServices = new UsersServices(usersRepository, commonRepository);
 const authorizationServices = new AuthorizationServices(
   authorizationRepository,
-  commonRepository,
-  userServices
+  commonRepository
 );
 const authorizationController = new AuthorizationController(
   authorizationServices
@@ -33,7 +29,7 @@ router.patch(
   celebrate(refreshToken),
   authorizationController.refreshToken
 );
-router.patch(
+router.post(
   "/reset-password",
   celebrate(resetPassword),
   authorizationController.resetPassword

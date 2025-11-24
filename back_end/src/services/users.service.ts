@@ -6,7 +6,10 @@ import { UsersRepository } from "../repositories/users.repository";
 import { hashPassword } from "../../common/common-functions";
 import fs from "fs";
 import path from "path";
-import { UsersSearchParams } from "../interface/common.interface";
+import {
+  UpsertUsersModel,
+  UsersSearchParams,
+} from "../interface/common.interface";
 import { addLog } from "../../common/logger";
 
 export class UsersServices {
@@ -58,23 +61,42 @@ export class UsersServices {
     }
   }
 
-  public async createUser(params: UsersModel): Promise<UsersModel> {
+  public async createUser(params: UpsertUsersModel): Promise<UsersModel> {
     await this.validateRequestModel(params);
     if (params.password) {
       params.password = await hashPassword(params.password);
     }
-    return this.usersRepository.createUser({
-      ...params,
+    const model = {
+      firstName: params.firstName,
+      lastName: params.lastName,
+      email: params.email,
+      role: params.role  as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
-    } as UsersModel);
+      contactInfo: {
+        phone: params.phone,
+        address: params.address,
+      },
+    } as UsersModel;
+    return this.commonRepository.createUser(model);
   }
 
   public async updateUser(
-    params: UsersModel,
+    params: UpsertUsersModel,
     id: string
   ): Promise<UpdateResult> {
     await this.validateRequestModel(params, id);
-    return this.commonRepository.updateUser(params, id);
+    const model = {
+      firstName: params.firstName,
+      lastName: params.lastName,
+      email: params.email,
+      role: params.role  as unknown as Types.ObjectId,
+      status: UserStatusEnum.ACTIVE,
+      contactInfo: {
+        phone: params.phone,
+        address: params.address,
+      },
+    } as UsersModel;
+    return this.commonRepository.updateUser(model, id);
   }
 
   public async deleteUser(id: string): Promise<UsersModel | null> {
@@ -95,7 +117,10 @@ export class UsersServices {
     return this.commonRepository.getUserById(id);
   }
 
-  private async validateRequestModel(usersModel: UsersModel, id?: string) {
+  private async validateRequestModel(
+    usersModel: UpsertUsersModel,
+    id?: string
+  ) {
     if (id) {
       const userExist = await this.commonRepository.getUserById(id);
 
@@ -135,10 +160,7 @@ export class UsersServices {
     return true;
   }
 
-  public async updateUserStatus(
-    id: string,
-    status: UserStatusEnum
-  ): Promise<UpdateResult> {
+  public async updateUserStatus(id: string): Promise<UpdateResult> {
     const userExist = await this.commonRepository.getUserById(id);
 
     if (!userExist) {
@@ -146,6 +168,14 @@ export class UsersServices {
       err.name = ErrorType.UserNotFound;
       return Promise.reject(err);
     }
-    return this.commonRepository.updateUser({ status } as UsersModel, id);
+    return this.commonRepository.updateUser(
+      {
+        status:
+          userExist.status === UserStatusEnum.ACTIVE
+            ? UserStatusEnum.IN_ACTIVE
+            : UserStatusEnum.ACTIVE,
+      } as UsersModel,
+      id
+    );
   }
 }

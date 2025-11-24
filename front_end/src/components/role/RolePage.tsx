@@ -126,34 +126,6 @@ const UserModal: React.FC<UserModalProps> = ({
         return;
       }
 
-      // Only check for duplicates if username changed
-      if (mode === "add" || (mode === "edit" && user)) {
-        const usernameExists = await userService.userExists(
-          "userName",
-          formData.userName,
-          mode === "edit" ? user?.id : undefined
-        );
-
-        if (usernameExists) {
-          setError("Username already exists");
-          return;
-        }
-      }
-
-      // Only check for duplicates if email changed
-      if (mode === "add" || (mode === "edit" && user && formData.email !== user.email)) {
-        const emailExists = await userService.userExists(
-          "email",
-          formData.email,
-          mode === "edit" ? user?.id : undefined
-        );
-
-        if (emailExists) {
-          setError("Email already exists");
-          return;
-        }
-      }
-
       await onSave(formData);
       onClose();
     } catch (error) {
@@ -208,19 +180,19 @@ const UserModal: React.FC<UserModalProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="userName">First Name *</label>
+              <label htmlFor="firstName">First Name *</label>
               <input
                 type="text"
-                id="userName"
-                name="userName"
-                value={formData.userName}
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter username"
+                placeholder="Enter firstName"
                 maxLength={30}
               />
-              <div className="char-count">{formData.userName.length}/30</div>
+              <div className="char-count">{formData.firstName.length}/30</div>
             </div>
 
             <div className="form-group">

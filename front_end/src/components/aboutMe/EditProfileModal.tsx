@@ -1,24 +1,23 @@
 import React, { useState, useEffect } from "react";
 import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
-import "./UserModal.css";
+import "../users/UserModal.css";
 
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (userData: UserFormData) => void;
-  user?: User | null;
-  mode: "add" | "edit";
+  user: User;
 }
 
-const UserModal: React.FC<UserModalProps> = ({
+const EditProfileModal: React.FC<UserModalProps> = ({
   isOpen,
   onClose,
   onSave,
   user,
-  mode,
 }) => {
-  const [formData, setFormData] = useState<UserFormData>({
+    console.log(user);
+  const [formData, setFormData] = useState<any>({
     firstName: "",
     lastName: "",
     email: "",
@@ -35,38 +34,22 @@ const UserModal: React.FC<UserModalProps> = ({
     if (isOpen) {
       loadRoles();
       setError("");
-      if (mode === "edit" && user) {
-        setFormData({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role._id,
-          status: user.status,
-          phone: user.phone,
-          address: user.address,
-        });
-      } else {
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          role: "",
-          phone: 0,
-          address: "",
-        });
-      }
+      setFormData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role._id,
+        status: user.status,
+        phone: user.contactInfo.phone,
+        address: user.contactInfo.address,
+      });
     }
-  }, [isOpen, mode, user]);
+  }, [isOpen, user]);
 
   const loadRoles = async () => {
     try {
       const rolesData = await userService.getRolesForDropdown();
       setRoles(rolesData);
-
-      // Set default role if adding new user and roles are available
-      if (mode === "add" && rolesData.length > 0 && !formData.role) {
-        setFormData((prev) => ({ ...prev, role: rolesData[0].value }));
-      }
     } catch (error) {
       console.error("Error loading roles:", error);
     }
@@ -134,7 +117,7 @@ const UserModal: React.FC<UserModalProps> = ({
     <div className="modal-overlay">
       <div className="modal-content-user">
         <div className="modal-header">
-          <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
+          <h2>Edit User</h2>
           <button
             className="close-button"
             onClick={onClose}
@@ -229,22 +212,20 @@ const UserModal: React.FC<UserModalProps> = ({
                 placeholder="Enter email address"
               />
             </div>
-            {mode === "edit" && user && (
-              <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            )}
+            <div className="form-group">
+              <label htmlFor="status">Status *</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
 
             <div className="form-group">
               <label htmlFor="phone">Phone *</label>
@@ -289,11 +270,7 @@ const UserModal: React.FC<UserModalProps> = ({
               type="submit"
               disabled={loading}
             >
-              {loading
-                ? "Saving..."
-                : mode === "add"
-                ? "Add User"
-                : "Update User"}
+              Update User
             </button>
           </div>
         </form>
@@ -302,4 +279,4 @@ const UserModal: React.FC<UserModalProps> = ({
   );
 };
 
-export default UserModal;
+export default EditProfileModal;

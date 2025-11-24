@@ -140,9 +140,9 @@ const BookPage: React.FC = () => {
                       <td>
                         <div className="book-title">
                           <strong>{book.title}</strong>
-                          {book.publishedYear && (
+                          {book.publisher && (
                             <span className="book-year">
-                              ({book.publishedYear})
+                              ({book.publisher})
                             </span>
                           )}
                         </div>

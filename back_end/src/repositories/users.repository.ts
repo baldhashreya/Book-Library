@@ -5,9 +5,6 @@ export class UsersRepository {
   public async createUsers(param: UsersModel[]): Promise<void> {
     await Users.insertMany(param);
   }
-  public async createUser(param: UsersModel): Promise<UsersModel> {
-    return Users.create(param);
-  }
 
   public async deleteUser(id: string): Promise<UsersModel | null> {
     return Users.findByIdAndDelete({ _id: id });

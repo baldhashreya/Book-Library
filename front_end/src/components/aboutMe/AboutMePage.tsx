@@ -3,11 +3,18 @@ import { Pencil, Lock } from "lucide-react";
 import MainLayout from "../MainLayout";
 import { useAuth } from "../../contexts/AuthContext";
 import "./AboutMePage.css";
+import EditProfileModal from "./EditProfileModal";
+import ChangePasswordModal from "./ChangePasswordModal";
+import { userService } from "../../services/userService";
+import type { UserFormData } from "../../types/user";
+import { authService } from "../../services/authService";
 
 const AboutMePage: React.FC = () => {
   const { user } = useAuth();
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -19,8 +26,6 @@ const AboutMePage: React.FC = () => {
             currentUser = JSON.parse(userStr);
           }
         }
-
-        // Optionally fetch fresh data from API
         setUserData(currentUser);
       } catch (error) {
         console.error("Error fetching user info:", error);
@@ -31,6 +36,27 @@ const AboutMePage: React.FC = () => {
 
     fetchUser();
   }, [user]);
+
+  const handleUpdateProfile = async (updatedData: UserFormData) => {
+    try {
+      await userService.updateUser(userData._id, updatedData);
+      const response = await userService.getUserById(userData._id);
+      localStorage.setItem("user", JSON.stringify(response));
+      setUserData(response);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
+  const handleUpdatePassword = async (password: string) => {
+    try {
+      const userModel = JSON.parse(localStorage.getItem("user"));
+      await authService.resetPassword(userModel.email, password);
+      setUserData(userModel);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -65,7 +91,9 @@ const AboutMePage: React.FC = () => {
                 <div className="detail-grid">
                   <div className="detail-item">
                     <span className="label">Name</span>
-                    <span className="value">{userData.firstName + " " + userData.lastName|| "N/A"}</span>
+                    <span className="value">
+                      {userData.firstName + " " + userData.lastName || "N/A"}
+                    </span>
                   </div>
                   <div className="detail-item">
                     <span className="label">Email</span>
@@ -83,20 +111,58 @@ const AboutMePage: React.FC = () => {
                       {userData.status === "active" ? "Active" : "Inactive"}
                     </span>
                   </div>
+                  <div className="detail-item">
+                    <span className="label">Phone</span>
+                    <span className="value">{userData.contactInfo.phone}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="label">Address</span>
+                    <span className="value">
+                      {userData.contactInfo.address}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <div className="detail-section">
                 <h3>Quick Actions</h3>
                 <div className="action-buttons">
-                  <button className="action-btn primary"><Pencil /> Edit Profile</button>
-                  <button className="action-btn secondary"><Lock /> Change Password</button>
+                  <div className="action-buttons">
+                    <button
+                      className="action-btn primary"
+                      onClick={() => setIsEditOpen(true)}
+                    >
+                      <Pencil /> Edit Profile
+                    </button>
+
+                    <button
+                      className="action-btn secondary"
+                      onClick={() => setIsPasswordOpen(true)}
+                    >
+                      <Lock /> Change Password
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {isEditOpen && (
+        <EditProfileModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          user={userData}
+          onSave={(updatedData) => handleUpdateProfile(updatedData)}
+        />
+      )}
+
+      {isPasswordOpen && (
+        <ChangePasswordModal
+          onClose={() => setIsPasswordOpen(false)}
+          onSave={(data) => handleUpdatePassword(data)}
+        />
+      )}
     </MainLayout>
   );
 };

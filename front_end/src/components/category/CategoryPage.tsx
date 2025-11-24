@@ -99,6 +99,20 @@ const CategoryPage: React.FC = () => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      ACTIVE: { class: "status-active", text: "Active" },
+      IN_ACTIVE: { class: "status-inactive", text: "In active" },
+    };
+
+    const config =
+      statusConfig[status as keyof typeof statusConfig] ||
+      statusConfig.ACTIVE;
+    return (
+      <span className={`status-badge ${config.class}`}>{config.text}</span>
+    );
+  };
+
   const filteredCategories = categories;
 
   return (
@@ -136,6 +150,7 @@ const CategoryPage: React.FC = () => {
                   <tr>
                     <th>Category Name</th>
                     <th>Description</th>
+                    <th>Status</th>
                     <th>Books Count</th>
                     <th>Actions</th>
                   </tr>
@@ -153,6 +168,7 @@ const CategoryPage: React.FC = () => {
                           {category.description || "No description"}
                         </div>
                       </td>
+                      <td>{getStatusBadge(category.status)}</td>
                       <td>
                         <div className="book-count">
                           <span

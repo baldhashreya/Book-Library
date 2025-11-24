@@ -130,6 +130,7 @@ export const authService = {
     email: string,
     newPassword: string
   ): Promise<{ success: boolean; message: string }> {
+    console.log("email:::::::::::",email);
     try {
       const data = await apiService.post("/auth/reset-password", {
         email,

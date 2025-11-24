@@ -20,6 +20,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   const [formData, setFormData] = useState<CategoryFormData>({
     name: "",
     description: "",
+    status: "ACTIVE"
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,18 +32,20 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         setFormData({
           name: category.name,
           description: category.description || "",
+          status: category.status || "ACTIVE"
         });
       } else {
         setFormData({
           name: "",
           description: "",
+          status: "ACTIVE"
         });
       }
     }
   }, [isOpen, mode, category]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -68,6 +71,11 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
       if (!formData.description.trim()) {
         setError("Category description is required");
+        return;
+      }
+
+      if(formData.status !== "ACTIVE" && formData.status !== "IN_ACTIVE") {
+        setError("Category status is required");
         return;
       }
       await onSave(formData);
@@ -115,6 +123,21 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               maxLength={50}
             />
             <div className="char-count">{formData.name.length}/50</div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="status">Status *</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              >
+                <option value="ACTIVE">Active</option>
+                <option value="IN_ACTIVE">Inactive</option>
+              </select>
           </div>
 
           <div className="form-group">

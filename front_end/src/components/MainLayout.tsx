@@ -7,7 +7,6 @@ import {
   LibraryBig,
   LogOut,
   User,
-  ChevronDown,
   BookA,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -75,28 +74,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: "Category",
       icon: <ChartColumnStacked />,
       path: "/categories",
-      roles: ["admin", "librarian"], // librarian + admin only
+      roles: ["admin", "librarian"],
     },
     {
       id: "author",
       label: "Author",
       icon: <BookA />,
       path: "/author",
-      roles: ["admin", "librarian", "member"],
+      roles: ["admin", "librarian"],
     },
     {
       id: "users",
       label: "Users",
       icon: <Users />,
       path: "/users",
-      roles: ["admin"], // admin only
+      roles: ["admin", "librarian"],
     },
   ];
 
   // Filter sidebar based on role
-  const menuItems = allMenuItems.filter((item) =>
-    item.roles.includes(role)
-  );
+  const menuItems = allMenuItems.filter((item) => item.roles.includes(role));
 
   const handleMenuClick = (menuId: string, path: string) => {
     setActiveMenu(menuId);
@@ -107,6 +104,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    console.log("after logout");
     navigate("/login");
   };
 
@@ -114,8 +112,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     navigate("/about-me");
   };
 
-  const currentUser =
-    user ||
+  const currentUser = user ||
     JSON.parse(localStorage.getItem("user") || "{}") || {
       name: "User",
       email: "user@example.com",
@@ -144,8 +141,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="nav-icon"><LogOut /></span>
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            <span className="nav-icon">
+              <LogOut />
+            </span>
             <span className="nav-label">Logout</span>
           </button>
         </div>
@@ -160,10 +162,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </h1>
           </div>
           <div className="header-right">
-            <button className="profile-btn" onClick={handleProfileClick}>
-              <span className="profile-icon"><User /></span>
+            <button
+              className="profile-btn"
+              onClick={handleProfileClick}
+            >
+              <span className="profile-icon">
+                <User />
+              </span>
               <span className="profile-name">{currentUser.firstName}</span>
-              <span className="dropdown-arrow"><ChevronDown /></span>
             </button>
           </div>
         </header>

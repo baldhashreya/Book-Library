@@ -14,8 +14,8 @@ export const CategoriesModel = {
     params: { id: Joi.string().required() },
     body: {
       name: Joi.string().required(),
-      description: Joi.string(),
-      status: Joi.string().valid(...Object.values(UserStatusEnum)),
+      description: Joi.string().required(),
+      status: Joi.string().valid(...Object.values(UserStatusEnum)).required(),
     },
     query: {},
   },

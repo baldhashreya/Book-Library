@@ -16,6 +16,7 @@ const Login: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  console.log("after logout");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

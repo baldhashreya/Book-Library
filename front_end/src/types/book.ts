@@ -8,23 +8,18 @@ export const BookStatusEnum = {
 export type BookStatusEnum =
   (typeof BookStatusEnum)[keyof typeof BookStatusEnum];
 
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  category: string;
-  status: BookStatusEnum;
-  isbn?: string;
-  publishedYear?: number;
-  description?: string;
-}
-
 export interface BookFormData {
   title: string;
   author: string;
   category: string;
   status: BookStatusEnum;
   isbn?: string;
-  publishedYear?: number;
+  publisher?: number;
   description?: string;
+  quantity: number;
+
+}
+
+export interface Book extends BookFormData{
+  _id: string;
 }

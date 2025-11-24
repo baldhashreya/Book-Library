@@ -1,13 +1,16 @@
 export interface User {
   id: string;
   firstName: string;
+  userName: string;
   lastName: string;
   email: string;
   role: string;
-  roleName?: string; 
-  status: 'active' | 'inactive';
+  roleName?: string;
+  status: "active" | "inactive";
   createdAt: string;
   lastLogin?: string;
+  phone: number;
+  address: string;
 }
 
 export interface UserFormData {
@@ -15,7 +18,9 @@ export interface UserFormData {
   lastName: string;
   email: string;
   role: string;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
+  phone: number;
+  address: string;
 }
 
 export interface UsersSearchParams extends SearchParams {

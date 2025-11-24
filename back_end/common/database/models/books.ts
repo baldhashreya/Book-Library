@@ -20,7 +20,7 @@ export interface BooksModel {
   author: Types.ObjectId;
   category: Types.ObjectId;
   isbn: string;
-  publisher: string;
+  publisher: number;
   quantity: number;
   description: string;
   coverImage: string;
@@ -41,7 +41,7 @@ const BooksSchema = new Schema<BooksModel>(
       required: true,
     },
     isbn: { type: String },
-    publisher: { type: String },
+    publisher: { type: Number },
     quantity: { type: Number },
     description: { type: String },
     coverImage: { type: String },

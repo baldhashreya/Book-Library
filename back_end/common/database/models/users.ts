@@ -8,8 +8,12 @@ export interface UsersModel extends Document {
   password?: string;
   role: Types.ObjectId;
   status: UserStatusEnum;
-  lastLogin: Date;
+  lastLogin?: Date;
   refreshToken?: string | null;
+  contactInfo: {
+    phone: string;
+    address: string;
+  };
 }
 
 const UserSchema = new Schema<UsersModel>(
@@ -28,6 +32,10 @@ const UserSchema = new Schema<UsersModel>(
     },
     lastLogin: { type: Date },
     refreshToken: { type: String },
+    contactInfo: {
+      phone: { type: String },
+      address: { type: String },
+    },
   },
   { timestamps: true }
 );
