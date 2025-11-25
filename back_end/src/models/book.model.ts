@@ -15,7 +15,8 @@ export const BooksModel = {
       coverImage: Joi.string().allow(null, ""),
       status: Joi.string()
         .required()
-        .valid(...Object.values(BookStatusEnum)).required(),
+        .valid(...Object.values(BookStatusEnum))
+        .required(),
     },
     query: {},
   },
@@ -34,7 +35,8 @@ export const BooksModel = {
       coverImage: Joi.string(),
       status: Joi.string()
         .required()
-        .valid(...Object.values(BookStatusEnum)).required(),
+        .valid(...Object.values(BookStatusEnum))
+        .required(),
     },
     query: {},
   },
@@ -64,5 +66,15 @@ export const BooksModel = {
       order: Joi.array().items(Joi.string()).optional(),
     },
     query: {},
+  },
+  AssignBook: {
+    params: {
+      id: Joi.string().required(),
+    },
+    query: {},
+    body: {
+      userId: Joi.string().required(),
+      returnDate: Joi.date().required(),
+    },
   },
 };

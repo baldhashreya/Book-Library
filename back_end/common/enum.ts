@@ -87,6 +87,8 @@ export enum ErrorType {
   CategoryNotFound = "CategoryNotFound",
   BookNotFound = "BookNotFound",
   AuthorNotFound = "AuthorNotFound",
+  NotAbleAssignBook = "NotAbleAssignBook",
+  BookIsOutOfStock = "BookIsOutOfStock"
 }
 
 export enum AuthOperations {
@@ -118,6 +120,7 @@ export enum BooksOperations {
   DELETED = "BOOKS_DELETED",
   SEARCH = "BOOKS_SEARCH",
   CREATE = "BOOKS_CREATE",
+  ASSIGN_BOOK = "BOOKS_ASSIGN_BOOK"
 }
 
 export const LogLevel = Object.freeze({

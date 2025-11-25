@@ -22,4 +22,5 @@ export interface BookFormData {
 
 export interface Book extends BookFormData{
   _id: string;
+  issuedBook: number;
 }

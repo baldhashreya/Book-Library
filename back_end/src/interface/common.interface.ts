@@ -26,7 +26,7 @@ export interface AuthorsSearchParams extends SearchParams {
   end_birth_date?: Date;
 }
 
-export interface UpsertUsersModel{
+export interface UpsertUsersModel {
   firstName: string;
   lastName: string;
   email: string;
@@ -35,4 +35,10 @@ export interface UpsertUsersModel{
   phone: string;
   status: UserStatusEnum;
   address: string;
+}
+
+export interface AssignBook {
+  bookId: string;
+  userId: string;
+  returnDate: Date;
 }

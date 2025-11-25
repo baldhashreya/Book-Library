@@ -39,6 +39,7 @@ const AboutMePage: React.FC = () => {
 
   const handleUpdateProfile = async (updatedData: UserFormData) => {
     try {
+      console.log(updatedData);
       await userService.updateUser(userData._id, updatedData);
       const response = await userService.getUserById(userData._id);
       localStorage.setItem("user", JSON.stringify(response));
@@ -92,7 +93,9 @@ const AboutMePage: React.FC = () => {
                   <div className="detail-item">
                     <span className="label">Name</span>
                     <span className="value">
-                      {userData.firstName + " " + userData.lastName || "N/A"}
+                      {userData.userName
+                        ? userData.userName
+                        : userData.firstName + " " + userData.lastName}
                     </span>
                   </div>
                   <div className="detail-item">
@@ -113,12 +116,18 @@ const AboutMePage: React.FC = () => {
                   </div>
                   <div className="detail-item">
                     <span className="label">Phone</span>
-                    <span className="value">{userData.contactInfo.phone}</span>
+                    <span className="value">
+                      {userData.contactInfo && userData.contactInfo.phone
+                        ? userData.contactInfo.phone
+                        : ""}
+                    </span>
                   </div>
                   <div className="detail-item">
                     <span className="label">Address</span>
                     <span className="value">
-                      {userData.contactInfo.address}
+                      {userData.contactInfo && userData.contactInfo.address
+                        ? userData.contactInfo.address
+                        : ""}
                     </span>
                   </div>
                 </div>

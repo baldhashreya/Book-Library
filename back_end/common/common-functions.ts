@@ -68,6 +68,8 @@ export function getMessageByCode(messageKey: string): string {
       return messages.BooksMessages.Deleted;
     case BooksOperations.SEARCH:
       return messages.BooksMessages.Fetched;
+    case BooksOperations.ASSIGN_BOOK:
+      return messages.BooksMessages.AssignBook;
 
     case AuthorOperations.CREATE:
       return messages.AuthorsMessages.Created;
@@ -142,9 +144,17 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       statusCode = HttpStatusCode.ConflictError;
       errorKey = messages.AuthorsMessages.AuthorIsUnique;
       break;
-      case ErrorType.AuthorNotFound:
+    case ErrorType.AuthorNotFound:
       statusCode = HttpStatusCode.NotFound;
       errorKey = messages.AuthorsMessages.AuthorNotFound;
+      break;
+    case ErrorType.NotAbleAssignBook:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.BooksMessages.NotAbleAssignBook;
+      break;
+    case ErrorType.BookIsOutOfStock:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.BooksMessages.BookIsOutOfStock;
       break;
 
     default:

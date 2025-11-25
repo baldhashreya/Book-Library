@@ -1,48 +1,35 @@
-import type { Book, BookFormData } from '../types/book';
-import type { SearchParams } from '../types/role';
-import { apiService } from './api';
+import type { Book, BookFormData } from "../types/book";
+import type { SearchParams } from "../types/role";
+import { apiService } from "./api";
 
 export const bookService = {
   // Get all books
   async searchBooks(params: SearchParams): Promise<Book[]> {
     try {
-      const result = await apiService.post('/books/search', params);
+      const result = await apiService.post("/books/search", params);
       return result.data || [];
     } catch (error) {
-      console.error('Error fetching books:', error);
-      throw error;
-    }
-  },
-
-  // Get book by ID
-  async getBookById(id: string): Promise<Book | null> {
-    try {
-      const data = await apiService.get(`/books/${id}`);
-      return data.book || null;
-    } catch (error) {
-      console.error('Error fetching book:', error);
+      console.error("Error fetching books:", error);
       throw error;
     }
   },
 
   // Create new book
-  async createBook(bookData: BookFormData): Promise<Book> {
+  async createBook(bookData: BookFormData): Promise<void> {
     try {
-      const data = await apiService.post('/books', bookData);
-      return data.book;
+      await apiService.post("/books", bookData);
     } catch (error) {
-      console.error('Error creating book:', error);
+      console.error("Error creating book:", error);
       throw error;
     }
   },
 
   // Update book
-  async updateBook(id: string, bookData: BookFormData): Promise<Book> {
+  async updateBook(id: string, bookData: BookFormData): Promise<void> {
     try {
-      const data = await apiService.put(`/books/${id}`, bookData);
-      return data.book;
+      await apiService.put(`/books/${id}`, bookData);
     } catch (error) {
-      console.error('Error updating book:', error);
+      console.error("Error updating book:", error);
       throw error;
     }
   },
@@ -52,19 +39,21 @@ export const bookService = {
     try {
       await apiService.delete(`/books/${id}`);
     } catch (error) {
-      console.error('Error deleting book:', error);
+      console.error("Error deleting book:", error);
       throw error;
     }
   },
 
-  // Get categories
-  async getCategories(): Promise<string[]> {
+  async assignBook(bookId: string, params: any): Promise<void> {
     try {
-      const data = await apiService.get('/books/categories');
+      const data = await apiService.post(
+        `/books/${bookId}/assign-book`,
+        params
+      );
       return data.categories || [];
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      return [];
+      console.error("Error fetching categories:", error);
+      throw error;
     }
-  }
+  },
 };

@@ -1,27 +1,14 @@
-// | Field         | Example Values                                               |
-// | ------------- | ------------------------------------------------------------ |
-// | `title`       | "The Alchemist", "Atomic Habits"                             |
-// | `authors`     | Array of author IDs (e.g., `[ObjectId(...)]`)                |
-// | `category`    | Ref to a category like "Fiction", "Self Help", "Programming" |
-// | `isbn`        | `"9780061122415"`                                            |
-// | `publisher`   | `"HarperCollins"`, `"Avery"`                                 |
-// | `quantity`    | `5`, `3`, `10`                                               |
-// | `description` | Summary of the book                                          |
-// | `coverImage`  | URL or path string                                           |
-// | `addedAt`     | Date when book was added                                     |
-// | `updatedAt`   | Date when last updated                                       |
-// | `status`      | `"available"`, `"checked_out"`, `"reserved"`, `"lost"`       |
-
 import mongoose, { model, Schema, Types } from "mongoose";
 import { BookStatusEnum } from "../../enum";
 
 export interface BooksModel {
   title: string;
-  author: Types.ObjectId;
-  category: Types.ObjectId;
+  author: Types.ObjectId | string;
+  category: Types.ObjectId | string;
   isbn: string;
   publisher: number;
   quantity: number;
+  issuedBook: number;
   description: string;
   coverImage: string;
   status: BookStatusEnum;
@@ -46,6 +33,7 @@ const BooksSchema = new Schema<BooksModel>(
     description: { type: String },
     coverImage: { type: String },
     status: { type: String, enum: BookStatusEnum },
+    issuedBook: { type: Number },
   },
   { timestamps: true }
 );

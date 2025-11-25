@@ -169,7 +169,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               <span className="profile-icon">
                 <User />
               </span>
-              <span className="profile-name">{currentUser.firstName}</span>
+              <span className="profile-name">{currentUser.firstName || currentUser.userName}</span>
             </button>
           </div>
         </header>

@@ -14,10 +14,9 @@
 
 import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { BorrowRecordsEnum } from "../../enum";
-export interface borrowRecordsModel extends Document {
-  bookId: Types.ObjectId;
-  memberId: Types.ObjectId;
-  issuedBy: Types.ObjectId;
+export interface BorrowRecordsModel extends Document {
+  bookId: Types.ObjectId | string;
+  issuedBy: Types.ObjectId | string;
   issueDate: Date;
   dueDate?: Date;
   returnDate?: Date;
@@ -27,16 +26,11 @@ export interface borrowRecordsModel extends Document {
   notes?: string;
 }
 
-const borrowRecordsSchema = new Schema<borrowRecordsModel>(
+const BorrowRecordsSchema = new Schema<BorrowRecordsModel>(
   {
     bookId: {
       type: mongoose.Schema.ObjectId,
       ref: "books",
-      required: true,
-    },
-    memberId: {
-      type: mongoose.Schema.ObjectId,
-      ref: "members",
       required: true,
     },
     issuedBy: {
@@ -62,9 +56,9 @@ const borrowRecordsSchema = new Schema<borrowRecordsModel>(
   { timestamps: true }
 );
 
-const borrowRecords = model<borrowRecordsModel>(
+const BorrowRecords = model<BorrowRecordsModel>(
   "borrow_records",
-  borrowRecordsSchema
+  BorrowRecordsSchema
 );
 
-export default borrowRecords;
+export default BorrowRecords;
