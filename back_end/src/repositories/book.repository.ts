@@ -1,10 +1,26 @@
 import { UpdateResult } from "mongoose";
 import Books, { BooksModel } from "../../common/database/models/books";
+import Users, { UsersModel } from "../../common/database/models/users";
+import BorrowRecords, {
+  BorrowRecordsModel,
+} from "../../common/database/models/borrow-records";
+import Categories from "../../common/database/models/categories";
+import Authors from "../../common/database/models/author";
 
 export class BooksRepository {
-  public async getBookByTitle(title: string): Promise<BooksModel | null> {
-    return Books.findOne({ title });
+  public async getBookByTitle(title: string, id?: string): Promise<number> {
+    if (id) return Books.countDocuments({ title, _id: { $ne: id } });
+    return Books.countDocuments({ title });
   }
+
+  public async getAuthorById(id: string): Promise<number> {
+    return Authors.countDocuments({ _id: id });
+  }
+
+  public async getCategoryById(id: string): Promise<number> {
+    return Categories.countDocuments({ _id: id });
+  }
+
   public async createBook(bookData: BooksModel): Promise<BooksModel | any> {
     return Books.create(bookData);
   }
@@ -32,11 +48,17 @@ export class BooksRepository {
       query = { ...query, author: { $regex: params.author, $options: "i" } };
     }
     if (params.category) {
-      query = { ...query, category: { $regex: params.category, $options: "i" } };
+      query = {
+        ...query,
+        category: { $regex: params.category, $options: "i" },
+      };
     }
 
-    if(params.publisher) {
-        query = { ...query, publisher: { $regex: params.publisher, $options: "i" } };
+    if (params.publisher) {
+      query = {
+        ...query,
+        publisher: { $regex: params.publisher, $options: "i" },
+      };
     }
     let order = {};
     if (params.order && params.order.length && params.order[0]?.length) {
@@ -47,10 +69,21 @@ export class BooksRepository {
       order = { createdAt: -1 };
     }
 
-    return Books.find(query).populate("author", "name")
+    return Books.find(query)
+      .populate("author", "name")
       .populate("category", "name")
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+  }
+
+  public async getUsersByIds(ids: string[]): Promise<UsersModel[]> {
+    return Users.find({ _id: { $in: ids } }).populate("role", "name");
+  }
+
+  public async createBorrowRecords(
+    model: BorrowRecordsModel
+  ): Promise<BorrowRecordsModel> {
+    return BorrowRecords.create(model);
   }
 }

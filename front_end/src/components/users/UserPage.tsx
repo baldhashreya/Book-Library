@@ -73,20 +73,19 @@ const UserPage: React.FC = () => {
   };
 
   const handleSaveUser = async (data: UserFormData & { _id?: string }) => {
-  try {
-    if (modalMode === "edit" && selectedUser._id) {
-      await userService.updateUser(selectedUser._id, data);
-    } else {
-      await userService.createUser(data);
+    try {
+      if (modalMode === "edit" && selectedUser._id) {
+        await userService.updateUser(selectedUser._id, data);
+      } else {
+        await userService.createUser(data);
+      }
+
+      loadUsers({ limit: 10, offset: 0 });
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Save user error:", err);
     }
-
-    loadUsers({ limit: 10, offset: 0 });
-    setIsModalOpen(false);
-  } catch (err) {
-    console.error("Save user error:", err);
-  }
-};
-
+  };
 
   const getStatusBadge = (status: string) => {
     return status.toLowerCase() === "active" ? (

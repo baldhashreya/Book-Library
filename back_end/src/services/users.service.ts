@@ -70,7 +70,7 @@ export class UsersServices {
       firstName: params.firstName,
       lastName: params.lastName,
       email: params.email,
-      role: params.role  as unknown as Types.ObjectId,
+      role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
       contactInfo: {
         phone: params.phone,
@@ -89,7 +89,7 @@ export class UsersServices {
       firstName: params.firstName,
       lastName: params.lastName,
       email: params.email,
-      role: params.role  as unknown as Types.ObjectId,
+      role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
       contactInfo: {
         phone: params.phone,
@@ -121,8 +121,10 @@ export class UsersServices {
     usersModel: UpsertUsersModel,
     id?: string
   ) {
+    addLog(LogLevel.info, "validateRequestModel", usersModel);
     if (id) {
       const userExist = await this.commonRepository.getUserById(id);
+      addLog(LogLevel.info, "userExist", userExist);
 
       if (!userExist) {
         const err = new Error();

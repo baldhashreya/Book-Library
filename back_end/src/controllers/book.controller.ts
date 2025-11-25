@@ -3,16 +3,14 @@ import { BooksService } from "../services/book.service";
 import { baseController } from "../../common/base-controller";
 import { addLog } from "../../common/logger";
 import { BooksOperations, HttpStatusCode, LogLevel } from "../../common/enum";
+import { AssignBook } from "../interface/common.interface";
 
 export class BookController {
   constructor(private readonly booksService: BooksService) {
     this.booksService = booksService;
   }
 
-  public createBook = async (
-    req: Request,
-    res: Response
-  ) => {
+  public createBook = async (req: Request, res: Response) => {
     addLog(LogLevel.info, "create Book", req.body);
     const newBook = await this.booksService.createBook(req.body);
     return baseController.getResult(
@@ -81,6 +79,24 @@ export class BookController {
       HttpStatusCode.Ok,
       book,
       BooksOperations.SEARCH
+    );
+  };
+
+  public assignBook = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "Assign Book", req.body);
+
+    const book = await this.booksService.assignBookToUser(
+      { ...req.body, bookId: req.params.id } as AssignBook,
+      (req as any).userId as string
+    );
+    return baseController.getResult(
+      res,
+      HttpStatusCode.Ok,
+      book,
+      BooksOperations.ASSIGN_BOOK
     );
   };
 }

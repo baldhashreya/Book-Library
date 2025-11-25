@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import MainLayout from "../MainLayout";
 import BookModal from "./BookModal";
 import type { Book, BookFormData } from "../../types/book";
-import { PencilLine, Trash } from "lucide-react";
 import { bookService } from "../../services/bookService";
 import "./BookPage.css";
 import type { SearchParams } from "../../types/role";
+import AssignBookModal from "./AssignBookModal";
 
 const BookPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -13,6 +13,9 @@ const BookPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [assignBook, setAssignBook] = useState<Book | null>(null);
 
   useEffect(() => {
     loadBooks({ limit: 100, offset: 0 });
@@ -58,6 +61,35 @@ const BookPage: React.FC = () => {
     }
   };
 
+  const handleAssignBook = (book: Book) => {
+    console.log(book);
+    setAssignBook(book);
+    setIsAssignModalOpen(true);
+  };
+
+  const saveAssignedBook = async (param: {
+    userId: string;
+    returnDate: Date;
+  }) => {
+    if (!assignBook) return;
+
+    try {
+      await bookService.assignBook(assignBook._id, param);
+
+      const updatedBooks = await bookService.searchBooks({
+        limit: 100,
+        offset: 0,
+      });
+      setBooks(updatedBooks);
+
+      setIsAssignModalOpen(false);
+      setAssignBook(null);
+    } catch (err) {
+      console.error("Error assigning book:", err);
+      alert("Failed to assign book");
+    }
+  };
+
   const handleSaveBook = async (bookData: BookFormData) => {
     try {
       if (modalMode === "add") {
@@ -94,19 +126,56 @@ const BookPage: React.FC = () => {
     );
   };
 
+  const toggleSelectRow = (id: string) => {
+    setSelectedRow((prev) => (prev === id ? null : id));
+  };
+
   const filteredBooks = books;
 
   return (
     <MainLayout>
       <div className="book-page">
         <div className="page-header">
-          <button
-            className="add-book-btn"
-            onClick={handleAddBook}
-          >
-            <span>+</span>
-            Add New Book
-          </button>
+          <div className="toolbar">
+            <button
+              className="add-user-btn"
+              onClick={handleAddBook}
+            >
+              <span>+</span> Add New Book
+            </button>
+
+            <button
+              className="delete-selected-btn"
+              disabled={!selectedRow}
+              // onChange={() => toggleSelectRow(books._id)}
+              onClick={() => {
+                handleDeleteBook(selectedRow);
+              }}
+            >
+              Delete Book
+            </button>
+            <button
+              className="edit-selected-btn"
+              disabled={!selectedRow}
+              onClick={() => {
+                const bookToEdit = books.find((b) => b._id === selectedRow);
+                if (bookToEdit) handleEditBook(bookToEdit);
+              }}
+            >
+              Edit Book
+            </button>
+            <button
+              className="assign-selected-btn"
+              disabled={!selectedRow}
+              onClick={() => {
+                const bookToAssign = books.find((b) => b._id === selectedRow);
+                console.log(bookToAssign);
+                if (bookToAssign) handleAssignBook(bookToAssign);
+              }}
+            >
+              Assign Book
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -120,23 +189,31 @@ const BookPage: React.FC = () => {
               <div className="empty-state">
                 <h3>No books found</h3>
                 <p>
-                  {"Your library is empty. Add your first book to get started."}
+                  Your library is empty. Add your first book to get started.
                 </p>
               </div>
             ) : (
               <table className="books-table">
                 <thead>
                   <tr>
+                    <th>Select</th>
                     <th>Book Name</th>
                     <th>Author</th>
                     <th>Category</th>
+                    <th>Available Book</th>
                     <th>Status</th>
-                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBooks.map((book) => (
-                    <tr key={book.id}>
+                    <tr key={book._id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedRow === book._id}
+                          onChange={() => toggleSelectRow(book._id)}
+                        />
+                      </td>
                       <td>
                         <div className="book-title">
                           <strong>{book.title}</strong>
@@ -149,27 +226,12 @@ const BookPage: React.FC = () => {
                       </td>
                       <td>{book.author.name}</td>
                       <td>
-                        <span className="category-tag">{book.category.name}</span>
+                        <span className="category-tag">
+                          {book.category.name}
+                        </span>
                       </td>
+                      <td>{book.quantity - (book.issuedBook || 0)}</td>
                       <td>{getStatusBadge(book.status)}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn view-btn"
-                            onClick={() => handleEditBook(book)}
-                            title="View/Edit Book"
-                          >
-                            <PencilLine />
-                          </button>
-                          <button
-                            className="action-btn delete-btn"
-                            onClick={() => handleDeleteBook(book._id)}
-                            title="Delete Book"
-                          >
-                            <Trash />
-                          </button>
-                        </div>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -184,6 +246,13 @@ const BookPage: React.FC = () => {
           onSave={handleSaveBook}
           book={selectedBook}
           mode={modalMode}
+        />
+
+        <AssignBookModal
+          isOpen={isAssignModalOpen}
+          onClose={() => setIsAssignModalOpen(false)}
+          onSave={saveAssignedBook}
+          book={assignBook}
         />
       </div>
     </MainLayout>

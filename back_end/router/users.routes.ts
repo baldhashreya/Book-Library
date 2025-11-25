@@ -5,7 +5,6 @@ import { UsersControllers } from "../src/controllers/users.controller";
 import { CommonRepository } from "../src/repositories/common.repository";
 import { UserModel } from "../src/models/users.model";
 import { celebrate } from "celebrate";
-import { authorizationUser } from "../common/base-controller";
 
 const { Create, Update, Get, Search, UpdateStatus } = UserModel;
 

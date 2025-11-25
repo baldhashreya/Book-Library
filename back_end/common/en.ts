@@ -40,11 +40,14 @@ export const messages = {
   },
   BooksMessages: {
     BookNotFound: "Book not found.",
-    BookIsUnique: "Book already exists", 
+    BookIsUnique: "Book already exists",
     Created: "Book created successfully.",
     Fetched: "Books fetched successfully.",
     Updated: "Book updated successfully.",
     Deleted: "Book deleted successfully.",
+    NotAbleAssignBook: "Only Admin or Librarian can assign book to others",
+    AssignBook: "Book assign successfully.",
+    BookIsOutOfStock: "Book is out of stock.",
   },
   AuthorsMessages: {
     AuthorNotFound: "Author not found.",

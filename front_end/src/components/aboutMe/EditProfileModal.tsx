@@ -16,7 +16,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   onSave,
   user,
 }) => {
-    console.log(user);
+  console.log(user);
   const [formData, setFormData] = useState<any>({
     firstName: "",
     lastName: "",
@@ -35,13 +35,13 @@ const EditProfileModal: React.FC<UserModalProps> = ({
       loadRoles();
       setError("");
       setFormData({
-        firstName: user.firstName,
+        firstName: user.firstName || user.userName,
         lastName: user.lastName,
         email: user.email,
         role: user.role._id,
         status: user.status,
-        phone: user.contactInfo.phone,
-        address: user.contactInfo.address,
+        phone:user.contactInfo && user.contactInfo.phone? user.contactInfo.phone:0,
+        address: user.contactInfo && user.contactInfo.address? user.contactInfo.address: "",
       });
     }
   }, [isOpen, user]);
@@ -139,7 +139,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                 type="text"
                 id="firstName"
                 name="firstName"
-                value={formData.firstName}
+                value={formData.firstName || formData.userName}
                 onChange={handleChange}
                 required
                 disabled={loading}
@@ -154,7 +154,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                 type="text"
                 id="lastName"
                 name="lastName"
-                value={formData.lastName}
+                value={formData.lastName || ""}
                 onChange={handleChange}
                 required
                 disabled={loading}
@@ -230,10 +230,10 @@ const EditProfileModal: React.FC<UserModalProps> = ({
             <div className="form-group">
               <label htmlFor="phone">Phone *</label>
               <input
-                type="number"
+                type="string"
                 id="phone"
                 name="phone"
-                value={formData.phone}
+                value={formData.phone.toString()}
                 onChange={handleChange}
                 required
                 disabled={loading}
