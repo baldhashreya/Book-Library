@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { UserStatusEnum } from "../../enum";
+import { UserStatusEnum } from "../../common-functions/enum";
 
 export interface UsersModel extends Document {
   firstName: string;
@@ -40,5 +40,4 @@ const UserSchema = new Schema<UsersModel>(
   { timestamps: true }
 );
 
-const Users = model<UsersModel>("users", UserSchema);
-export default Users;
+export const Users = model<UsersModel>("users", UserSchema);
