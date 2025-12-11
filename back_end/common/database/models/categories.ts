@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-import { UserStatusEnum } from "../../enum";
+import { UserStatusEnum } from "../../common-functions/enum";
 
 export interface CategoriesModel extends Document {
   name: string;
@@ -15,10 +15,9 @@ const CategoriesSchema = new Schema<CategoriesModel>(
       enum: Object.values(UserStatusEnum),
       required: true,
     },
-    description: { type: String }
+    description: { type: String },
   },
   { timestamps: true }
 );
 
-const Categories = model<CategoriesModel>("categories", CategoriesSchema);
-export default Categories;
+export const Categories = model<CategoriesModel>("categories", CategoriesSchema);

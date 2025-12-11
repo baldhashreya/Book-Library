@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-import { RolePermission } from "../../enum";
+import { RolePermission } from "../../common-functions/enum";
 
 // | _id | name          | permissions                                                                                     | description                                                                |
 // | --- | ------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -31,5 +31,4 @@ const RoleSchema = new Schema<RoleModel>({
   },
 });
 
-const Roles = model<RoleModel>("roles", RoleSchema);
-export default Roles;
+export const Roles = model<RoleModel>("roles", RoleSchema);

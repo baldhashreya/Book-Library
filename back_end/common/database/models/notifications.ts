@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { NotificationType } from "../../enum";
+import { NotificationType } from "../../common-functions/enum";
 
 export interface NotificationsModel extends Document {
   member: Types.ObjectId;
@@ -23,9 +23,7 @@ const NotificationsSchema = new Schema<NotificationsModel>({
   },
 });
 
-const Notifications = model<NotificationsModel>(
+export const Notifications = model<NotificationsModel>(
   "notifications",
   NotificationsSchema
 );
-
-export default Notifications;

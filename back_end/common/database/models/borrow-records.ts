@@ -13,7 +13,7 @@
 // | `createdAt`, `updatedAt` | Timestamps for audit                       | `ISODate()`                                     |
 
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { BorrowRecordsEnum } from "../../enum";
+import { BorrowRecordsEnum } from "../../common-functions/enum";
 export interface BorrowRecordsModel extends Document {
   bookId: Types.ObjectId | string;
   issuedBy: Types.ObjectId | string;
@@ -56,9 +56,7 @@ const BorrowRecordsSchema = new Schema<BorrowRecordsModel>(
   { timestamps: true }
 );
 
-const BorrowRecords = model<BorrowRecordsModel>(
+export const BorrowRecords = model<BorrowRecordsModel>(
   "borrow_records",
   BorrowRecordsSchema
 );
-
-export default BorrowRecords;
