@@ -24,7 +24,7 @@ export class AuthorRepository {
 
   public async searchAuthors(
     params: AuthorsSearchParams
-  ): Promise<AuthorModel[]> {
+  ): Promise<{ count: number; rows: AuthorModel[] }> {
     let query = {};
     if (params.name) {
       query = { ...query, name: { $regex: params.name, $options: "i" } };
@@ -46,14 +46,16 @@ export class AuthorRepository {
       let orderDirection = params.order[0][1] ? params.order[0][1] : "desc";
       let direction = orderDirection.toLowerCase() === "asc" ? 1 : -1;
       order = { [String(params.order[0][0])]: direction };
+      console.log({ [String(params.order[0][0])]: direction });
     } else {
       order = { createdAt: -1 };
     }
-
-    return Authors.find(query)
+    const count = await Authors.countDocuments(query);
+    const rows = await Authors.find(query)
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+    return { count, rows };
   }
 
   public async getAuthorByName(name: string, id?: string): Promise<number> {

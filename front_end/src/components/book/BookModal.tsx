@@ -1,30 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import type { Book, BookFormData } from '../../types/book';
-import './BookModal.css';
-import type { SearchParams } from '../../types/role';
-import { categoryService } from '../../services/categoryService';
-import type { Category } from '../../types/category';
-import { authorService } from '../../services/authorService';
-import type { Author } from '../../types/author';
+import React, { useState, useEffect } from "react";
+import type { Book, BookFormData } from "../../types/book";
+import "./BookModal.css";
+import type { SearchParams } from "../../types/role";
+import { categoryService } from "../../services/categoryService";
+import type { Category } from "../../types/category";
+import { authorService } from "../../services/authorService";
+import type { Author } from "../../types/author";
 
 interface BookModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (bookData: BookFormData) => void;
   book?: Book | null;
-  mode: 'add' | 'edit';
+  mode: "add" | "edit";
 }
 
-const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mode }) => {
+const BookModal: React.FC<BookModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  book,
+  mode,
+}) => {
   const [formData, setFormData] = useState<BookFormData>({
-    title: '',
-    author: '',
-    category: '',
-    status: 'AVAILABLE',
-    isbn: '',
+    title: "",
+    author: "",
+    category: "",
+    status: "AVAILABLE",
+    isbn: "",
     publisher: undefined,
     quantity: 1,
-    description: ''
+    description: "",
   });
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -34,27 +40,31 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
     if (isOpen) {
       loadCategories();
       loadAuthors();
-      if (mode === 'edit' && book) {
+      if (mode === "edit" && book) {
         setFormData({
           title: book.title,
-          author: typeof book.author === "object" ? book.author._id : book.author,
-          category: typeof book.category === "object" ? book.category._id : book.category,
+          author:
+            typeof book.author === "object" ? book.author._id : book.author,
+          category:
+            typeof book.category === "object"
+              ? book.category._id
+              : book.category,
           status: book.status,
-          isbn: book.isbn || '',
+          isbn: book.isbn || "",
           publisher: book.publisher,
           quantity: book.quantity,
-          description: book.description || ''
+          description: book.description || "",
         });
       } else {
         setFormData({
-          title: '',
-          author: '',
-          category: '',
-          status: 'AVAILABLE',
-          isbn: '',
+          title: "",
+          author: "",
+          category: "",
+          status: "AVAILABLE",
+          isbn: "",
           publisher: undefined,
-          description: '',
-          quantity: 1
+          description: "",
+          quantity: 1,
         });
       }
     }
@@ -62,35 +72,39 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
 
   const loadCategories = async () => {
     try {
-      const cats = await categoryService.searchCategories({ limit: 100, offset: 0 } as SearchParams);
-      setCategories(cats);
+      const cats = await categoryService.searchCategories({} as SearchParams);
+      setCategories(cats.rows);
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error("Error loading categories:", error);
     }
   };
 
   const loadAuthors = async () => {
     try {
-      const authorData = await authorService.searchAuthors({ limit: 100, offset: 0 } as SearchParams);
-      setAuthors(authorData);
+      const authorData = await authorService.searchAuthors({} as SearchParams);
+      setAuthors(authorData.rows);
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error("Error loading categories:", error);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value ? parseInt(value) : undefined
+      [name]: value ? parseInt(value) : undefined,
     }));
   };
 
@@ -101,7 +115,7 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving book:', error);
+      console.error("Error saving book:", error);
     } finally {
       setLoading(false);
     }
@@ -113,11 +127,19 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>{mode === 'add' ? 'Add New Book' : 'Edit Book'}</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <h2>{mode === "add" ? "Add New Book" : "Edit Book"}</h2>
+          <button
+            className="close-button"
+            onClick={onClose}
+          >
+            ×
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="book-form">
+        <form
+          onSubmit={handleSubmit}
+          className="book-form"
+        >
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="title">Book Title *</label>
@@ -142,9 +164,20 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
                 required
                 disabled={loading}
               >
-                <option value="" disabled hidden>-- Select Author --</option>
-                {authors.map(cat => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                <option
+                  value=""
+                  disabled
+                  hidden
+                >
+                  -- Select Author --
+                </option>
+                {authors.map((cat) => (
+                  <option
+                    key={cat._id}
+                    value={cat._id}
+                  >
+                    {cat.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -161,9 +194,20 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
                 required
                 disabled={loading}
               >
-                <option value="" disabled hidden>-- Select Category --</option>
-                {categories.map(cat => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                <option
+                  value=""
+                  disabled
+                  hidden
+                >
+                  -- Select Category --
+                </option>
+                {categories.map((cat) => (
+                  <option
+                    key={cat._id}
+                    value={cat._id}
+                  >
+                    {cat.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -205,7 +249,7 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
                 type="number"
                 id="publisher"
                 name="publisher"
-                value={formData.publisher || ''}
+                value={formData.publisher || ""}
                 onChange={handleNumberChange}
                 disabled={loading}
                 min="1000"
@@ -242,11 +286,22 @@ const BookModal: React.FC<BookModalProps> = ({ isOpen, onClose, onSave, book, mo
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} disabled={loading}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={loading}
+            >
               Cancel
             </button>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (mode === 'add' ? 'Add Book' : 'Update Book')}
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Saving..."
+                : mode === "add"
+                ? "Add Book"
+                : "Update Book"}
             </button>
           </div>
         </form>

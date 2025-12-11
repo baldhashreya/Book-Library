@@ -30,7 +30,7 @@ export class CategoriesRepository {
 
   public async searchCategory(
     params: CategoriesSearchParams
-  ): Promise<CategoriesModel[]> {
+  ): Promise<{count: number, rows: CategoriesModel[]}> {
     let query = {};
     if (params.name) {
       query = { ...query, name: { $regex: params.name, $options: "i" } };
@@ -47,10 +47,12 @@ export class CategoriesRepository {
     } else {
       order = { name: -1 };
     }
-    return Categories.find(query)
+    const count = await Categories.countDocuments(query);
+    const rows  = await Categories.find(query)
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+    return {count, rows}
   }
 
   public async getCategoryById(id: string): Promise<CategoriesModel | null> {

@@ -1,5 +1,5 @@
 import { baseController } from "../../common/base-controller";
-import { LogLevel, UsersOperations } from "../../common/enum";
+import { HttpStatusCode, LogLevel, UsersOperations } from "../../common/enum";
 import { addLog } from "../../common/logger";
 import { UsersServices } from "../services/users.service";
 import { Request, Response } from "express";
@@ -14,7 +14,7 @@ export class UsersControllers {
   ): Promise<Response> => {
     addLog(LogLevel.info, "create User", req.body);
     const result = await this.usersServices.createUser(req.body);
-    return baseController.getResult(res, 200, result, UsersOperations.CREATE);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.CREATE);
   };
 
   public createUsers = async (
@@ -25,7 +25,7 @@ export class UsersControllers {
     const result = await this.usersServices.createUsers();
     return baseController.getResult(
       res,
-      200,
+      HttpStatusCode.Ok,
       result,
       UsersOperations.USERS_CREATED
     );
@@ -40,7 +40,7 @@ export class UsersControllers {
       req.body,
       req.params.id as string
     );
-    return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.UPDATED);
   };
   public deleteUser = async (
     req: Request,
@@ -48,7 +48,7 @@ export class UsersControllers {
   ): Promise<Response> => {
     addLog(LogLevel.info, "delete User", req.body);
     const result = await this.usersServices.deleteUser(req.params.id as string);
-    return baseController.getResult(res, 200, result, UsersOperations.DELETED);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.DELETED);
   };
 
   public searchUsers = async (
@@ -57,7 +57,7 @@ export class UsersControllers {
   ): Promise<Response> => {
     addLog(LogLevel.info, "search User", req.body);
     const result = await this.usersServices.searchUsers(req.body);
-    return baseController.getResult(res, 200, result, UsersOperations.SEARCH);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.SEARCH);
   };
 
   public getUserById = async (
@@ -68,7 +68,7 @@ export class UsersControllers {
     const result = await this.usersServices.getUserById(
       req.params.id as string
     );
-    return baseController.getResult(res, 200, result, UsersOperations.GET);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.GET);
   };
 
   public updateUserStatus = async (
@@ -79,6 +79,18 @@ export class UsersControllers {
     const result = await this.usersServices.updateUserStatus(
       req.params.id as string
     );
-    return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.UPDATED);
   };
+
+  public getUserBorrowHistory = async (
+    req: Request,
+    res: Response
+  ): Promise<Response> => {
+    addLog(LogLevel.info, "update User Status", req.body);
+    const result = await this.usersServices.getUserBorrowHistory(
+      req.params.id as string
+    );
+    return baseController.getResult(res, HttpStatusCode.Ok, result, UsersOperations.UPDATED);
+  };
+
 }

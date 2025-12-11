@@ -4,7 +4,7 @@ import { apiService } from './api';
 
 export const categoryService = {
   // Get all categories
-  async searchCategories(SearchParams: SearchParams): Promise<Category[]> {
+  async searchCategories(SearchParams: SearchParams){
     try {
       const result = await apiService.post('/categories/search', SearchParams);
       return result.data || [];

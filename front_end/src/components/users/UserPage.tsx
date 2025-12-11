@@ -4,6 +4,9 @@ import UserModal from "../users/UserModal";
 import type { User, UserFormData, UsersSearchParams } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./UserPage.css";
+import BorrowHistoryModal from "./BorrowHistoryModal";
+import type { SearchParams } from "../../types/role";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 const UserPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -12,19 +15,38 @@ const UserPage: React.FC = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [borrowHistory, setBorrowHistory] = useState([]);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [orderBy, setOrderBy] = useState<
+    "username" | "email" | "role" | "status"
+  >("status");
+  const [order, setOrder] = useState<"ASC" | "DESC">("ASC");
 
   useEffect(() => {
-    loadUsers({ limit: 10, offset: 0 } as UsersSearchParams);
-  }, []);
+    loadUsers();
+  }, [page, limit, orderBy, order]);
 
-  const loadUsers = async (params: UsersSearchParams) => {
+  const loadUsers = async () => {
     try {
       setLoading(true);
-      const usersData = await userService.getUsers(params);
-      setUsers(usersData);
+
+      const offset = (page - 1) * limit;
+
+      const params: SearchParams = {
+        limit,
+        offset,
+        order: [[orderBy, order]],
+      };
+
+      const response = await userService.getUsers(params);
+
+      setUsers(response.rows);
+      setTotalCount(response.count);
     } catch (error) {
-      console.error("UserPage: Error loading users:", error);
-      setUsers([]);
+      console.error("Error loading books:", error);
     } finally {
       setLoading(false);
     }
@@ -45,14 +67,21 @@ const UserPage: React.FC = () => {
   const handleChangeStatusUser = async () => {
     try {
       await userService.changeUserStatus(selectedRow);
-      const updatedUser = await userService.getUsers({
-        limit: 100,
-        offset: 0,
-      });
-      setUsers(updatedUser);
+      loadUsers();
     } catch (error) {
       console.error("Bulk charge status user error:", error);
       alert("Some deletions failed.");
+    }
+  };
+
+  const handleUserBorrowHistory = async () => {
+    try {
+      const history = await userService.userBorrowHistory(selectedRow);
+      setBorrowHistory(history); // store data
+      setIsHistoryModalOpen(true); // open modal
+    } catch (error) {
+      console.error("Error fetching borrow history:", error);
+      alert("Failed to load borrow history.");
     }
   };
 
@@ -60,11 +89,7 @@ const UserPage: React.FC = () => {
     if (window.confirm(`Delete selected users?`)) {
       try {
         await userService.deleteUser(selectedRow);
-        const updatedUser = await userService.getUsers({
-          limit: 100,
-          offset: 0,
-        });
-        setUsers(updatedUser);
+        loadUsers();
       } catch (error) {
         console.error("Bulk delete error:", error);
         alert("Some deletions failed.");
@@ -80,7 +105,7 @@ const UserPage: React.FC = () => {
         await userService.createUser(data);
       }
 
-      loadUsers({ limit: 10, offset: 0 });
+      loadUsers();
       setIsModalOpen(false);
     } catch (err) {
       console.error("Save user error:", err);
@@ -95,8 +120,41 @@ const UserPage: React.FC = () => {
     );
   };
 
+  const getSortArrow = (column: string) => {
+    if (orderBy !== column) return "";
+
+    return order === "ASC" ? (
+      <ArrowUp
+        size={16}
+        strokeWidth={2}
+      />
+    ) : (
+      <ArrowDown
+        size={16}
+        strokeWidth={2}
+      />
+    );
+  };
+
   const toggleSelectRow = (id: string) => {
     setSelectedRow((prev) => (prev === id ? null : id));
+  };
+
+  const totalPages = Math.ceil(totalCount / limit);
+  const nextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
+
+  const prevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+  const handleSort = (column: typeof orderBy) => {
+    if (orderBy === column) {
+      setOrder(order === "ASC" ? "DESC" : "ASC");
+    } else {
+      setOrderBy(column);
+      setOrder("ASC");
+    }
   };
 
   return (
@@ -108,7 +166,7 @@ const UserPage: React.FC = () => {
               className="add-user-btn"
               onClick={handleAddUser}
             >
-              <span>+</span> Add User
+              Add User
             </button>
 
             <button
@@ -141,6 +199,16 @@ const UserPage: React.FC = () => {
             >
               Change Status
             </button>
+
+            <button
+              className="borrow-history-btn"
+              disabled={!selectedRow}
+              onClick={() => {
+                handleUserBorrowHistory();
+              }}
+            >
+              Borrow History
+            </button>
           </div>
         </div>
 
@@ -155,10 +223,24 @@ const UserPage: React.FC = () => {
               <thead>
                 <tr>
                   <th>Select</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
+                  <th onClick={() => handleSort("username")}>
+                    Username{" "}
+                    <span className="sort-arrow">
+                      {getSortArrow("username")}
+                    </span>
+                  </th>
+                  <th onClick={() => handleSort("email")}>
+                    Email{" "}
+                    <span className="sort-arrow">{getSortArrow("email")}</span>
+                  </th>
+                  <th onClick={() => handleSort("role")}>
+                    Role{" "}
+                    <span className="sort-arrow">{getSortArrow("role")}</span>
+                  </th>
+                  <th onClick={() => handleSort("status")}>
+                    Status{" "}
+                    <span className="sort-arrow">{getSortArrow("status")}</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -182,7 +264,7 @@ const UserPage: React.FC = () => {
 
                     <td>
                       <span className="role-tag">
-                        {user.role ? (user as any).role.name : "N/A"}
+                        {user.role ? (user as any).role : "N/A"}
                       </span>
                     </td>
 
@@ -191,6 +273,41 @@ const UserPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* PAGINATION */}
+            <div className="pagination">
+              <button
+                disabled={page === 1}
+                onClick={prevPage}
+              >
+                Previous
+              </button>
+
+              <span className="page-info">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                disabled={page === totalPages}
+                onClick={nextPage}
+              >
+                Next
+              </button>
+
+              <select
+                className="limit-select"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
         )}
 
@@ -200,6 +317,12 @@ const UserPage: React.FC = () => {
           onSave={handleSaveUser}
           user={selectedUser}
           mode={modalMode}
+        />
+
+        <BorrowHistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={() => setIsHistoryModalOpen(false)}
+          history={borrowHistory}
         />
       </div>
     </MainLayout>

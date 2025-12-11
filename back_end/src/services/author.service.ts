@@ -11,7 +11,7 @@ export class AuthorService {
 
   public async searchAuthors(
     param: AuthorsSearchParams
-  ): Promise<AuthorModel[]> {
+  ): Promise<{ rows: AuthorModel[]; count: number }> {
     return this.authorRepository.searchAuthors(param);
   }
 
@@ -54,7 +54,7 @@ export class AuthorService {
   }
 
   public async deleteAuthor(id: string): Promise<AuthorModel | null> {
-    const existingAuthor = await  this.authorRepository.deleteAuthor(id);
+    const existingAuthor = await this.authorRepository.deleteAuthor(id);
     if (!existingAuthor) {
       const err = new Error();
       err.name = ErrorType.AuthorNotFound;

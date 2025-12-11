@@ -41,7 +41,9 @@ export const UserModel = {
       status: Joi.string().optional().valid(...Object.values(UserStatusEnum)),
       offset: Joi.number().optional(),
       limit: Joi.number().optional(),
-      order: Joi.array().items(Joi.string()).optional(),
+      order: Joi.array()
+        .items(Joi.array().items(Joi.string().trim()))
+        .example([["name", "asc"]]),
     },
     query: {},
   },

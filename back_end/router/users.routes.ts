@@ -26,4 +26,9 @@ router.patch(
   celebrate(UpdateStatus),
   usersController.updateUserStatus
 );
+router.post(
+  "/:id/borrow-history",
+  celebrate(Get),
+  usersController.getUserBorrowHistory
+);
 export default router;

@@ -38,7 +38,9 @@ export const AuthorModel = {
       end_birth_date: Joi.date().optional(),
       limit: Joi.number().optional(),
       offset: Joi.number().optional(),
-      order: Joi.array().items(Joi.string()).optional(),
+      order: Joi.array()
+        .items(Joi.array().items(Joi.string().trim()))
+        .example([["name", "asc"]]),
     },
   },
 };

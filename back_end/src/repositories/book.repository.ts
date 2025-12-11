@@ -39,42 +39,67 @@ export class BooksRepository {
   public async deleteBook(id: string): Promise<BooksModel | null> {
     return Books.findByIdAndDelete({ _id: id });
   }
-  public async searchBooks(params: any): Promise<BooksModel[]> {
-    let query = {};
-    if (params.title) {
-      query = { ...query, title: { $regex: params.title, $options: "i" } };
-    }
-    if (params.author) {
-      query = { ...query, author: { $regex: params.author, $options: "i" } };
-    }
-    if (params.category) {
-      query = {
-        ...query,
-        category: { $regex: params.category, $options: "i" },
-      };
-    }
+  public async searchBooks(
+    params: any
+  ): Promise<{ count: number; rows: BooksModel[] } | any> {
+    try {
+      let sort: any = {};
+      if (params.order && params.order[0]?.length) {
+        const field = params.order[0][0];
+        const dir = params.order[0][1]?.toLowerCase() === "asc" ? 1 : -1;
 
-    if (params.publisher) {
-      query = {
-        ...query,
-        publisher: { $regex: params.publisher, $options: "i" },
-      };
-    }
-    let order = {};
-    if (params.order && params.order.length && params.order[0]?.length) {
-      let orderDirection = params.order[0][1] ? params.order[0][1] : "desc";
-      let direction = orderDirection.toLowerCase() === "asc" ? 1 : -1;
-      order = { [String(params.order[0][0])]: direction };
-    } else {
-      order = { createdAt: -1 };
-    }
+        if (field === "author") {
+          sort = { "authorData.name": dir };
+        } else if (field === "category") {
+          sort = { "categoryData.name": dir };
+        } else {
+          sort = { [field]: dir };
+        }
+      } else {
+        sort = { createdAt: -1 };
+      }
+      const pipeline: any[] = [
+        // { $match: match },
+        {
+          $lookup: {
+            from: "authors",
+            localField: "author",
+            foreignField: "_id",
+            as: "authorData",
+          },
+        },
+        { $unwind: "$authorData" },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "category",
+            foreignField: "_id",
+            as: "categoryData",
+          },
+        },
+        { $unwind: "$categoryData" },
+        { $sort: sort },
+        { $skip: params.offset || 0 },
+        { $limit: params.limit || 10 },
+        {
+          $project: {
+            title: 1,
+            publisher: 1,
+            createdAt: 1,
+            author: "$authorData.name",
+            category: "$categoryData.name",
+            quantity: 1,
+            issuedBook: 1,
+          },
+        },
+      ];
+      const count = await Books.countDocuments();
+      const rows = await Books.aggregate(pipeline);
 
-    return Books.find(query)
-      .populate("author", "name")
-      .populate("category", "name")
-      .sort(order)
-      .skip(params.offset || 0)
-      .limit(params.limit || 10);
+      return { count, rows };
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   public async getUsersByIds(ids: string[]): Promise<UsersModel[]> {

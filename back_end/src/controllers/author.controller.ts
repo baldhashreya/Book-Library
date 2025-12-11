@@ -9,7 +9,7 @@ export class AuthorController {
     }
 
     public searchAuthors = async(req:Request, res:Response): Promise<Response> => {
-        const authors = await this.authorService.searchAuthors(req.query);
+        const authors = await this.authorService.searchAuthors(req.body);
         return baseController.getResult(res, HttpStatusCode.Ok, authors, AuthorOperations.SEARCH);
     }
 

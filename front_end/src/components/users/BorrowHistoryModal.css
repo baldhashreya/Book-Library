@@ -1,0 +1,134 @@
+/* Modal Background */
+.history-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Modal Box */
+.history-modal {
+  background: #ffffff;
+  width: 800px;
+  max-height: 85vh;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Title */
+.history-modal h2 {
+  font-size: 22px;
+  margin-bottom: 18px;
+  text-align: center;
+  color: #333;
+}
+
+/* Table Styling */
+.history-modal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.history-modal th,
+.history-modal td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e2e2;
+  text-align: left;
+  font-size: 14px;
+}
+
+/* Table Header */
+.history-modal th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Hover Row */
+.history-modal tbody tr:hover {
+  background: #f9f9f9;
+  transition: 0.2s;
+}
+
+/* "Not Returned" Color */
+.history-modal td {
+  color: #333;
+}
+
+.history-modal td:nth-child(3):contains("Not Returned") {
+  color: red;
+  font-weight: bold;
+}
+
+/* Close Button */
+.close-btn {
+  background: #e74c3c;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #c0392b;
+}
+
+/* Base Style */
+.br-status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+  text-transform: capitalize;
+}
+
+/* Color Variants */
+.br-issued {
+  background-color: #3498db; /* blue */
+}
+
+.br-returned {
+  background-color: #2ecc71; /* green */
+}
+
+.br-lost {
+  background-color: #e74c3c; /* red */
+}
+
+.br-overdue {
+  background-color: #f1c40f; /* yellow */
+  color: #000;
+}
+
+.br-unknown {
+  background-color: #7f8c8d; /* grey */
+}

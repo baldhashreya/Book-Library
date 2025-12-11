@@ -109,7 +109,9 @@ export class UsersServices {
     return deletedUser;
   }
 
-  public async searchUsers(params: UsersSearchParams): Promise<UsersModel[]> {
+  public async searchUsers(
+    params: UsersSearchParams
+  ): Promise<{ rows: UsersModel[]; count: number }> {
     return this.usersRepository.searchUsers(params);
   }
 
@@ -179,5 +181,16 @@ export class UsersServices {
       } as UsersModel,
       id
     );
+  }
+
+  public async getUserBorrowHistory(id: string) {
+    const userExist = await this.commonRepository.getUserById(id);
+
+    if (!userExist) {
+      const err = new Error();
+      err.name = ErrorType.UserNotFound;
+      return Promise.reject(err);
+    }
+    return this.usersRepository.getUserBorrowHistory(id);
   }
 }

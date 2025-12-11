@@ -61,7 +61,7 @@ export class CategoriesService {
 
   public async searchCategory(
     params: CategoriesSearchParams
-  ): Promise<CategoriesModel[]> {
+  ): Promise<{count:number; rows: CategoriesModel[]}> {
     return this.categoriesRepository.searchCategory(params);
   }
 

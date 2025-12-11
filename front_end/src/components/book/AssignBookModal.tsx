@@ -31,10 +31,17 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
 
   const loadUsers = async () => {
     const data = await userService.getUsers({});
-    setUsers(data);
+    setUsers(data.rows);
   };
 
   if (!isOpen) return null;
+  const today = new Date();
+  const formattedToday = today.toISOString().split("T")[0];
+
+  // Tomorrow (max allowed date)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 30);
+  const formattedTomorrow = tomorrow.toISOString().split("T")[0];
 
   return (
     <div className="assign-modal-overlay">
@@ -46,11 +53,18 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
           value={selectedUser}
           onChange={(e) => setSelectedUser(e.target.value)}
         >
-          <option value="" disabled hidden>
+          <option
+            value=""
+            disabled
+            hidden
+          >
             -- Select User --
           </option>
           {users.map((u: any) => (
-            <option key={u._id} value={u._id}>
+            <option
+              key={u._id}
+              value={u._id}
+            >
               {u.userName
                 ? u.userName
                 : (u.firstName || "") + " " + (u.lastName || "")}
@@ -65,10 +79,15 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
           className="return-date-input"
           value={returnDate}
           onChange={(e) => setReturnDate(e.target.value)}
+          min={formattedToday} // disable past dates
+          max={formattedTomorrow} // allow only 1 day ahead
         />
 
         <div className="modal-actions">
-          <button className="cancel-btn" onClick={onClose}>
+          <button
+            className="cancel-btn"
+            onClick={onClose}
+          >
             Cancel
           </button>
 

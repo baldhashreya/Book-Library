@@ -74,7 +74,9 @@ export class BooksService {
     return true;
   }
 
-  public async searchBooks(params: any) {
+  public async searchBooks(
+    params: any
+  ): Promise<{ count: number; rows: BooksModel[] } | any> {
     return this.booksRepository.searchBooks(params);
   }
 

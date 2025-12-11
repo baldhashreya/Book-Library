@@ -148,3 +148,41 @@
   color: #6c757d;
   cursor: not-allowed;
 }
+
+.borrow-history-btn {
+  background-color: #8e44ad; /* purple theme */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.borrow-history-btn:hover {
+  background-color: #732d91;
+  transform: scale(1.03);
+}
+
+.borrow-history-btn:disabled {
+  background-color: #d6c8df;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Sort Arrow Styling */
+th {
+  white-space: nowrap;
+}
+
+.sort-arrow {
+  font-size: 12px;
+  margin-left: 4px;
+  opacity: 0.7;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+}

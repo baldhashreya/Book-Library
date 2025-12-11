@@ -1,13 +1,13 @@
-export type RolePermission = 
-  | 'manage_users' 
-  | 'manage_books' 
-  | 'manage_roles' 
-  | 'view_reports' 
-  | 'issue_books' 
-  | 'return_books'
-  | 'view_books'
-  | 'borrow_books'
-  | 'view_borrow_history';
+export type RolePermission =
+  | "manage_users"
+  | "manage_books"
+  | "manage_roles"
+  | "view_reports"
+  | "issue_books"
+  | "return_books"
+  | "view_books"
+  | "borrow_books"
+  | "view_borrow_history";
 
 export interface Role {
   _id: string;
@@ -30,5 +30,5 @@ export interface RoleSearchParams extends SearchParams {
 export interface SearchParams {
   offset?: number;
   limit?: number;
-  order?: string[];
+  order?: string[][];
 }

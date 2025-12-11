@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../MainLayout";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import BookModal from "./BookModal";
 import type { Book, BookFormData } from "../../types/book";
 import { bookService } from "../../services/bookService";
@@ -17,15 +18,39 @@ const BookPage: React.FC = () => {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [assignBook, setAssignBook] = useState<Book | null>(null);
 
-  useEffect(() => {
-    loadBooks({ limit: 100, offset: 0 });
-  }, []);
+  // PAGINATION STATE
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const loadBooks = async (params: SearchParams) => {
+  // SORTING STATE
+  const [orderBy, setOrderBy] = useState<
+    "title" | "author" | "category" | "status" | "available_bok"
+  >("title");
+  const [order, setOrder] = useState<"ASC" | "DESC">("ASC");
+
+  // Load books whenever page, limit, sorting changes
+  useEffect(() => {
+    loadBooks();
+  }, [page, limit, orderBy, order]);
+
+  // Backend call
+  const loadBooks = async () => {
     try {
       setLoading(true);
-      const booksData = await bookService.searchBooks(params);
-      setBooks(booksData);
+
+      const offset = (page - 1) * limit;
+
+      const params: SearchParams = {
+        limit,
+        offset,
+        order: [[orderBy, order]],
+      };
+
+      const response = await bookService.searchBooks(params);
+
+      setBooks(response.rows);
+      setTotalCount(response.count);
     } catch (error) {
       console.error("Error loading books:", error);
     } finally {
@@ -33,36 +58,34 @@ const BookPage: React.FC = () => {
     }
   };
 
+  // ADD BOOK
   const handleAddBook = () => {
     setModalMode("add");
     setSelectedBook(null);
     setIsModalOpen(true);
   };
 
+  // EDIT BOOK
   const handleEditBook = (book: Book) => {
     setModalMode("edit");
     setSelectedBook(book);
     setIsModalOpen(true);
   };
 
+  // DELETE BOOK
   const handleDeleteBook = async (bookId: string) => {
     if (window.confirm("Are you sure you want to delete this book?")) {
       try {
         await bookService.deleteBook(bookId);
-        const updatedBooks = await bookService.searchBooks({
-          limit: 100,
-          offset: 0,
-        });
-        setBooks(updatedBooks);
+        loadBooks();
       } catch (error) {
         console.error("Error deleting book:", error);
-        alert("Error deleting book. Please try again.");
       }
     }
   };
 
+  // ASSIGN BOOK
   const handleAssignBook = (book: Book) => {
-    console.log(book);
     setAssignBook(book);
     setIsAssignModalOpen(true);
   };
@@ -75,13 +98,7 @@ const BookPage: React.FC = () => {
 
     try {
       await bookService.assignBook(assignBook._id, param);
-
-      const updatedBooks = await bookService.searchBooks({
-        limit: 100,
-        offset: 0,
-      });
-      setBooks(updatedBooks);
-
+      loadBooks();
       setIsAssignModalOpen(false);
       setAssignBook(null);
     } catch (err) {
@@ -90,6 +107,7 @@ const BookPage: React.FC = () => {
     }
   };
 
+  // SAVE BOOK
   const handleSaveBook = async (bookData: BookFormData) => {
     try {
       if (modalMode === "add") {
@@ -98,19 +116,15 @@ const BookPage: React.FC = () => {
         await bookService.updateBook(selectedBook._id, bookData);
       }
 
-      const updatedBooks = await bookService.searchBooks({
-        limit: 100,
-        offset: 0,
-      });
-      setBooks(updatedBooks);
+      loadBooks();
       setIsModalOpen(false);
       setSelectedBook(null);
     } catch (error) {
       console.error("Error saving book:", error);
-      throw error;
     }
   };
 
+  // STATUS BADGE
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       available: { class: "status-available", text: "Available" },
@@ -121,8 +135,25 @@ const BookPage: React.FC = () => {
     const config =
       statusConfig[status as keyof typeof statusConfig] ||
       statusConfig.available;
+
     return (
       <span className={`status-badge ${config.class}`}>{config.text}</span>
+    );
+  };
+
+  const getSortArrow = (column: string) => {
+    if (orderBy !== column) return "";
+
+    return order === "ASC" ? (
+      <ArrowUp
+        size={16}
+        strokeWidth={2}
+      />
+    ) : (
+      <ArrowDown
+        size={16}
+        strokeWidth={2}
+      />
     );
   };
 
@@ -130,116 +161,154 @@ const BookPage: React.FC = () => {
     setSelectedRow((prev) => (prev === id ? null : id));
   };
 
-  const filteredBooks = books;
+  const totalPages = Math.ceil(totalCount / limit);
+  const nextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
+
+  const prevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+
+  const handleSort = (column: typeof orderBy) => {
+    if (orderBy === column) {
+      setOrder(order === "ASC" ? "DESC" : "ASC");
+    } else {
+      setOrderBy(column);
+      setOrder("ASC");
+    }
+  };
 
   return (
     <MainLayout>
       <div className="book-page">
-        <div className="page-header">
-          <div className="toolbar">
-            <button
-              className="add-user-btn"
-              onClick={handleAddBook}
-            >
-              <span>+</span> Add New Book
-            </button>
+        <div className="page-title-bar">
+          <h2>Book Management</h2>
 
-            <button
-              className="delete-selected-btn"
-              disabled={!selectedRow}
-              // onChange={() => toggleSelectRow(books._id)}
-              onClick={() => {
-                handleDeleteBook(selectedRow);
-              }}
-            >
-              Delete Book
-            </button>
-            <button
-              className="edit-selected-btn"
-              disabled={!selectedRow}
-              onClick={() => {
-                const bookToEdit = books.find((b) => b._id === selectedRow);
-                if (bookToEdit) handleEditBook(bookToEdit);
-              }}
-            >
-              Edit Book
-            </button>
-            <button
-              className="assign-selected-btn"
-              disabled={!selectedRow}
-              onClick={() => {
-                const bookToAssign = books.find((b) => b._id === selectedRow);
-                console.log(bookToAssign);
-                if (bookToAssign) handleAssignBook(bookToAssign);
-              }}
-            >
-              Assign Book
-            </button>
+          <div className="title-actions">
+            <button className="primary-btn">Add</button>
           </div>
         </div>
 
+        {/* Toolbar */}
+        <div className="toolbar">
+          <button className="toolbar-btn">Filter</button>
+          <button className="toolbar-btn">Group</button>
+          <button className="toolbar-btn">Update</button>
+          <button className="toolbar-btn">Refresh</button>
+
+          <div className="toolbar-search">
+            <input
+              type="text"
+              placeholder="Search…"
+            />
+          </div>
+        </div>
+
+        {/* TABLE */}
         {loading ? (
           <div className="loading-state">
             <div className="loading-spinner"></div>
             <p>Loading books...</p>
           </div>
         ) : (
-          <div className="books-table-container">
-            {filteredBooks.length === 0 ? (
-              <div className="empty-state">
-                <h3>No books found</h3>
-                <p>
-                  Your library is empty. Add your first book to get started.
-                </p>
-              </div>
-            ) : (
-              <table className="books-table">
-                <thead>
-                  <tr>
-                    <th>Select</th>
-                    <th>Book Name</th>
-                    <th>Author</th>
-                    <th>Category</th>
-                    <th>Available Book</th>
-                    <th>Status</th>
+          <div className="table-card">
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  <th>Select</th>
+                  <th onClick={() => handleSort("title")}>
+                    Book Name{" "}
+                    <span className="sort-arrow">{getSortArrow("title")}</span>
+                  </th>
+                  <th onClick={() => handleSort("author")}>
+                    Author{" "}
+                    <span className="sort-arrow">{getSortArrow("author")}</span>
+                  </th>
+                  <th onClick={() => handleSort("category")}>
+                    Category{" "}
+                    <span className="sort-arrow">
+                      {getSortArrow("category")}
+                    </span>
+                  </th>
+                  <th
+                  // onClick={() => handleSort("available_bok")}
+                  >
+                    Available Book{" "}
+                    {/* <span className="sort-arrow">
+                      {getSortArrow("available_bok")}
+                    </span> */}
+                  </th>
+                  <th onClick={() => handleSort("status")}>
+                    Status{" "}
+                    <span className="sort-arrow">{getSortArrow("status")}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {books.map((book) => (
+                  <tr key={book._id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedRow === book._id}
+                        onChange={() => toggleSelectRow(book._id)}
+                      />
+                    </td>
+
+                    <td>{book.title}</td>
+                    <td>{book.author}</td>
+
+                    <td>
+                      <span className="category-tag">{book.category}</span>
+                    </td>
+
+                    <td>{book.quantity - (book.issuedBook || 0)}</td>
+
+                    <td>{getStatusBadge(book.status)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredBooks.map((book) => (
-                    <tr key={book._id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedRow === book._id}
-                          onChange={() => toggleSelectRow(book._id)}
-                        />
-                      </td>
-                      <td>
-                        <div className="book-title">
-                          <strong>{book.title}</strong>
-                          {book.publisher && (
-                            <span className="book-year">
-                              ({book.publisher})
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td>{book.author.name}</td>
-                      <td>
-                        <span className="category-tag">
-                          {book.category.name}
-                        </span>
-                      </td>
-                      <td>{book.quantity - (book.issuedBook || 0)}</td>
-                      <td>{getStatusBadge(book.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                ))}
+              </tbody>
+            </table>
+
+            {/* PAGINATION */}
+            <div className="pagination">
+              <button
+                disabled={page === 1}
+                onClick={prevPage}
+              >
+                Previous
+              </button>
+
+              <span className="page-info">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                disabled={page === totalPages}
+                onClick={nextPage}
+              >
+                Next
+              </button>
+
+              <select
+                className="limit-select"
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
         )}
 
+        {/* MODALS */}
         <BookModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
