@@ -3,6 +3,7 @@ import { userService } from "../../services/userService";
 import type { User } from "../../types/user";
 import type { Book } from "../../types/book";
 import "./AssignBookModal.css";
+import CustomButton from "../common/Button/CustomButton";
 
 interface AssignBookModalProps {
   isOpen: boolean;
@@ -46,11 +47,18 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
           value={selectedUser}
           onChange={(e) => setSelectedUser(e.target.value)}
         >
-          <option value="" disabled hidden>
+          <option
+            value=""
+            disabled
+            hidden
+          >
             -- Select User --
           </option>
           {users.map((u: any) => (
-            <option key={u._id} value={u._id}>
+            <option
+              key={u._id}
+              value={u._id}
+            >
               {u.userName
                 ? u.userName
                 : (u.firstName || "") + " " + (u.lastName || "")}
@@ -58,7 +66,6 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
           ))}
         </select>
 
-        {/* RETURN DATE FIELD */}
         <label>Return Date</label>
         <input
           type="date"
@@ -68,22 +75,25 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
         />
 
         <div className="modal-actions">
-          <button className="cancel-btn" onClick={onClose}>
-            Cancel
-          </button>
+          <CustomButton
+            variant="contained"
+            onClick={onClose}
+            label="Cancel"
+            className="cancel-btn"
+          ></CustomButton>
 
-          <button
-            className="save-btn"
-            disabled={!selectedUser || !returnDate}
+          <CustomButton
+            variant="contained"
             onClick={() =>
               onSave({
                 userId: selectedUser,
                 returnDate: returnDate,
               })
             }
-          >
-            Assign
-          </button>
+            label="Assign"
+            className="save-btn"
+            disabled={!selectedUser || !returnDate}
+          ></CustomButton>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/authService";
+import Button from "@mui/material/Button";
 import "./Login.css";
 
 const Login: React.FC = () => {
@@ -182,13 +183,23 @@ const Login: React.FC = () => {
         <div className="signup-section">
           <p>
             Don’t have an account?{" "}
-            <button
-              type="button"
-              className="signup-link"
+            <Button
+              variant="text"
+              sx={{
+                color: "#764ba2",
+                textTransform: "none",
+                fontWeight: "700",
+                m: 0,
+                p: 0,
+                "&:hover": {
+                  color: "#0d47a1",
+                  backgroundColor: "transparent",
+                },
+              }}
               onClick={() => navigate("/signup")}
             >
-              Sign Up
-            </button>
+              SignUp
+            </Button>
           </p>
         </div>
       </div>

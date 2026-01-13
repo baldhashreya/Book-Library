@@ -29,7 +29,7 @@
   transition: all 0.3s ease;
 }
 
-.delete-selected-btn {
+/* .delete-selected-btn {
   background: #dc3545;
   color: white;
   padding: 12px 20px;
@@ -44,7 +44,7 @@
 .delete-selected-btn:disabled {
   background: #f5b5b5;
   cursor: not-allowed;
-}
+} */
 
 .users-table-container {
   background: white;
@@ -104,27 +104,6 @@
   padding: 8px;
   cursor: pointer;
   border-radius: 6px;
-}
-
-.edit-selected-btn {
-  background: #ffc107;
-  color: #000;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.edit-selected-btn:hover:not(:disabled) {
-  background: #e0a800;
-}
-
-.edit-selected-btn:disabled {
-  background: #ffe8a1;
-  cursor: not-allowed;
 }
 
 .change-status-btn {

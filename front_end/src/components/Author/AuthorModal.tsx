@@ -1,22 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import type { Author, AuthorFormData } from '../../types/author';
-import { authorService } from '../../services/authorService';
-import './AuthorModal.css';
-import type { SearchParams } from '../../types/role';
+import React, { useState, useEffect } from "react";
+import type { Author, AuthorFormData } from "../../types/author";
+import { authorService } from "../../services/authorService";
+import "./AuthorModal.css";
+import type { SearchParams } from "../../types/role";
+import IconButton from "@mui/material/IconButton";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import CustomButton from "../common/Button/CustomButton";
+import CancelButton from "../common/Button/CancleButton";
 
 interface AuthorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (authorData: AuthorFormData) => void;
   author?: Author | null;
-  mode: 'add' | 'edit';
+  mode: "add" | "edit";
 }
 
-const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, author, mode }) => {
+const AuthorModal: React.FC<AuthorModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  author,
+  mode,
+}) => {
   const [formData, setFormData] = useState<AuthorFormData>({
-    name: '',
-    bio: '',
-    birthDate: ''
+    name: "",
+    bio: "",
+    birthDate: "",
   });
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,17 +34,17 @@ const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, auth
   useEffect(() => {
     if (isOpen) {
       loadAuthors();
-      if (mode === 'edit' && author) {
+      if (mode === "edit" && author) {
         setFormData({
           name: author.name,
           bio: author.bio,
-          birthDate: author.birthDate
+          birthDate: author.birthDate,
         });
       } else {
         setFormData({
-          name: '',
-          bio: '',
-          birthDate: new Date()
+          name: "",
+          bio: "",
+          birthDate: new Date(),
         });
       }
     }
@@ -42,18 +52,25 @@ const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, auth
 
   const loadAuthors = async () => {
     try {
-      const authors = await authorService.searchAuthors({ limit: 100, offset: 0 } as SearchParams);
+      const authors = await authorService.searchAuthors({
+        limit: 100,
+        offset: 0,
+      } as SearchParams);
       setAuthors(authors);
     } catch (error) {
-      console.error('Error loading authors:', error);
+      console.error("Error loading authors:", error);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -64,7 +81,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, auth
       await onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Error saving author:', error);
+      console.error("Error saving author:", error);
     } finally {
       setLoading(false);
     }
@@ -76,11 +93,19 @@ const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, auth
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>{mode === 'add' ? 'Add New Author' : 'Edit Author'}</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <h2>{mode === "add" ? "Add New Author" : "Edit Author"}</h2>
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+          >
+            <ClearRoundedIcon />
+          </IconButton>
         </div>
 
-        <form onSubmit={handleSubmit} className="author-form">
+        <form
+          onSubmit={handleSubmit}
+          className="author-form"
+        >
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="name">Author Name *</label>
@@ -123,12 +148,23 @@ const AuthorModal: React.FC<AuthorModalProps> = ({ isOpen, onClose, onSave, auth
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} disabled={loading}>
-              Cancel
-            </button>
-            <button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : (mode === 'add' ? 'Add Author' : 'Update Author')}
-            </button>
+            <CancelButton
+              onClick={onClose}
+              disabled={loading}
+            />
+            <CustomButton
+              variant="contained"
+              onClick={handleSubmit}
+              label={
+                loading
+                  ? "Saving..."
+                  : mode === "add"
+                  ? "Add Author"
+                  : "Update Author"
+              }
+              className="action-button"
+              disabled={loading}
+            ></CustomButton>
           </div>
         </form>
       </div>

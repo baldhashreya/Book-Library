@@ -1,5 +1,7 @@
 import { useState } from "react";
 import "./ChangePasswordModal.css";
+import CustomButton from "../common/Button/CustomButton";
+import CancelButton from "../common/Button/CancleButton";
 
 const ChangePasswordModal = ({ onClose, onSave }: any) => {
   const [form, setForm] = useState({
@@ -12,7 +14,7 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
     try {
       onSave(form.newPassword);
@@ -33,6 +35,7 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
             type="password"
             name="oldPassword"
             onChange={handleChange}
+            required
           />
 
           <label>New Password</label>
@@ -40,6 +43,7 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
             type="password"
             name="newPassword"
             onChange={handleChange}
+            required
           />
 
           <label>Confirm Password</label>
@@ -47,22 +51,18 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
             type="password"
             name="confirmPassword"
             onChange={handleChange}
+            required
           />
         </div>
 
         <div className="modal-actions">
-          <button
-            className="save-btn"
+          <CustomButton
+            variant="contained"
             onClick={handleSubmit}
-          >
-            Update
-          </button>
-          <button
-            className="cancel-btn"
-            onClick={onClose}
-          >
-            Cancel
-          </button>
+            label="Update"
+            className="update-button"
+          />
+          <CancelButton onClick={onClose} />
         </div>
       </div>
     </div>

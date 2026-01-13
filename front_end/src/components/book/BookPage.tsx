@@ -6,6 +6,9 @@ import { bookService } from "../../services/bookService";
 import "./BookPage.css";
 import type { SearchParams } from "../../types/role";
 import AssignBookModal from "./AssignBookModal";
+import CustomButton from "../common/Button/CustomButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 const BookPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -137,23 +140,26 @@ const BookPage: React.FC = () => {
       <div className="book-page">
         <div className="page-header">
           <div className="toolbar">
-            <button
-              className="add-user-btn"
+            <CustomButton
+              className="add-book-btn"
               onClick={handleAddBook}
-            >
-              <span>+</span> Add New Book
-            </button>
+              label="Add New Book"
+              variant="contained"
+              startIcon={<AddIcon />}
+            ></CustomButton>
 
-            <button
+            <CustomButton
               className="delete-selected-btn"
-              disabled={!selectedRow}
-              // onChange={() => toggleSelectRow(books._id)}
               onClick={() => {
-                handleDeleteBook(selectedRow);
+                if (selectedRow) {
+                  handleDeleteBook(selectedRow);
+                }
               }}
-            >
-              Delete Book
-            </button>
+              label="Delete Book"
+              variant="contained"
+              startIcon={<DeleteIcon />}
+              disabled={!selectedRow}
+            />
             <button
               className="edit-selected-btn"
               disabled={!selectedRow}
@@ -162,8 +168,18 @@ const BookPage: React.FC = () => {
                 if (bookToEdit) handleEditBook(bookToEdit);
               }}
             >
-              Edit Book
+              Edit Book1
             </button>
+            <CustomButton
+              className="edit-selected-btn"
+              onClick={() => {
+                const bookToEdit = books.find((b) => b._id === selectedRow);
+                if (bookToEdit) handleEditBook(bookToEdit);
+              }}
+              label="Edit Book"
+              variant="contained"
+              disabled={!selectedRow}
+            ></CustomButton>
             <button
               className="assign-selected-btn"
               disabled={!selectedRow}
@@ -175,6 +191,17 @@ const BookPage: React.FC = () => {
             >
               Assign Book
             </button>
+            <CustomButton
+              className="assign-selected-btn"
+              onClick={() => {
+                const bookToAssign = books.find((b) => b._id === selectedRow);
+                console.log(bookToAssign);
+                if (bookToAssign) handleAssignBook(bookToAssign);
+              }}
+              label="Assign Book"
+              variant="contained"
+              disabled={!selectedRow}
+            ></CustomButton>
           </div>
         </div>
 
