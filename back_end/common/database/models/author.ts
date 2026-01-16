@@ -12,5 +12,4 @@ const authorSchema = new Schema<AuthorModel>({
   birthDate: { type: Date, required: true },
 });
 
-const Authors = model<AuthorModel>("authors", authorSchema);
-export default Authors;
+export const Authors = model<AuthorModel>("authors", authorSchema);

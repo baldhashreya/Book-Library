@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { AuditLogsActionEnum } from "../../enum";
+import { AuditLogsActionEnum } from "../../common-functions/enum";
 
 export interface auditLogsModel extends Document {
   action: AuditLogsActionEnum;
@@ -17,9 +17,8 @@ const auditLogsSchema = new Schema<auditLogsModel>({
   details: { type: String },
 });
 
-const auditLogs = model<auditLogsModel>("audit_logs", auditLogsSchema);
+export const auditLogs = model<auditLogsModel>("audit_logs", auditLogsSchema);
 
-export default auditLogs;
 
 // | Field         | Description                                                   | Example Value                                                                          |
 // | ------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |

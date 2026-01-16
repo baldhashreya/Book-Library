@@ -1,5 +1,5 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
-import { UserStatusEnum } from "../../enum";
+import { UserStatusEnum } from "../../common-functions/enum";
 
 export interface UsersModel extends Document {
   firstName: string;

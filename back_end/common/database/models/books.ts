@@ -1,5 +1,5 @@
 import mongoose, { model, Schema, Types } from "mongoose";
-import { BookStatusEnum } from "../../enum";
+import { BookStatusEnum } from "../../common-functions/enum";
 
 export interface BooksModel {
   title: string;
@@ -38,5 +38,4 @@ const BooksSchema = new Schema<BooksModel>(
   { timestamps: true }
 );
 
-const Books = model<BooksModel>("books", BooksSchema);
-export default Books;
+export const Books = model<BooksModel>("books", BooksSchema);
