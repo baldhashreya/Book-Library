@@ -1,8 +1,4 @@
-<<<<<<< HEAD:back_end/src/repositories/users.repository.ts
-import { UsersModel, Users } from "../../common/database/models/users";
-=======
 import { UsersModel, Users } from "common";
->>>>>>> 74355e3e0d8474fbefe72dfaf8d3a107a1bc230d:back_end/lambda/src/repositories/users.repository.ts
 import { UsersSearchParams } from "../interface/common.interface";
 
 export class UsersRepository {
