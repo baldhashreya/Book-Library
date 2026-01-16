@@ -23,8 +23,7 @@ const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     role: "",
     status: "active",
@@ -41,8 +40,7 @@ const UserModal: React.FC<UserModalProps> = ({
       setError("");
       if (mode === "edit" && user) {
         setFormData({
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
           email: user.email,
           role: user.role._id,
           status: user.status,
@@ -51,8 +49,7 @@ const UserModal: React.FC<UserModalProps> = ({
         });
       } else {
         setFormData({
-          firstName: "",
-          lastName: "",
+          name: "",
           email: "",
           role: "",
           phone: 0,
@@ -95,15 +92,12 @@ const UserModal: React.FC<UserModalProps> = ({
     console.log(formData);
     try {
       // Validate form
-      if (!formData.firstName.trim()) {
-        setError("First name is required");
+      if (!formData.name.trim()) {
+        setError("Name is required");
         return;
       }
 
-      if (!formData.lastName.trim()) {
-        setError("Last name is required");
-        return;
-      }
+      
 
       if (!formData.email.trim()) {
         setError("Email is required");
@@ -154,31 +148,16 @@ const UserModal: React.FC<UserModalProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">First Name*</label>
+              <label htmlFor="name">Name*</label>
               <input
                 type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter firstName"
-                maxLength={30}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name*</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter lastName"
+                placeholder="Enter Name"
                 maxLength={30}
               />
             </div>
@@ -259,7 +238,7 @@ const UserModal: React.FC<UserModalProps> = ({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter lastName"
+                placeholder="Enter phone"
               />
             </div>
           </div>

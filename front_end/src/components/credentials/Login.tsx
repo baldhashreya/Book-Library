@@ -5,8 +5,9 @@ import { authService } from "../../services/authService";
 import { TextField, Button, Box, Link } from "@mui/material";
 import "./Login.css";
 import CustomButton from "../common/Button/CustomButton";
+import "../common/common-css/login.css";
 import BookImage from "../../assets/first-image.jpg";
-
+import CustomLink from "../common/CustomLink";
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,28 +17,21 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [newResetPassword, setNewResetPassword] = useState("");
-
   const { login } = useAuth();
   const navigate = useNavigate();
   console.log("after logout");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
     try {
       const response = await authService.login({ email, password });
-
       if (response.data && response.data.access_token) {
         localStorage.setItem("token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
-
         const user = await authService.getCurrentUser();
         localStorage.setItem("user", JSON.stringify(user || { email }));
-
         await login(email, password);
-
         navigate("/dashboard");
       } else {
         setError(response.message || "Login failed. Please check credentials.");
@@ -49,16 +43,13 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   const handleForgotPassword = () => {
     setShowForgotPassword(true);
     setError("");
   };
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       await authService.resetPassword(resetEmail, newResetPassword);
       alert("Password reset successfully!");
@@ -69,14 +60,12 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   const handleBackToLogin = () => {
     setShowForgotPassword(false);
     setResetEmail("");
     setResetSuccess(false);
     setError("");
   };
-
   if (showForgotPassword) {
     return (
       <div className="login-container">
@@ -88,12 +77,10 @@ const Login: React.FC = () => {
         </div>
         <div className="login-card">
           <h2>Reset Password</h2>
-
           {error && <div className="error-message">{error}</div>}
-
           <form onSubmit={handleResetPassword}>
             <Box
-              component="form"
+             
               sx={{ "& > :not(style)": { m: 1, width: "300px" } }}
             >
               <TextField
@@ -105,7 +92,6 @@ const Login: React.FC = () => {
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
               />
-
               <TextField
                 label="password"
                 variant="standard"
@@ -115,18 +101,18 @@ const Login: React.FC = () => {
                 value={newResetPassword}
                 onChange={(e) => setNewResetPassword(e.target.value)}
               />
-
-              <CustomButton
-                className="login-button"
-                onClick={() => {}}
-                disabled={isLoading}
-                label={isLoading ? "Updating..." : "Update Password"}
-                variant="contained"
-                type="submit"
-              />
+              <div className="login-btn">
+                <CustomButton
+                  className="login-button"
+                  onClick={() => {}}
+                  disabled={isLoading}
+                  label={isLoading ? "Updating..." : "Update Password"}
+                  variant="contained"
+                  type="submit"
+                />
+              </div>
             </Box>
-
-            <Link 
+            <Link
               component="button"
               variant="body2"
               onClick={handleBackToLogin}
@@ -140,8 +126,6 @@ const Login: React.FC = () => {
       </div>
     );
   }
-
-  // Login UI
   return (
     <div className="login-container">
       <div className="login-img">
@@ -153,16 +137,9 @@ const Login: React.FC = () => {
       <div className="login-card">
         <h2>Welcome Back</h2>
         <p className="login-subtitle">Sign in to your Book Library</p>
-
         {error && <div className="error-message">{error}</div>}
-
         <form onSubmit={handleSubmit}>
-          <Box
-            component="form"
-            sx={{ "& > :not(style)": { m: 1, width: "300px" } }}
-            noValidate
-            autoComplete="off"
-          >
+          <Box sx={{ "& > :not(style)": { m: 1, width: "300px" } }}>
             <TextField
               label="email"
               variant="standard"
@@ -173,7 +150,6 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-
             <TextField
               label="password"
               variant="standard"
@@ -194,44 +170,32 @@ const Login: React.FC = () => {
                 Forgot Password?
               </Link>
             </div>
-
             {/* Login button */}
-            <CustomButton
-              className="login-button"
-              onClick={handleSubmit}
-              disabled={isLoading}
-              label={isLoading ? "Signing In..." : "Sign In"}
-              variant="contained"
-              type="submit"
-            />
+            <div className="login-btn">
+              <CustomButton
+                className="login-button"
+                disabled={isLoading}
+                label={isLoading ? "Signing In..." : "Sign In"}
+                variant="contained"
+                type="submit"
+              />
+            </div>
           </Box>
         </form>
-
         <div className="signup-section">
           <p>
-            Don’t have an account?{" "}
-            <Button
-              variant="text"
-              sx={{
-                color: "#764ba2",
-                textTransform: "none",
-                fontWeight: "700",
-                m: 0,
-                p: 0,
-                "&:hover": {
-                  color: "#0d47a1",
-                  backgroundColor: "transparent",
-                },
-              }}
+            Don’t have an account?
+            <CustomLink
+              component="button"
+              variant="body2"
               onClick={() => navigate("/signup")}
-            >
-              SignUp
-            </Button>
+              label="SignUp"
+              className="redirect-link"
+            />
           </p>
         </div>
       </div>
     </div>
   );
 };
-
 export default Login;

@@ -23,8 +23,7 @@ const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    firstName: "",
-    lastName: "",
+    name:"",
     email: "",
     role: "",
     status: "active",
@@ -49,16 +48,14 @@ const UserModal: React.FC<UserModalProps> = ({
         }
 
         setFormData({
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
           email: user.email,
           role: roleId,
           status: user.status,
         });
       } else {
         setFormData({
-          firstName: "",
-          lastName: "",
+          name: "",
           email: "",
           role: "",
           status: "active",
@@ -108,8 +105,8 @@ const UserModal: React.FC<UserModalProps> = ({
 
     try {
       // Validate form
-      if (!formData.firstName.trim()) {
-        setError("firstName is required");
+      if (!formData.name.trim()) {
+        setError("Name is required");
         return;
       }
 
@@ -184,19 +181,19 @@ const UserModal: React.FC<UserModalProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">First Name *</label>
+              <label htmlFor="name">Name *</label>
               <input
                 type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter firstName"
+                placeholder="Enter Name"
                 maxLength={30}
               />
-              <div className="char-count">{formData.firstName.length}/30</div>
+              <div className="char-count">{formData.name.length}/30</div>
             </div>
 
             <div className="form-group">

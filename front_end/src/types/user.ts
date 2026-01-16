@@ -1,21 +1,23 @@
 export interface User {
   id: string;
-  firstName: string;
-  userName: string;
-  lastName: string;
+  name: string;
   email: string;
-  role: string;
+  role: {
+    _id: string;
+  };
   roleName?: string;
   status: "active" | "inactive";
   createdAt: string;
   lastLogin?: string;
-  phone: number;
-  address: string;
+
+  contactInfo: {
+    phone: number;
+    address: string;
+  };
 }
 
 export interface UserFormData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   role: string;
   status?: "active" | "inactive";

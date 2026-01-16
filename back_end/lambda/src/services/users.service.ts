@@ -71,8 +71,7 @@ export class UsersServices {
       params.password = await hashPassword(params.password);
     }
     const model = {
-      firstName: params.firstName,
-      lastName: params.lastName,
+      name: params.name,
       email: params.email,
       role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
@@ -90,8 +89,7 @@ export class UsersServices {
   ): Promise<UpdateResult> {
     await this.validateRequestModel(params, id);
     const model = {
-      firstName: params.firstName,
-      lastName: params.lastName,
+      name: params.name,
       email: params.email,
       role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,

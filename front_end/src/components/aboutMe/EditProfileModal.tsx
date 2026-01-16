@@ -22,8 +22,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 }) => {
   console.log(user);
   const [formData, setFormData] = useState<any>({
-    firstName: "",
-    lastName: "",
+    name:"",
     email: "",
     role: "",
     status: "active",
@@ -39,8 +38,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
       loadRoles();
       setError("");
       setFormData({
-        firstName: user.firstName || user.userName,
-        lastName: user.lastName,
+        name: user.name,
         email: user.email,
         role: user.role._id,
         status: user.status,
@@ -84,13 +82,8 @@ const EditProfileModal: React.FC<UserModalProps> = ({
     console.log(formData);
     try {
       // Validate form
-      if (!formData.firstName.trim()) {
-        setError("First name is required");
-        return;
-      }
-
-      if (!formData.lastName.trim()) {
-        setError("Last name is required");
+      if (!formData.name.trim()) {
+        setError("name is required");
         return;
       }
 
@@ -145,31 +138,16 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">First Name*</label>
+              <label htmlFor="name">Name*</label>
               <input
                 type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName || formData.userName}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter firstName"
-                maxLength={30}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name*</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName || ""}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter lastName"
+                placeholder="Enter Name"
                 maxLength={30}
               />
             </div>
@@ -248,7 +226,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                placeholder="Enter lastName"
+                placeholder="Enter phone"
               />
             </div>
           </div>

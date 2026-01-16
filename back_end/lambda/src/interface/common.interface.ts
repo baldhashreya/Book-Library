@@ -1,8 +1,4 @@
-import {
-  RolePermission,
-  UserStatusEnum,
-  SearchParams
-} from "common";
+import { RolePermission, UserStatusEnum, SearchParams } from "common";
 
 export interface RolesSearchParams extends SearchParams {
   name?: string;
@@ -30,8 +26,7 @@ export interface AuthorsSearchParams extends SearchParams {
 }
 
 export interface UpsertUsersModel {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   password?: string;
   role: string;

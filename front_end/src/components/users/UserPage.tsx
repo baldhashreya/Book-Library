@@ -6,7 +6,7 @@ import { userService } from "../../services/userService";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
-import SyncIcon from '@mui/icons-material/Sync';
+import SyncIcon from "@mui/icons-material/Sync";
 import CustomButton from "../common/Button/CustomButton";
 import "../common/common-css/button.css";
 import "./UserPage.css";
@@ -178,11 +178,7 @@ const UserPage: React.FC = () => {
                       />
                     </td>
 
-                    <td>
-                      {user.firstName && user.lastName
-                        ? `${user.firstName} ${user.lastName}`
-                        : user.userName || "N/A"}
-                    </td>
+                    <td>{user.name ? user.name : user.userName || "N/A"}</td>
 
                     <td>{user.email || "N/A"}</td>
 

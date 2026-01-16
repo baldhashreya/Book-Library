@@ -97,7 +97,7 @@ const AboutMePage: React.FC = () => {
                     <span className="value">
                       {userData.userName
                         ? userData.userName
-                        : userData.firstName + " " + userData.lastName}
+                        : userData.name}
                     </span>
                   </div>
                   <div className="detail-item">

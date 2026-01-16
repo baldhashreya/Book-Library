@@ -32,8 +32,7 @@ export interface AuthContextType {
 }
 
 export interface signupFormData {
-  firstName: string;
-  lastName: string;
+  name:string;
   email: string;
   password: string;
   confirmPassword: string;
