@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
-import "../users/UserModal.css";
+import "../aboutMe/EditProfileModal.css";
+import CustomButton from "../common/Button/CustomButton";
+import CancelButton from "../common/Button/CancleButton";
+import IconButtons from "../common/Button/IconButtons";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -40,8 +44,14 @@ const EditProfileModal: React.FC<UserModalProps> = ({
         email: user.email,
         role: user.role._id,
         status: user.status,
-        phone:user.contactInfo && user.contactInfo.phone? user.contactInfo.phone:0,
-        address: user.contactInfo && user.contactInfo.address? user.contactInfo.address: "",
+        phone:
+          user.contactInfo && user.contactInfo.phone
+            ? user.contactInfo.phone
+            : 0,
+        address:
+          user.contactInfo && user.contactInfo.address
+            ? user.contactInfo.address
+            : "",
       });
     }
   }, [isOpen, user]);
@@ -118,12 +128,13 @@ const EditProfileModal: React.FC<UserModalProps> = ({
       <div className="modal-content-user">
         <div className="modal-header">
           <h2>Edit User</h2>
-          <button
-            className="close-button"
+
+          <IconButtons
             onClick={onClose}
-          >
-            ×
-          </button>
+            label={<ClearRoundedIcon />}
+            ariaLabel="Close"
+            disabled={loading}
+          />
         </div>
 
         <form
@@ -259,19 +270,15 @@ const EditProfileModal: React.FC<UserModalProps> = ({
           </div>
 
           <div className="form-actions">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
+            <CancelButton onClick={onClose} />
+            <CustomButton
+              variant="contained"
+              onClick={() => {}}
+              label="Update User"
+              className="action-button"
               type="submit"
               disabled={loading}
-            >
-              Update User
-            </button>
+            />
           </div>
         </form>
       </div>

@@ -3,9 +3,13 @@ import MainLayout from "../MainLayout";
 import type { Author, AuthorFormData } from "../../types/author";
 import { authorService } from "../../services/authorService";
 import "./AuthorPage.css";
-import { PencilLine, Trash } from "lucide-react";
 import type { SearchParams } from "../../types/role";
 import AuthorModal from "./AuthorModal";
+import CustomButton from "../common/Button/CustomButton";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButtons from "../common/Button/IconButtons";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -84,15 +88,14 @@ const AuthorPage: React.FC = () => {
     <MainLayout>
       <div className="book-page">
         <div className="page-header">
-          <div className="header-content">
-          </div>
-          <button
-            className="add-book-btn"
+          <div className="header-content"></div>
+          <CustomButton
+            variant="contained"
             onClick={handleAddAuthor}
-          >
-            <span>+</span>
-            Add New Author
-          </button>
+            label="Add New Author"
+            className="add-author-btn"
+            startIcon={<AddIcon />}
+          />
         </div>
 
         {loading ? (
@@ -131,20 +134,16 @@ const AuthorPage: React.FC = () => {
                       <td>{author.birthDate}</td>
                       <td>
                         <div className="action-buttons">
-                          <button
-                            className="action-btn view-btn"
+                          <IconButtons
                             onClick={() => handleEditAuthor(author)}
-                            title="View/Edit Author"
-                          >
-                            <PencilLine />
-                          </button>
-                          <button
-                            className="action-btn delete-btn"
+                            label={<ModeEditIcon />}
+                            ariaLabel="edit"
+                          />
+                          <IconButtons
                             onClick={() => handleDeleteAuthor(author._id)}
-                            title="Delete Author"
-                          >
-                            <Trash />
-                          </button>
+                            label={<DeleteIcon />}
+                            ariaLabel="Delete"
+                          />
                         </div>
                       </td>
                     </tr>

@@ -53,37 +53,28 @@
   border-color: #007bff;
 }
 
-/* Modal Buttons container */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
 }
 
-/* Cancel button */
 .cancel-btn {
-  padding: 8px 16px;
-  background: #f44336;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
+  background: #f44336 !important;
+  color: #fff !important;
+  text-transform: none !important;
 }
 
 .cancel-btn:hover {
-  background: #d32f2f;
+  background: white !important;
+  color: #f44336 !important;
+  border: 1px solid #f44336;
 }
 
-/* Save/Assign button */
 .save-btn {
-  padding: 8px 16px;
-  background: #4caf50;
+  background: #4caf50 !important;
   color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
+  text-transform: none !important;
 }
 
 .save-btn:disabled {
@@ -91,18 +82,8 @@
   cursor: not-allowed;
 }
 
-.save-btn:hover:not(:disabled) {
-  background: #43a047;
-}
-
-/* Fade animation */
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.save-btn:hover {
+  background: white !important;
+  color: #45a049;
+  border: 1px solid #45a049;
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pencil, Lock } from "lucide-react";
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import MainLayout from "../MainLayout";
 import { useAuth } from "../../contexts/AuthContext";
 import "./AboutMePage.css";
@@ -8,6 +8,8 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import { userService } from "../../services/userService";
 import type { UserFormData } from "../../types/user";
 import { authService } from "../../services/authService";
+import LockIcon from "@mui/icons-material/Lock";
+import CustomButton from "../common/Button/CustomButton";
 
 const AboutMePage: React.FC = () => {
   const { user } = useAuth();
@@ -136,21 +138,22 @@ const AboutMePage: React.FC = () => {
               <div className="detail-section">
                 <h3>Quick Actions</h3>
                 <div className="action-buttons">
-                  <div className="action-buttons">
-                    <button
-                      className="action-btn primary"
-                      onClick={() => setIsEditOpen(true)}
-                    >
-                      <Pencil /> Edit Profile
-                    </button>
-
-                    <button
-                      className="action-btn secondary"
-                      onClick={() => setIsPasswordOpen(true)}
-                    >
-                      <Lock /> Change Password
-                    </button>
-                  </div>
+                  <CustomButton
+                    variant="contained"
+                    onClick={() => setIsEditOpen(true)}
+                    label="Update User"
+                    className="action-button"
+                    type="submit"
+                    disabled={loading}
+                    startIcon={<ModeEditOutlineIcon />}
+                  />
+                  <CustomButton
+                    variant="contained"
+                    onClick={() => setIsPasswordOpen(true)}
+                    label="Change Password"
+                    className="action-button"
+                    startIcon={<LockIcon />}
+                  />
                 </div>
               </div>
             </div>

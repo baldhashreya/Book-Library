@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./RoleModal.css";
+import CancelButton from "../common/Button/CancleButton";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import IconButtons from "../common/Button/IconButtons";
+import CustomButton from "../common/Button/CustomButton";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -34,16 +38,16 @@ const UserModal: React.FC<UserModalProps> = ({
       loadRoles();
       setError("");
       if (mode === "edit" && user) {
-        console.log('Setting form data for edit mode:', user);
-        
+        console.log("Setting form data for edit mode:", user);
+
         // Extract role ID from user object - handle different data structures
         let roleId = "";
-        if (typeof user.role === 'string') {
+        if (typeof user.role === "string") {
           roleId = user.role;
-        } else if (user.role && typeof user.role === 'object') {
+        } else if (user.role && typeof user.role === "object") {
           roleId = (user.role as any).id || (user.role as any).value || "";
         }
-        
+
         setFormData({
           firstName: user.firstName,
           lastName: user.lastName,
@@ -66,7 +70,7 @@ const UserModal: React.FC<UserModalProps> = ({
   const loadRoles = async () => {
     try {
       const rolesData = await userService.getRolesForDropdown();
-      console.log('Loaded roles:', rolesData);
+      console.log("Loaded roles:", rolesData);
       setRoles(rolesData);
 
       // Set default role if adding new user and roles are available
@@ -83,12 +87,12 @@ const UserModal: React.FC<UserModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    
+
     // Don't allow role changes in edit mode
     if (mode === "edit" && name === "role") {
       return;
     }
-    
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -141,17 +145,18 @@ const UserModal: React.FC<UserModalProps> = ({
     if (mode === "edit" && user) {
       // Try different ways to get role name
       let roleName = "";
-      
+
       if ((user as any).roleName) {
         roleName = (user as any).roleName;
-      } else if (typeof user.role === 'string') {
+      } else if (typeof user.role === "string") {
         // Find role name from roles dropdown
-        const roleOption = roles.find(r => r.value === user.role);
+        const roleOption = roles.find((r) => r.value === user.role);
         roleName = roleOption ? roleOption.label : user.role;
-      } else if (user.role && typeof user.role === 'object') {
-        roleName = (user.role as any).name || (user.role as any).label || "Unknown Role";
+      } else if (user.role && typeof user.role === "object") {
+        roleName =
+          (user.role as any).name || (user.role as any).label || "Unknown Role";
       }
-      
+
       return roleName || "Unknown Role";
     }
     return "";
@@ -164,12 +169,11 @@ const UserModal: React.FC<UserModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <button
-            className="close-button"
+          <IconButtons
+            ariaLabel="Close"
             onClick={onClose}
-          >
-            ×
-          </button>
+            label={<ClearRoundedIcon />}
+          />
         </div>
 
         <form
@@ -213,7 +217,7 @@ const UserModal: React.FC<UserModalProps> = ({
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="role">Role *</label>
-              
+
               {mode === "edit" ? (
                 // Display role as read-only in edit mode
                 <div className="read-only-field">
@@ -275,36 +279,39 @@ const UserModal: React.FC<UserModalProps> = ({
           {mode === "edit" && user && (
             <div className="user-info">
               <div className="info-item">
-                <strong>Created:</strong> {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                <strong>Created:</strong>{" "}
+                {user.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : "N/A"}
               </div>
               {user.lastLogin && (
                 <div className="info-item">
-                  <strong>Last Login:</strong> {new Date(user.lastLogin).toLocaleString()}
+                  <strong>Last Login:</strong>{" "}
+                  {new Date(user.lastLogin).toLocaleString()}
                 </div>
               )}
             </div>
           )}
 
           <div className="form-actions">
-            <button
-              type="button"
+            <CancelButton
               onClick={onClose}
               disabled={loading}
-              className="cancel-button"
-            >
-              Cancel
-            </button>
-            <button
+            />
+            <CustomButton
+              variant="contained"
+              onClick={() => {}}
+              label={
+                loading
+                  ? "Saving..."
+                  : mode === "add"
+                  ? "Add User"
+                  : "Update User"
+              }
+              // className="action-button"
               type="submit"
               disabled={loading}
-              className="save-button"
-            >
-              {loading
-                ? "Saving..."
-                : mode === "add"
-                ? "Add User"
-                : "Update User"}
-            </button>
+            />
           </div>
         </form>
       </div>

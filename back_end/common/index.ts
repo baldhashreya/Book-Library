@@ -13,3 +13,4 @@ export * from "./database/models/author";
 export * from "./database/models/borrow-records";
 export * from "./database/models/audit-logs";
 export * from "./database/models/notifications";
+export * from "./database/models/pages";

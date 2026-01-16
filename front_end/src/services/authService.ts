@@ -11,12 +11,13 @@ export const authService = {
         },
         body: JSON.stringify(credentials),
       });
-
       if (!response.ok) {
         throw new Error("Login failed");
       }
 
       const data = await response.json();
+      console.log("Login response:", data);
+
       return data;
     } catch (error) {
       console.error("Login API error:", error);

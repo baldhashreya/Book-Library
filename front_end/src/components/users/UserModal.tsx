@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./UserModal.css";
+import CancelButton from "../common/Button/CancleButton";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import CustomButton from "../common/Button/CustomButton";
+import IconButtons from "../common/Button/IconButtons";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -135,12 +139,11 @@ const UserModal: React.FC<UserModalProps> = ({
       <div className="modal-content-user">
         <div className="modal-header">
           <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <button
-            className="close-button"
+          <IconButtons
+            ariaLabel="Close"
             onClick={onClose}
-          >
-            ×
-          </button>
+            label={<ClearRoundedIcon />}
+          />
         </div>
 
         <form
@@ -278,23 +281,23 @@ const UserModal: React.FC<UserModalProps> = ({
           </div>
 
           <div className="form-actions">
-            <button
-              type="button"
+            <CancelButton
               onClick={onClose}
               disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
+            />
+            <CustomButton
+              onClick={onClose}
+              label={
+                loading
+                  ? "Saving..."
+                  : mode === "add"
+                  ? "Add User"
+                  : "Update User"
+              }
+              variant="contained"
               disabled={loading}
-            >
-              {loading
-                ? "Saving..."
-                : mode === "add"
-                ? "Add User"
-                : "Update User"}
-            </button>
+              type="submit"
+            />
           </div>
         </form>
       </div>

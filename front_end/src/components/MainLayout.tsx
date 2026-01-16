@@ -5,13 +5,14 @@ import {
   ChartColumnStacked,
   Users,
   LibraryBig,
-  LogOut,
-  User,
   BookA,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "./MainLayout.css";
+import CustomButton from "./common/Button/CustomButton";
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -129,27 +130,24 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
         <nav className="sidebar-nav">
           {menuItems.map((item) => (
-            <button
-              key={item.id}
-              className={`nav-item ${activeMenu === item.id ? "active" : ""}`}
+            <CustomButton
+              variant="text"
               onClick={() => handleMenuClick(item.id, item.path)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
-            </button>
+              label={item.label}
+              className={`nav-item ${activeMenu === item.id ? "active" : ""}`}
+              startIcon={item.icon}
+            />
           ))}
         </nav>
 
         <div className="sidebar-footer">
-          <button
-            className="logout-btn"
+          <CustomButton
+            variant="text"
             onClick={handleLogout}
-          >
-            <span className="nav-icon">
-              <LogOut />
-            </span>
-            <span className="nav-label">Logout</span>
-          </button>
+            label="Logout"
+            className="logout-btn"
+            startIcon={<LogoutIcon />}
+          />
         </div>
       </div>
 
@@ -162,15 +160,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </h1>
           </div>
           <div className="header-right">
-            <button
-              className="profile-btn"
+            <CustomButton
+              variant="outlined"
               onClick={handleProfileClick}
-            >
-              <span className="profile-icon">
-                <User />
-              </span>
-              <span className="profile-name">{currentUser.firstName || currentUser.userName}</span>
-            </button>
+              label={currentUser.firstName || currentUser.userName}
+              className="profile-btn"
+              startIcon={<PersonOutlineIcon />}
+            />
           </div>
         </header>
 

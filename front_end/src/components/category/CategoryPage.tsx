@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { PencilLine, Trash } from "lucide-react";
 import MainLayout from "../MainLayout";
 import CategoryModal from "./CategoryModal";
 import type { Category, CategoryFormData } from "../../types/category";
 import { categoryService } from "../../services/categoryService";
 import "./CategoryPage.css";
 import type { SearchParams } from "../../types/role";
+import CustomButton from "../common/Button/CustomButton";
+import AddIcon from "@mui/icons-material/Add";
+import IconButtons from "../common/Button/IconButtons";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const CategoryPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -106,8 +110,7 @@ const CategoryPage: React.FC = () => {
     };
 
     const config =
-      statusConfig[status as keyof typeof statusConfig] ||
-      statusConfig.ACTIVE;
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.ACTIVE;
     return (
       <span className={`status-badge ${config.class}`}>{config.text}</span>
     );
@@ -119,13 +122,13 @@ const CategoryPage: React.FC = () => {
     <MainLayout>
       <div className="category-page">
         <div className="page-header">
-          <button
-            className="add-category-btn"
+          <CustomButton
+            variant="contained"
             onClick={handleAddCategory}
-          >
-            <span>+</span>
-            Add New Category
-          </button>
+            label="Add New Category"
+            className="add-selected-btn btn"
+            startIcon={<AddIcon />}
+          />
         </div>
 
         {loading ? (
@@ -182,27 +185,23 @@ const CategoryPage: React.FC = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button
-                            className="action-btn view-btn"
+                          <IconButtons
                             onClick={() => handleEditCategory(category)}
-                            title="View/Edit Category"
-                          >
-                            <PencilLine />
-                          </button>
-                          <button
-                            className="action-btn delete-btn"
+                            label={<EditIcon />}
+                            ariaLabel="edit"
+                          />
+                          <IconButtons
                             onClick={() =>
                               handleDeleteCategory(category._id, category.name)
                             }
-                            title="Delete Category"
+                            label={<DeleteIcon />}
+                            ariaLabel="Delete"
                             disabled={
                               category.bookCount
                                 ? category.bookCount > 0
                                 : false
                             }
-                          >
-                            <Trash />
-                          </button>
+                          />
                         </div>
                       </td>
                     </tr>

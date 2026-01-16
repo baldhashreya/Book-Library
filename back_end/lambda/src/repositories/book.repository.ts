@@ -1,5 +1,11 @@
 import { UpdateResult } from "mongoose";
+<<<<<<< HEAD:back_end/src/repositories/book.repository.ts
+import Books, { BooksModel } from "../../common/database/models/books";
+import { UsersModel, Users } from "../../common/database/models/users";
+import BorrowRecords, {
+=======
 import {
+>>>>>>> 74355e3e0d8474fbefe72dfaf8d3a107a1bc230d:back_end/lambda/src/repositories/book.repository.ts
   BorrowRecordsModel,
   Authors,
   Categories,

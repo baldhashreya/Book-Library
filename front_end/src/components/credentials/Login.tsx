@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/authService";
+import { TextField, Button, Box, Link } from "@mui/material";
 import "./Login.css";
+import CustomButton from "../common/Button/CustomButton";
+import BookImage from "../../assets/first-image.jpg";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -77,48 +80,61 @@ const Login: React.FC = () => {
   if (showForgotPassword) {
     return (
       <div className="login-container">
+        <div className="login-img">
+          <img
+            src={BookImage}
+            alt="Book Library Logo"
+          />
+        </div>
         <div className="login-card">
           <h2>Reset Password</h2>
 
           {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleResetPassword}>
-            <div className="form-group">
-              <label>Email Address</label>
-              <input
+            <Box
+              component="form"
+              sx={{ "& > :not(style)": { m: 1, width: "300px" } }}
+            >
+              <TextField
+                label="email"
+                variant="standard"
                 type="email"
+                placeholder="Enter email"
+                required
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
               />
-            </div>
 
-            <div className="form-group">
-              <label>New Password</label>
-              <input
+              <TextField
+                label="password"
+                variant="standard"
                 type="password"
-                value={newResetPassword}
-                onChange={(e) => setNewResetPassword(e.target.value)}
                 placeholder="Enter new password"
                 required
+                value={newResetPassword}
+                onChange={(e) => setNewResetPassword(e.target.value)}
               />
-            </div>
 
-            <button
-              className="login-button"
-              disabled={isLoading}
-            >
-              {isLoading ? "Updating..." : "Update Password"}
-            </button>
+              <CustomButton
+                className="login-button"
+                onClick={() => {}}
+                disabled={isLoading}
+                label={isLoading ? "Updating..." : "Update Password"}
+                variant="contained"
+                type="submit"
+              />
+            </Box>
 
-            <button
-              type="button"
-              className="back-button"
+            <Link 
+              component="button"
+              variant="body2"
               onClick={handleBackToLogin}
+              className="back-button"
+              sx={{ fontWeight: "500", fontSize: "15px", marginTop: "10px" }}
             >
               Back to Login
-            </button>
+            </Link>
           </form>
         </div>
       </div>
@@ -128,6 +144,12 @@ const Login: React.FC = () => {
   // Login UI
   return (
     <div className="login-container">
+      <div className="login-img">
+        <img
+          src={BookImage}
+          alt="Book Library Logo"
+        />
+      </div>
       <div className="login-card">
         <h2>Welcome Back</h2>
         <p className="login-subtitle">Sign in to your Book Library</p>
@@ -135,60 +157,76 @@ const Login: React.FC = () => {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input
+          <Box
+            component="form"
+            sx={{ "& > :not(style)": { m: 1, width: "300px" } }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              label="email"
+              variant="standard"
               type="email"
               placeholder="Enter email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
               disabled={isLoading}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
+            <TextField
+              label="password"
+              variant="standard"
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={isLoading}
             />
-          </div>
+            <div className="forgot-password">
+              <Link
+                component="button"
+                variant="body2"
+                onClick={handleForgotPassword}
+                color="#764ba2"
+                sx={{ fontWeight: "500", fontSize: "15px" }}
+              >
+                Forgot Password?
+              </Link>
+            </div>
 
-          {/* Login button */}
-          <button
-            className="login-button"
-            disabled={isLoading}
-          >
-            {isLoading ? "Signing In..." : "Sign In"}
-          </button>
-
-          {/* Forgot password aligned right */}
-          <div className="forgot-password">
-            <button
-              type="button"
-              className="forgot-password-link"
-              onClick={handleForgotPassword}
-            >
-              Forgot Password?
-            </button>
-          </div>
+            {/* Login button */}
+            <CustomButton
+              className="login-button"
+              onClick={handleSubmit}
+              disabled={isLoading}
+              label={isLoading ? "Signing In..." : "Sign In"}
+              variant="contained"
+              type="submit"
+            />
+          </Box>
         </form>
 
         <div className="signup-section">
           <p>
             Don’t have an account?{" "}
-            <button
-              type="button"
-              className="signup-link"
+            <Button
+              variant="text"
+              sx={{
+                color: "#764ba2",
+                textTransform: "none",
+                fontWeight: "700",
+                m: 0,
+                p: 0,
+                "&:hover": {
+                  color: "#0d47a1",
+                  backgroundColor: "transparent",
+                },
+              }}
               onClick={() => navigate("/signup")}
             >
-              Sign Up
-            </button>
+              SignUp
+            </Button>
           </p>
         </div>
       </div>

@@ -3,6 +3,12 @@ import MainLayout from "../MainLayout";
 import UserModal from "../users/UserModal";
 import type { User, UserFormData, UsersSearchParams } from "../../types/user";
 import { userService } from "../../services/userService";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import SyncIcon from '@mui/icons-material/Sync';
+import CustomButton from "../common/Button/CustomButton";
+import "../common/common-css/button.css";
 import "./UserPage.css";
 
 const UserPage: React.FC = () => {
@@ -104,43 +110,43 @@ const UserPage: React.FC = () => {
       <div className="user-page">
         <div className="page-header">
           <div className="toolbar">
-            <button
-              className="add-user-btn"
+            <CustomButton
+              variant="contained"
               onClick={handleAddUser}
-            >
-              <span>+</span> Add User
-            </button>
+              label="Add User"
+              className="add-selected-btn btn"
+              startIcon={<AddIcon />}
+            />
 
-            <button
-              className="delete-selected-btn"
+            <CustomButton
+              className="delete-selected-btn btn"
               disabled={!selectedRow}
-              onChange={() => toggleSelectRow(user._id)}
-              onClick={() => {
-                handleDelete();
-              }}
-            >
-              Delete User
-            </button>
-            <button
-              className="edit-selected-btn"
+              onClick={handleDelete}
+              label="Delete User"
+              variant="contained"
+              startIcon={<DeleteIcon />}
+            />
+
+            <CustomButton
+              className="edit-selected-btn btn"
               disabled={!selectedRow}
               onClick={() => {
                 const userToEdit = users.find((u) => u._id === selectedRow);
                 if (userToEdit) handleEditUser(userToEdit);
               }}
-            >
-              Edit User
-            </button>
+              label="Edit User"
+              variant="contained"
+              startIcon={<EditIcon />}
+            />
 
-            <button
-              className="change-status-btn"
+            <CustomButton
+              className="change-status-btn btn"
+              onClick={handleChangeStatusUser}
+              label="Change Status"
+              variant="contained"
               disabled={!selectedRow}
-              onClick={() => {
-                handleChangeStatusUser();
-              }}
-            >
-              Change Status
-            </button>
+              startIcon={<SyncIcon />}
+            />
           </div>
         </div>
 
