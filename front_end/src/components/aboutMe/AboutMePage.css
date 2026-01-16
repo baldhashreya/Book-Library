@@ -1,28 +1,8 @@
-.about-me-page {
-  padding: 0;
-  max-width: 100%;
-}
-
-.page-header {
-  margin-bottom: 30px;
-}
-
-.page-header h1 {
-  color: #191970;
-  margin: 0 0 8px 0;
-  font-size: 32px;
-}
-
-.page-header p {
-  color: #666;
-  margin: 0;
-  font-size: 16px;
-}
 
 .profile-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 30px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -31,50 +11,9 @@
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  padding: 30px;
 }
 
-.profile-header {
-  background: linear-gradient(135deg, #191970 0%, #007fff 100%);
-  color: white;
-  padding: 40px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  font-weight: bold;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.profile-info h2 {
-  margin: 0 0 8px 0;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.user-email {
-  margin: 0 0 12px 0;
-  opacity: 0.9;
-  font-size: 16px;
-}
-
-.member-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
 
 .profile-details {
   padding: 30px;
@@ -89,43 +28,37 @@
 }
 
 .detail-section h3 {
-  color: #191970;
+  color: #4f46e5;
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 600;
   padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 10px;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 150px !important;
 }
 
 .label {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
+  color: #6b7280 !important;
+  font-weight: 500 !important;
 }
 
 .value {
-  font-size: 16px;
-  color: #333;
-  font-weight: 600;
+  color: #1f2937 !important;
+  font-weight: 600 !important;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-}
 
 .stat-card {
   background: #f8f9fa;
@@ -192,99 +125,23 @@
   gap: 20px;
 }
 
-.info-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 25px;
-}
-
-.info-card h3 {
-  color: #191970;
-  margin: 0 0 15px 0;
-  font-size: 18px;
-  font-weight: 600;
-}
 
 .status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   padding: 10px 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
   margin-bottom: 15px;
-  font-weight: 600;
+  font-weight: 600 !important;
+  width: 80px !important;
+  border-radius: 20px !important;
 }
 
 .status-indicator.active {
-  color: #155724;
-  background: #d4edda;
+  color: #155724 !important;
+  background: #d4edda !important;
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #28a745;
-}
-
-.info-card p {
-  color: #666;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.activity-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-  background: #e9ecef;
-  transform: translateX(5px);
-}
-
-.activity-icon {
-  font-size: 16px;
-  width: 32px;
-  height: 32px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-.activity-details {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.activity-text {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-}
-
-.activity-time {
-  font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+.status-indicator.in-active {
+  color: #DC2626 !important;
+  background: #FEE2E2;
 }
 
 .error-message {
@@ -303,20 +160,10 @@
 }
 
 @media (max-width: 768px) {
-  .profile-header {
-    flex-direction: column;
-    text-align: center;
-    padding: 30px 20px;
-  }
 
   .detail-grid {
     grid-template-columns: 1fr;
   }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
   .action-buttons {
     flex-direction: column;
   }
@@ -327,15 +174,8 @@
 }
 
 @media (max-width: 480px) {
-  .page-header h1 {
-    font-size: 24px;
-  }
 
   .profile-details {
-    padding: 20px;
-  }
-
-  .info-card {
     padding: 20px;
   }
 }

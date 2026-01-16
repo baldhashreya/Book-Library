@@ -1,0 +1,8 @@
+Primary:        #4F46E5  (Indigo)
+Secondary:      #22C55E  (Green)
+Accent:         #6366F1
+Background:     #F9FAFB
+Sidebar:        #EEF2FF
+Text Primary:   #1F2937
+Text Muted:     #6B7280
+Border:         #E5E7EB

@@ -10,6 +10,8 @@ import type { UserFormData } from "../../types/user";
 import { authService } from "../../services/authService";
 import LockIcon from "@mui/icons-material/Lock";
 import CustomButton from "../common/Button/CustomButton";
+import { Box } from "@mui/material";
+import CustomTypography from "../common/CustomTypography";
 
 const AboutMePage: React.FC = () => {
   const { user } = useAuth();
@@ -85,81 +87,117 @@ const AboutMePage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="about-me-page">
-        <div className="profile-content">
-          <div className="profile-card">
-            <div className="profile-details">
-              <div className="detail-section">
-                <h3>Account Information</h3>
-                <div className="detail-grid">
-                  <div className="detail-item">
-                    <span className="label">Name</span>
-                    <span className="value">
-                      {userData.userName
-                        ? userData.userName
-                        : userData.name}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Email</span>
-                    <span className="value">{userData.email || "N/A"}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Role</span>
-                    <span className="value">
-                      {userData.role?.name || "N/A"}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Status</span>
-                    <span className="value">
-                      {userData.status === "active" ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Phone</span>
-                    <span className="value">
-                      {userData.contactInfo && userData.contactInfo.phone
-                        ? userData.contactInfo.phone
-                        : ""}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="label">Address</span>
-                    <span className="value">
-                      {userData.contactInfo && userData.contactInfo.address
-                        ? userData.contactInfo.address
-                        : ""}
-                    </span>
-                  </div>
-                </div>
-              </div>
+      <div className="profile-content">
+        <div className="profile-card">
+          <Box className="detail-section">
+            <h3>Account Information</h3>
+            <Box className="detail-grid">
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Name"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className="value"
+                  label={userData.userName || userData.name}
+                />
+              </Box>
 
-              <div className="detail-section">
-                <h3>Quick Actions</h3>
-                <div className="action-buttons">
-                  <CustomButton
-                    variant="contained"
-                    onClick={() => setIsEditOpen(true)}
-                    label="Update User"
-                    className="action-button"
-                    type="submit"
-                    disabled={loading}
-                    startIcon={<ModeEditOutlineIcon />}
-                  />
-                  <CustomButton
-                    variant="contained"
-                    onClick={() => setIsPasswordOpen(true)}
-                    label="Change Password"
-                    className="action-button"
-                    startIcon={<LockIcon />}
-                  />
-                </div>
-              </div>
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Email"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className="value"
+                  label={userData.email || "N/A"}
+                />
+              </Box>
+
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Role"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className="value"
+                  label={userData.role?.name || "N/A"}
+                />
+              </Box>
+
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Status"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className={`value status-indicator ${
+                    userData.status === "active" ? "active" : "in-active"
+                  }`}
+                  label={userData.status === "active" ? "Active" : "Inactive"}
+                />
+              </Box>
+
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Phone"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className="value"
+                  label={userData.contactInfo?.phone || "N/A"}
+                />
+              </Box>
+
+              <Box className="detail-item">
+                <CustomTypography
+                  variant="body1"
+                  className="label"
+                  label="Address"
+                />
+                <CustomTypography
+                  variant="body2"
+                  className="value"
+                  label={userData.contactInfo?.address || "N/A"}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          <Box className="detail-section">
+            <h3>Quick Actions</h3>
+            <div className="action-buttons">
+              <CustomButton
+                variant="contained"
+                onClick={() => setIsEditOpen(true)}
+                label="Update User"
+                className="action-button"
+                type="submit"
+                disabled={loading}
+                startIcon={<ModeEditOutlineIcon />}
+              />
+              <CustomButton
+                variant="contained"
+                onClick={() => setIsPasswordOpen(true)}
+                label="Change Password"
+                className="action-button"
+                startIcon={<LockIcon />}
+              />
             </div>
-          </div>
+          </Box>
         </div>
       </div>
+
       {isEditOpen && (
         <EditProfileModal
           isOpen={isEditOpen}

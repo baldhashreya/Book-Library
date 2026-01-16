@@ -149,6 +149,7 @@ const Login: React.FC = () => {
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            
             />
             <TextField
               label="password"
@@ -164,7 +165,7 @@ const Login: React.FC = () => {
                 component="button"
                 variant="body2"
                 onClick={handleForgotPassword}
-                color="#764ba2"
+                color="#4F46E5"
                 sx={{ fontWeight: "500", fontSize: "15px" }}
               >
                 Forgot Password?
