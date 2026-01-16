@@ -1,6 +1,6 @@
 import { UpdateResult } from "mongoose";
 import Books, { BooksModel } from "../../common/database/models/books";
-import Users, { UsersModel } from "../../common/database/models/users";
+import { UsersModel, Users } from "../../common/database/models/users";
 import BorrowRecords, {
   BorrowRecordsModel,
 } from "../../common/database/models/borrow-records";

@@ -7,9 +7,9 @@ import type { SearchParams } from "../../types/role";
 import AuthorModal from "./AuthorModal";
 import CustomButton from "../common/Button/CustomButton";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import IconButtons from "../common/Button/IconButtons";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -134,18 +134,16 @@ const AuthorPage: React.FC = () => {
                       <td>{author.birthDate}</td>
                       <td>
                         <div className="action-buttons">
-                          <IconButton
-                            aria-label="edit"
+                          <IconButtons
                             onClick={() => handleEditAuthor(author)}
-                          >
-                            <ModeEditIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="delete"
+                            label={<ModeEditIcon />}
+                            ariaLabel="edit"
+                          />
+                          <IconButtons
                             onClick={() => handleDeleteAuthor(author._id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                            label={<DeleteIcon />}
+                            ariaLabel="Delete"
+                          />
                         </div>
                       </td>
                     </tr>

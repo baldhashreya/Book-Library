@@ -146,14 +146,14 @@ const AboutMePage: React.FC = () => {
                     type="submit"
                     disabled={loading}
                     startIcon={<ModeEditOutlineIcon />}
-                  ></CustomButton>
+                  />
                   <CustomButton
                     variant="contained"
                     onClick={() => setIsPasswordOpen(true)}
                     label="Change Password"
                     className="action-button"
                     startIcon={<LockIcon />}
-                  ></CustomButton>
+                  />
                 </div>
               </div>
             </div>

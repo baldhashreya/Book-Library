@@ -1,4 +1,4 @@
-import Users, { UsersModel } from "../../common/database/models/users";
+import { UsersModel, Users } from "../../common/database/models/users";
 import { UsersSearchParams } from "../interface/common.interface";
 
 export class UsersRepository {

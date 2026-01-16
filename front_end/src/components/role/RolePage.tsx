@@ -3,6 +3,9 @@ import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
 import "./RoleModal.css";
 import CancelButton from "../common/Button/CancleButton";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import IconButtons from "../common/Button/IconButtons";
+import CustomButton from "../common/Button/CustomButton";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -166,12 +169,11 @@ const UserModal: React.FC<UserModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <button
-            className="close-button"
+          <IconButtons
+            ariaLabel="Close"
             onClick={onClose}
-          >
-            ×
-          </button>
+            label={<ClearRoundedIcon />}
+          />
         </div>
 
         <form
@@ -296,17 +298,20 @@ const UserModal: React.FC<UserModalProps> = ({
               onClick={onClose}
               disabled={loading}
             />
-            <button
+            <CustomButton
+              variant="contained"
+              onClick={() => {}}
+              label={
+                loading
+                  ? "Saving..."
+                  : mode === "add"
+                  ? "Add User"
+                  : "Update User"
+              }
+              // className="action-button"
               type="submit"
               disabled={loading}
-              className="save-button"
-            >
-              {loading
-                ? "Saving..."
-                : mode === "add"
-                ? "Add User"
-                : "Update User"}
-            </button>
+            />
           </div>
         </form>
       </div>

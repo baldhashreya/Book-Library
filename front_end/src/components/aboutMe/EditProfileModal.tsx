@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import IconButton from "@mui/material/IconButton";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import type { User, UserFormData } from "../../types/user";
 import { userService } from "../../services/userService";
 import "../aboutMe/EditProfileModal.css";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
+import IconButtons from "../common/Button/IconButtons";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -128,12 +128,13 @@ const EditProfileModal: React.FC<UserModalProps> = ({
       <div className="modal-content-user">
         <div className="modal-header">
           <h2>Edit User</h2>
-          <IconButton
-            aria-label="close"
+
+          <IconButtons
             onClick={onClose}
-          >
-            <ClearRoundedIcon />
-          </IconButton>
+            label={<ClearRoundedIcon />}
+            ariaLabel="Close"
+            disabled={loading}
+          />
         </div>
 
         <form
@@ -277,7 +278,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
               className="action-button"
               type="submit"
               disabled={loading}
-            ></CustomButton>
+            />
           </div>
         </form>
       </div>

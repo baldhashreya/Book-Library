@@ -6,10 +6,10 @@ import { categoryService } from "../../services/categoryService";
 import type { Category } from "../../types/category";
 import { authorService } from "../../services/authorService";
 import type { Author } from "../../types/author";
-import IconButton from "@mui/material/IconButton";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
+import IconButtons from "../common/Button/IconButtons";
 
 interface BookModalProps {
   isOpen: boolean;
@@ -138,12 +138,11 @@ const BookModal: React.FC<BookModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>{mode === "add" ? "Add New Book" : "Edit Book"}</h2>
-          <IconButton
-            aria-label="close"
+          <IconButtons
             onClick={onClose}
-          >
-            <ClearRoundedIcon />
-          </IconButton>
+            label={<ClearRoundedIcon />}
+            ariaLabel="Close"
+          />
         </div>
 
         <form
@@ -312,7 +311,7 @@ const BookModal: React.FC<BookModalProps> = ({
               }
               className="action-button"
               disabled={loading}
-            ></CustomButton>
+            />
           </div>
         </form>
       </div>

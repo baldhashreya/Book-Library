@@ -3,7 +3,7 @@ import * as jwt from "jsonwebtoken";
 import { SuccessResponse } from "./interface";
 import { getMessageByCode } from "./common-functions";
 import { AuthOperations, HttpStatusCode, LogLevel } from "./enum";
-import Users from "./database/models/users";
+import { Users } from "./database/models/users";
 import { addLog } from "./logger";
 export class ErrorResult {
   constructor(message: string, errorCode?: string, data?: unknown) {

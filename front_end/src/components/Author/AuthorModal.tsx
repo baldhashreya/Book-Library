@@ -3,10 +3,10 @@ import type { Author, AuthorFormData } from "../../types/author";
 import { authorService } from "../../services/authorService";
 import "./AuthorModal.css";
 import type { SearchParams } from "../../types/role";
-import IconButton from "@mui/material/IconButton";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
+import IconButtons from "../common/Button/IconButtons";
 
 interface AuthorModalProps {
   isOpen: boolean;
@@ -94,12 +94,12 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>{mode === "add" ? "Add New Author" : "Edit Author"}</h2>
-          <IconButton
-            aria-label="close"
+          <IconButtons
             onClick={onClose}
-          >
-            <ClearRoundedIcon />
-          </IconButton>
+            label={<ClearRoundedIcon />}
+            ariaLabel="Close"
+            disabled={loading}
+          />
         </div>
 
         <form
@@ -164,7 +164,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
               }
               className="action-button"
               disabled={loading}
-            ></CustomButton>
+            />
           </div>
         </form>
       </div>

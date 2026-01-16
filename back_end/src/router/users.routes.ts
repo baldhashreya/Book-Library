@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { UsersRepository } from "../src/repositories/users.repository";
-import { UsersServices } from "../src/services/users.service";
-import { UsersControllers } from "../src/controllers/users.controller";
-import { CommonRepository } from "../src/repositories/common.repository";
-import { UserModel } from "../src/models/users.model";
+import { UsersRepository } from "../repositories/users.repository";
+import { UsersServices } from "../services/users.service";
+import { UsersControllers } from "../controllers/users.controller";
+import { CommonRepository } from "../repositories/common.repository";
+import { UserModel } from "../models/users.model";
 import { celebrate } from "celebrate";
 
 const { Create, Update, Get, Search, UpdateStatus } = UserModel;

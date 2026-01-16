@@ -5,13 +5,13 @@
 // - DELETE /api/authors/:id
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import { AuthorController } from "../src/controllers/author.controller";
-import { AuthorService } from "../src/services/author.service";
-import { AuthorRepository } from "../src/repositories/author.repository";
-import { AuthorModel } from "../src/models/author.model";
+import { AuthorController } from "../controllers/author.controller";
+import { AuthorService } from "../services/author.service";
+import { AuthorRepository } from "../repositories/author.repository";
+import { AuthorModel } from "../models/author.model";
 
 const { Create, Update, Get, Search } = AuthorModel;
-const   router = Router();
+const router = Router();
 const authorRepository = new AuthorRepository();
 const authorService = new AuthorService(authorRepository);
 const authorController = new AuthorController(authorService);

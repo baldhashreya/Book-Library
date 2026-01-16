@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { RolesController } from "../src/controllers/roles.controller";
-import { RolesRepository } from "../src/repositories/roles.repository";
-import { RolesServices } from "../src/services/roles.service";
-import { RolesModel } from "../src/models/roles.model";
+import { RolesController } from "../controllers/roles.controller";
+import { RolesRepository } from "../repositories/roles.repository";
+import { RolesServices } from "../services/roles.service";
+import { RolesModel } from "../models/roles.model";
 import { celebrate } from "celebrate";
-import { CommonRepository } from "../src/repositories/common.repository";
-import { authorizationUser } from "../common/base-controller";
+import { CommonRepository } from "../repositories/common.repository";
+import { authorizationUser } from "../../common/base-controller";
 
 const rolesRepository = new RolesRepository();
 const commonRepository = new CommonRepository();

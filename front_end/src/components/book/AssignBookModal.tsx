@@ -80,7 +80,7 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
             onClick={onClose}
             label="Cancel"
             className="cancel-btn"
-          ></CustomButton>
+          />
 
           <CustomButton
             variant="contained"
@@ -93,7 +93,7 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
             label="Assign"
             className="save-btn"
             disabled={!selectedUser || !returnDate}
-          ></CustomButton>
+          />
         </div>
       </div>
     </div>

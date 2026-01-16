@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
 
-import { CategoriesController } from "../src/controllers/categories.controller";
-import { CategoriesService } from "../src/services/categories.service";
-import { CategoriesRepository } from "../src/repositories/categories.repository";
-import { CategoriesModel } from "../src/models/categories.model";
+import { CategoriesController } from "../controllers/categories.controller";
+import { CategoriesService } from "../services/categories.service";
+import { CategoriesRepository } from "../repositories/categories.repository";
+import { CategoriesModel } from "../models/categories.model";
 
 const { Create, Update, Get, Search, CreateMoreCategories } = CategoriesModel;
 
