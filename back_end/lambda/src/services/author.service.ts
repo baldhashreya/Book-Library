@@ -10,7 +10,7 @@ export class AuthorService {
 
   public async searchAuthors(
     param: AuthorsSearchParams
-  ): Promise<AuthorModel[]> {
+  ): Promise<{ count: number; rows: AuthorModel[] }> {
     return this.authorRepository.searchAuthors(param);
   }
 
