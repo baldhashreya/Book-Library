@@ -1,36 +1,51 @@
 import React, { useState, useEffect } from "react";
 import MainLayout from "../MainLayout";
 import UserModal from "../users/UserModal";
-import type { User, UserFormData, UsersSearchParams } from "../../types/user";
+import type {
+  SearchParams,
+  User,
+  UserFormData,
+  UsersSearchParams,
+} from "../../types/user";
 import { userService } from "../../services/userService";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import SyncIcon from "@mui/icons-material/Sync";
 import CustomButton from "../common/Button/CustomButton";
 import "../common/common-css/button.css";
 import "./UserPage.css";
+import DataTable from "../common/DataTable";
 
 const UserPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedRow, setSelectedRow] = useState<string | null>(null);
+  const [selectedRow, setSelectedRow] = useState<string[] | null>(null);
+
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
 
   useEffect(() => {
-    loadUsers({ limit: 10, offset: 0 } as UsersSearchParams);
-  }, []);
+    loadUsers();
+  }, [paginationModel]);
 
-  const loadUsers = async (params: UsersSearchParams) => {
+  const loadUsers = async () => {
     try {
       setLoading(true);
-      const usersData = await userService.getUsers(params);
-      setUsers(usersData);
+      const usersData = await userService.getUsers({
+        offset: paginationModel.page,
+        limit: paginationModel.pageSize,
+      } as SearchParams);
+      setUsers(usersData.rows);
+      setTotalCount(usersData.count);
     } catch (error) {
       console.error("UserPage: Error loading users:", error);
       setUsers([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -50,12 +65,8 @@ const UserPage: React.FC = () => {
 
   const handleChangeStatusUser = async () => {
     try {
-      await userService.changeUserStatus(selectedRow);
-      const updatedUser = await userService.getUsers({
-        limit: 100,
-        offset: 0,
-      });
-      setUsers(updatedUser);
+      await userService.changeUserStatus(selectedRow[0]);
+      await loadUsers();
     } catch (error) {
       console.error("Bulk charge status user error:", error);
       alert("Some deletions failed.");
@@ -65,12 +76,8 @@ const UserPage: React.FC = () => {
   const handleDelete = async () => {
     if (window.confirm(`Delete selected users?`)) {
       try {
-        await userService.deleteUser(selectedRow);
-        const updatedUser = await userService.getUsers({
-          limit: 100,
-          offset: 0,
-        });
-        setUsers(updatedUser);
+        await userService.deleteUser(selectedRow[0]);
+        await loadUsers();
       } catch (error) {
         console.error("Bulk delete error:", error);
         alert("Some deletions failed.");
@@ -85,24 +92,11 @@ const UserPage: React.FC = () => {
       } else {
         await userService.createUser(data);
       }
-
-      loadUsers({ limit: 10, offset: 0 });
+      await loadUsers();
       setIsModalOpen(false);
     } catch (err) {
       console.error("Save user error:", err);
     }
-  };
-
-  const getStatusBadge = (status: string) => {
-    return status.toLowerCase() === "active" ? (
-      <span className="status-badge status-active">Active</span>
-    ) : (
-      <span className="status-badge status-inactive">Inactive</span>
-    );
-  };
-
-  const toggleSelectRow = (id: string) => {
-    setSelectedRow((prev) => (prev === id ? null : id));
   };
 
   return (
@@ -119,82 +113,76 @@ const UserPage: React.FC = () => {
             />
 
             <CustomButton
-              className="delete-selected-btn btn"
-              disabled={!selectedRow}
-              onClick={handleDelete}
-              label="Delete User"
-              variant="contained"
-              startIcon={<DeleteIcon />}
-            />
-
-            <CustomButton
-              className="edit-selected-btn btn"
-              disabled={!selectedRow}
-              onClick={() => {
-                const userToEdit = users.find((u) => u._id === selectedRow);
-                if (userToEdit) handleEditUser(userToEdit);
-              }}
-              label="Edit User"
-              variant="contained"
-              startIcon={<EditIcon />}
-            />
-
-            <CustomButton
               className="change-status-btn btn"
               onClick={handleChangeStatusUser}
               label="Change Status"
               variant="contained"
-              disabled={!selectedRow}
+              disabled={!selectedRow || selectedRow.length === 0}
               startIcon={<SyncIcon />}
             />
           </div>
         </div>
 
-        {loading ? (
+        {loading ?
           <div className="loading-state">
             <div className="loading-spinner"></div>
             <p>Loading users...</p>
           </div>
-        ) : (
-          <div className="users-table-container">
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>Select</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user._id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedRow === user._id}
-                        onChange={() => toggleSelectRow(user._id)}
-                      />
-                    </td>
-
-                    <td>{user.name ? user.name : user.userName || "N/A"}</td>
-
-                    <td>{user.email || "N/A"}</td>
-
-                    <td>
-                      <span className="role-tag">
-                        {user.role ? (user as any).role.name : "N/A"}
-                      </span>
-                    </td>
-
-                    <td>{getStatusBadge(user.status)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        : <div className="users-table-container">
+            <DataTable
+              rows={users}
+              rowCount={totalCount}
+              paginationModel={paginationModel}
+              onPaginationChange={setPaginationModel}
+              loading={loading}
+              onEdit={handleEditUser}
+              onDelete={(row) => {
+                setSelectedRow([row._id]);
+                handleDelete();
+              }}
+              columns={[
+                {
+                  field: "username",
+                  headerName: "Username",
+                  flex: 1,
+                  valueGetter: (_value, row) =>
+                    row.name || row.userName || "N/A",
+                },
+                {
+                  field: "email",
+                  headerName: "Email",
+                  flex: 1,
+                  valueGetter: (_value, row) => row.email || "N/A",
+                },
+                {
+                  field: "role",
+                  headerName: "Role",
+                  flex: 1,
+                  valueGetter: (_value, row) => row.role?.name || "N/A",
+                },
+                {
+                  field: "status",
+                  headerName: "Status",
+                  flex: 1,
+                  renderCell: (params) => (
+                    <span
+                      className={
+                        params.value === "ACTIVE" ?
+                          "status-badge status-active"
+                        : "status-badge status-inactive"
+                      }
+                    >
+                      {params.value}
+                    </span>
+                  ),
+                },
+              ]}
+              checkboxSelection={true}
+              disableMultipleRowSelection={true}
+              onRowSelect={setSelectedRow}
+            />
           </div>
-        )}
+        }
 
         <UserModal
           isOpen={isModalOpen}

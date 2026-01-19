@@ -97,8 +97,6 @@ const UserModal: React.FC<UserModalProps> = ({
         return;
       }
 
-      
-
       if (!formData.email.trim()) {
         setError("Email is required");
         return;
@@ -265,7 +263,6 @@ const UserModal: React.FC<UserModalProps> = ({
               disabled={loading}
             />
             <CustomButton
-              onClick={onClose}
               label={
                 loading
                   ? "Saving..."

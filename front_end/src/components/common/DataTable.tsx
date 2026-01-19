@@ -13,6 +13,8 @@ interface DataTableProps {
   onDelete: (row: any) => void;
   loading: boolean;
   checkboxSelection?: boolean;
+  disableMultipleRowSelection?: boolean;
+  onRowSelect?: (ids: string[]) => void;
 }
 
 export default function DataTable({
@@ -24,7 +26,9 @@ export default function DataTable({
   onEdit,
   onDelete,
   loading,
-  checkboxSelection
+  checkboxSelection,
+  disableMultipleRowSelection,
+  onRowSelect,
 }: DataTableProps) {
   const actionColumn = {
     field: "actions",
@@ -46,7 +50,7 @@ export default function DataTable({
   };
 
   return (
-    <Paper sx={{ height: 450, width: "100%" }}>
+    <Paper sx={{ height: 430, width: "100%" }}>
       <DataGrid
         rows={rows}
         columns={[...columns, actionColumn]}
@@ -57,9 +61,16 @@ export default function DataTable({
         onPaginationModelChange={onPaginationChange}
         rowCount={rowCount}
         pageSizeOptions={[5, 10, 20]}
-        checkboxSelection={checkboxSelection}
         loading={loading}
         sx={{ border: 0 }}
+        checkboxSelection={checkboxSelection}
+        disableMultipleRowSelection={disableMultipleRowSelection}
+        onRowSelectionModelChange={(selectionModel) => {
+          const ids =
+            Array.isArray(selectionModel) ? selectionModel : selectionModel.ids;
+          console.log(Array.from(ids));
+          onRowSelect?.(Array.from(ids));
+        }}
       />
     </Paper>
   );
