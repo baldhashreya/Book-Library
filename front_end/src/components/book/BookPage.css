@@ -33,36 +33,6 @@
   gap: 15px;
 }
 
-.search-box {
-  position: relative;
-  flex: 1;
-  max-width: 400px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 12px 45px 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-  background-color: white;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: #007fff;
-  box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.1);
-}
-
-.search-icon {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-}
-
 .book-stats {
   display: flex;
   gap: 20px;
@@ -179,11 +149,6 @@
   color: #721c24;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
 .action-btn {
   background: none;
   border: none;
@@ -199,21 +164,10 @@
   transform: scale(1.1);
 }
 
-.delete-btn:hover {
-  background-color: #fde8e8;
-  transform: scale(1.1);
-}
-
 .empty-state {
   text-align: center;
   padding: 60px 20px;
   color: #666;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-  opacity: 0.5;
 }
 
 .empty-state h3 {
@@ -241,10 +195,6 @@
     align-items: stretch;
   }
 
-  .search-box {
-    max-width: none;
-  }
-
   .book-stats {
     justify-content: space-between;
   }
@@ -255,11 +205,6 @@
 
   .books-table {
     min-width: 600px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 5px;
   }
 
   .action-btn {

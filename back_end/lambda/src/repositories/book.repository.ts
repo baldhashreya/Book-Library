@@ -34,7 +34,7 @@ export class BooksRepository {
 
   public async updateBook(
     id: string,
-    bookData: BooksModel
+    bookData: BooksModel,
   ): Promise<UpdateResult> {
     return Books.updateOne({ _id: id }, bookData);
   }
@@ -42,7 +42,9 @@ export class BooksRepository {
   public async deleteBook(id: string): Promise<BooksModel | null> {
     return Books.findByIdAndDelete({ _id: id });
   }
-  public async searchBooks(params: any): Promise<BooksModel[]> {
+  public async searchBooks(
+    params: any,
+  ): Promise<{ count: number; rows: BooksModel[] }> {
     let query = {};
     if (params.title) {
       query = { ...query, title: { $regex: params.title, $options: "i" } };
@@ -71,13 +73,14 @@ export class BooksRepository {
     } else {
       order = { createdAt: -1 };
     }
-
-    return Books.find(query)
+    const count = await Books.countDocuments(query);
+    const rows = await Books.find(query)
       .populate("author", "name")
       .populate("category", "name")
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+    return { count, rows };
   }
 
   public async getUsersByIds(ids: string[]): Promise<UsersModel[]> {
@@ -85,7 +88,7 @@ export class BooksRepository {
   }
 
   public async createBorrowRecords(
-    model: BorrowRecordsModel
+    model: BorrowRecordsModel,
   ): Promise<BorrowRecordsModel> {
     return BorrowRecords.create(model);
   }

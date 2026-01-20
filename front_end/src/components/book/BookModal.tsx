@@ -80,7 +80,7 @@ const BookModal: React.FC<BookModalProps> = ({
         limit: 100,
         offset: 0,
       } as SearchParams);
-      setCategories(cats);
+      setCategories(cats.rows);
     } catch (error) {
       console.error("Error loading categories:", error);
     }
@@ -92,7 +92,7 @@ const BookModal: React.FC<BookModalProps> = ({
         limit: 100,
         offset: 0,
       } as SearchParams);
-      setAuthors(authorData);
+      setAuthors(authorData.rows);
     } catch (error) {
       console.error("Error loading categories:", error);
     }

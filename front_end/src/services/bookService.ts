@@ -1,10 +1,10 @@
-import type { Book, BookFormData } from "../types/book";
+import type { BookFormData } from "../types/book";
 import type { SearchParams } from "../types/role";
 import { apiService } from "./api";
 
 export const bookService = {
   // Get all books
-  async searchBooks(params: SearchParams): Promise<Book[]> {
+  async searchBooks(params: SearchParams) {
     try {
       const result = await apiService.post("/books/search", params);
       return result.data || [];
@@ -48,7 +48,7 @@ export const bookService = {
     try {
       const data = await apiService.post(
         `/books/${bookId}/assign-book`,
-        params
+        params,
       );
       return data.categories || [];
     } catch (error) {

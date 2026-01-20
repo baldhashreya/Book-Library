@@ -4,8 +4,7 @@ import UserModal from "../users/UserModal";
 import type {
   SearchParams,
   User,
-  UserFormData,
-  UsersSearchParams,
+  UserFormData
 } from "../../types/user";
 import { userService } from "../../services/userService";
 import AddIcon from "@mui/icons-material/Add";

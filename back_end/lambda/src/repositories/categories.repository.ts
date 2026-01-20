@@ -1,12 +1,9 @@
-import {
-  CategoriesModel,
-  Categories
-} from "common";
+import { CategoriesModel, Categories } from "common";
 import { CategoriesSearchParams } from "../interface/common.interface";
 
 export class CategoriesRepository {
   public async createCategory(
-    params: CategoriesModel
+    params: CategoriesModel,
   ): Promise<CategoriesModel> {
     return Categories.create(params);
   }
@@ -20,7 +17,7 @@ export class CategoriesRepository {
 
   public async updateCategory(
     id: string,
-    params: Partial<CategoriesModel>
+    params: Partial<CategoriesModel>,
   ): Promise<CategoriesModel | null> {
     return Categories.findByIdAndUpdate({ _id: id }, params, { new: true });
   }
@@ -30,8 +27,8 @@ export class CategoriesRepository {
   }
 
   public async searchCategory(
-    params: CategoriesSearchParams
-  ): Promise<CategoriesModel[]> {
+    params: CategoriesSearchParams,
+  ): Promise<{ count: number; rows: CategoriesModel[] }> {
     let query = {};
     if (params.name) {
       query = { ...query, name: { $regex: params.name, $options: "i" } };
@@ -48,10 +45,13 @@ export class CategoriesRepository {
     } else {
       order = { name: -1 };
     }
-    return Categories.find(query)
+    const count = await Categories.countDocuments(query);
+    const rows = await Categories.find(query)
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+      
+    return { count, rows};
   }
 
   public async getCategoryById(id: string): Promise<CategoriesModel | null> {
@@ -59,7 +59,7 @@ export class CategoriesRepository {
   }
 
   public async createMoreCategories(
-    params: CategoriesModel[]
+    params: CategoriesModel[],
   ): Promise<CategoriesModel[]> {
     return Categories.insertMany(params);
   }

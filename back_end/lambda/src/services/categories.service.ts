@@ -8,10 +8,10 @@ export class CategoriesService {
   }
 
   public async createCategory(
-    params: CategoriesModel
+    params: CategoriesModel,
   ): Promise<CategoriesModel> {
     const existingCategory = await this.categoriesRepository.getCategoryByName(
-      params.name
+      params.name,
     );
     if (existingCategory) {
       const err = new Error();
@@ -26,11 +26,11 @@ export class CategoriesService {
 
   public async updateCategory(
     id: string,
-    params: CategoriesModel
+    params: CategoriesModel,
   ): Promise<CategoriesModel> {
     const existingCategory = await this.categoriesRepository.getCategoryByName(
       params.name,
-      id
+      id,
     );
 
     if (existingCategory) {
@@ -40,7 +40,7 @@ export class CategoriesService {
     }
     const categoriesModel = await this.categoriesRepository.updateCategory(
       id,
-      params
+      params,
     );
 
     if (!categoriesModel) {
@@ -62,8 +62,8 @@ export class CategoriesService {
   }
 
   public async searchCategory(
-    params: CategoriesSearchParams
-  ): Promise<CategoriesModel[]> {
+    params: CategoriesSearchParams,
+  ): Promise<{ count: number; rows: CategoriesModel[] }> {
     return this.categoriesRepository.searchCategory(params);
   }
 

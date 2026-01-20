@@ -237,12 +237,6 @@
   font-size: 20px;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
 .action-btn {
   padding: 12px 20px;
   background: var(--azure);
@@ -294,11 +288,6 @@
 
   .content-area {
     padding: 15px;
-  }
-
-
-  .action-buttons {
-    flex-direction: column;
   }
 
   .action-btn {
