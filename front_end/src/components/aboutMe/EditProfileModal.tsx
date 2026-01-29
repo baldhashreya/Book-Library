@@ -6,6 +6,9 @@ import "../aboutMe/EditProfileModal.css";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
 import IconButtons from "../common/Button/IconButtons";
+import { Paper, TextField } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import styled from "@emotion/styled";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -22,7 +25,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 }) => {
   console.log(user);
   const [formData, setFormData] = useState<any>({
-    name:"",
+    name: "",
     email: "",
     role: "",
     status: "active",
@@ -43,13 +46,13 @@ const EditProfileModal: React.FC<UserModalProps> = ({
         role: user.role._id,
         status: user.status,
         phone:
-          user.contactInfo && user.contactInfo.phone
-            ? user.contactInfo.phone
-            : 0,
+          user.contactInfo && user.contactInfo.phone ?
+            user.contactInfo.phone
+          : 0,
         address:
-          user.contactInfo && user.contactInfo.address
-            ? user.contactInfo.address
-            : "",
+          user.contactInfo && user.contactInfo.address ?
+            user.contactInfo.address
+          : "",
       });
     }
   }, [isOpen, user]);
@@ -64,7 +67,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -136,116 +139,89 @@ const EditProfileModal: React.FC<UserModalProps> = ({
         >
           {error && <div className="error-message">{error}</div>}
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name">Name*</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter Name"
-                maxLength={30}
-              />
-            </div>
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="name">Name*</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter Name"
+                  maxLength={30}
+                />
+              </div>
+            </Grid>
 
-            <div className="form-group">
-              <label htmlFor="role">Role *</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role || ""}
-                onChange={(e) => {
-                  const selectedRoleId = e.target.value;
-                  setFormData((prev) => ({
-                    ...prev,
-                    role: selectedRoleId,
-                  }));
-                }}
-                disabled={loading}
-                required
-              >
-                <option
-                  value=""
-                  disabled
-                  hidden
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter email address"
+                />
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
                 >
-                  -- Select Role --
-                </option>
-                {roles.map((role) => (
-                  <option
-                    key={role.value}
-                    value={role.value}
-                  >
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter email address"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="status">Status *</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Phone *</label>
-              <input
-                type="string"
-                id="phone"
-                name="phone"
-                value={formData.phone.toString()}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter phone"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="address">Address*</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter address"
-              />
-            </div>
-          </div>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="phone">Phone *</label>
+                <input
+                  type="string"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone.toString()}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter phone"
+                />
+              </div>
+            </Grid>
+            <Grid size={12}>
+              <div className="form-group">
+                <label htmlFor="address">Address*</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter address"
+                />
+              </div>
+            </Grid>
+          </Grid>
 
           <div className="form-actions">
             <CancelButton onClick={onClose} />

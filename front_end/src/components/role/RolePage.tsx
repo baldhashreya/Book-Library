@@ -6,6 +6,7 @@ import CancelButton from "../common/Button/CancleButton";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import IconButtons from "../common/Button/IconButtons";
 import CustomButton from "../common/Button/CustomButton";
+import { Grid } from "@mui/material";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    name:"",
+    name: "",
     email: "",
     role: "",
     status: "active",
@@ -81,7 +82,7 @@ const UserModal: React.FC<UserModalProps> = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -178,108 +179,114 @@ const UserModal: React.FC<UserModalProps> = ({
           className="user-form"
         >
           {error && <div className="error-message">{error}</div>}
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name">Name *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter Name"
-                maxLength={30}
-              />
-              <div className="char-count">{formData.name.length}/30</div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter email address"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="role">Role *</label>
-
-              {mode === "edit" ? (
-                // Display role as read-only in edit mode
-                <div className="read-only-field">
-                  <input
-                    type="text"
-                    value={getCurrentRoleLabel()}
-                    disabled
-                    className="read-only-input"
-                    placeholder="Loading role..."
-                  />
-                  <input
-                    type="hidden"
-                    name="role"
-                    value={formData.role}
-                  />
-                </div>
-              ) : (
-                // Editable dropdown in add mode
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="name">Name *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
-                  disabled={loading || roles.length === 0}
-                >
-                  <option value="">Select Role</option>
-                  {roles.map((role) => (
-                    <option
-                      key={role.value}
-                      value={role.value}
-                    >
-                      {role.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {mode === "add" && roles.length === 0 && (
-                <div className="field-help">Loading roles...</div>
-              )}
-            </div>
+                  disabled={loading}
+                  placeholder="Enter Name"
+                  maxLength={30}
+                />
+                <div className="char-count">{formData.name.length}/30</div>
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter email address"
+                />
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="role">Role *</label>
 
-            <div className="form-group">
-              <label htmlFor="status">Status *</label>
-              <select
-                id="status"
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
+                {
+                  mode === "edit" ?
+                    // Display role as read-only in edit mode
+                    <div className="read-only-field">
+                      <input
+                        type="text"
+                        value={getCurrentRoleLabel()}
+                        disabled
+                        className="read-only-input"
+                        placeholder="Loading role..."
+                      />
+                      <input
+                        type="hidden"
+                        name="role"
+                        value={formData.role}
+                      />
+                    </div>
+                    // Editable dropdown in add mode
+                  : <select
+                      id="role"
+                      name="role"
+                      value={formData.role}
+                      onChange={handleChange}
+                      required
+                      disabled={loading || roles.length === 0}
+                    >
+                      <option value="">Select Role</option>
+                      {roles.map((role) => (
+                        <option
+                          key={role.value}
+                          value={role.value}
+                        >
+                          {role.label}
+                        </option>
+                      ))}
+                    </select>
+
+                }
+                {mode === "add" && roles.length === 0 && (
+                  <div className="field-help">Loading roles...</div>
+                )}
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </Grid>
+          </Grid>
 
           {mode === "edit" && user && (
             <div className="user-info">
               <div className="info-item">
                 <strong>Created:</strong>{" "}
-                {user.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString()
-                  : "N/A"}
+                {user.createdAt ?
+                  new Date(user.createdAt).toLocaleDateString()
+                : "N/A"}
               </div>
               {user.lastLogin && (
                 <div className="info-item">
@@ -299,11 +306,10 @@ const UserModal: React.FC<UserModalProps> = ({
               variant="contained"
               onClick={() => {}}
               label={
-                loading
-                  ? "Saving..."
-                  : mode === "add"
-                  ? "Add User"
-                  : "Update User"
+                loading ? "Saving..."
+                : mode === "add" ?
+                  "Add User"
+                : "Update User"
               }
               // className="action-button"
               type="submit"

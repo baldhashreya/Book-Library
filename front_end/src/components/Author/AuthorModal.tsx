@@ -7,6 +7,7 @@ import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
 import IconButtons from "../common/Button/IconButtons";
+import { Grid } from "@mui/material";
 
 interface AuthorModalProps {
   isOpen: boolean;
@@ -65,7 +66,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -106,46 +107,53 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
           onSubmit={handleSubmit}
           className="author-form"
         >
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="name">Author Name *</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="isbn">Birth Date *</label>
-              <input
-                type="date"
-                id="birthDate"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                required
-                disabled={loading}
-              />
-            </div>
-          </div>
-
-          <div className="form-group full-width">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              disabled={loading}
-              rows={4}
-              placeholder="Optional author bio"
-            />
-          </div>
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="name">Author Name *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="isbn">Birth Date *</label>
+                <input
+                  type="date"
+                  id="birthDate"
+                  name="birthDate"
+                  value={formData.birthDate}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </Grid>
+            <Grid size={12}>
+              <div className="form-group">
+                <label htmlFor="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  disabled={loading}
+                  rows={4}
+                  placeholder="Optional author bio"
+                />
+              </div>
+            </Grid>
+          </Grid>
 
           <div className="form-actions">
             <CancelButton
@@ -156,11 +164,10 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
               variant="contained"
               onClick={handleSubmit}
               label={
-                loading
-                  ? "Saving..."
-                  : mode === "add"
-                  ? "Add Author"
-                  : "Update Author"
+                loading ? "Saving..."
+                : mode === "add" ?
+                  "Add Author"
+                : "Update Author"
               }
               className="action-button"
               disabled={loading}

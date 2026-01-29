@@ -5,14 +5,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1;
 }
 
 /* Modal box */
 .modal-container {
   background: #fff;
   padding: 30px 35px;
-  width: 480px;
+  width: 300px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.25s ease-out;
