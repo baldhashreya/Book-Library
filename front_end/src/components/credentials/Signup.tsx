@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Signup.css";
-import "../common/common-css/login.css";
+import "../common/common-css/common.css";
 import type { signupFormData } from "../../types/auth";
 import { roleService } from "../../services/roleService";
 import type { Role } from "../../types/role";
 import { authService } from "../../services/authService";
-import BookImage from "../../assets/first-image.jpg";
 import { TextField, Box, MenuItem } from "@mui/material";
 import CustomButton from "../common/Button/CustomButton";
 import CustomLink from "../common/CustomLink";
+import BlueLogo from "../../assets/logo-blue.svg"
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ const Signup: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -74,14 +73,8 @@ const Signup: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="login-img">
-        <img
-          src={BookImage}
-          alt="Book Library Logo"
-        />
-      </div>
-
       <div className="login-card">
+        <img src={BlueLogo} alt="Logo"/>
         <h2>Create an Account</h2>
         <p className="login-subtitle">Join our Book Library</p>
         <form onSubmit={handleSubmit}>

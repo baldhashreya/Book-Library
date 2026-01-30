@@ -6,9 +6,7 @@ import "../aboutMe/EditProfileModal.css";
 import CustomButton from "../common/Button/CustomButton";
 import CancelButton from "../common/Button/CancleButton";
 import IconButtons from "../common/Button/IconButtons";
-import { Paper, TextField } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import styled from "@emotion/styled";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -158,6 +156,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                   maxLength={30}
                 />
               </div>
+          
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
