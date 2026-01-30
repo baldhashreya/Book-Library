@@ -4,7 +4,7 @@ import { apiService } from "./api";
 
 export const authorService = {
   // Get all authors
-  async searchAuthors(params: SearchParams): Promise<Author[]> {
+  async searchAuthors(params: SearchParams) {
     try {
       const result = await apiService.post("/author/search", params);
       return result.data || [];

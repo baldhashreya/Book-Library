@@ -5,7 +5,7 @@ import {
   UserStatusEnum,
   addLog,
   hashPassword,
-  UsersModel
+  UsersModel,
 } from "common";
 import { CommonRepository } from "../repositories/common.repository";
 import { UsersRepository } from "../repositories/users.repository";
@@ -19,7 +19,7 @@ import {
 export class UsersServices {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly commonRepository: CommonRepository
+    private readonly commonRepository: CommonRepository,
   ) {
     this.usersRepository = usersRepository;
     this.commonRepository = commonRepository;
@@ -29,7 +29,7 @@ export class UsersServices {
     try {
       const fileContent = fs.readFileSync(
         path.resolve("common", "database", "data", "users.json"),
-        "utf-8"
+        "utf-8",
       );
       const result = JSON.parse(fileContent);
       const rolesModel = await this.commonRepository.getRoles();
@@ -71,8 +71,7 @@ export class UsersServices {
       params.password = await hashPassword(params.password);
     }
     const model = {
-      firstName: params.firstName,
-      lastName: params.lastName,
+      name: params.name,
       email: params.email,
       role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
@@ -86,12 +85,11 @@ export class UsersServices {
 
   public async updateUser(
     params: UpsertUsersModel,
-    id: string
+    id: string,
   ): Promise<UpdateResult> {
     await this.validateRequestModel(params, id);
     const model = {
-      firstName: params.firstName,
-      lastName: params.lastName,
+      name: params.name,
       email: params.email,
       role: params.role as unknown as Types.ObjectId,
       status: UserStatusEnum.ACTIVE,
@@ -113,7 +111,9 @@ export class UsersServices {
     return deletedUser;
   }
 
-  public async searchUsers(params: UsersSearchParams): Promise<UsersModel[]> {
+  public async searchUsers(
+    params: UsersSearchParams,
+  ): Promise<{ count: number; rows: UsersModel[] }> {
     return this.usersRepository.searchUsers(params);
   }
 
@@ -123,7 +123,7 @@ export class UsersServices {
 
   private async validateRequestModel(
     usersModel: UpsertUsersModel,
-    id?: string
+    id?: string,
   ) {
     addLog(LogLevel.info, "validateRequestModel", usersModel);
     if (id) {
@@ -145,7 +145,7 @@ export class UsersServices {
 
     const userEmailExist = await this.usersRepository.getUserByEmail(
       usersModel.email,
-      id
+      id,
     );
 
     if (userEmailExist) {
@@ -155,7 +155,7 @@ export class UsersServices {
     }
 
     const checkRoleExists = await this.commonRepository.getRoleById(
-      usersModel.role
+      usersModel.role,
     );
 
     if (!checkRoleExists) {
@@ -177,11 +177,11 @@ export class UsersServices {
     return this.commonRepository.updateUser(
       {
         status:
-          userExist.status === UserStatusEnum.ACTIVE
-            ? UserStatusEnum.IN_ACTIVE
-            : UserStatusEnum.ACTIVE,
+          userExist.status === UserStatusEnum.ACTIVE ?
+            UserStatusEnum.IN_ACTIVE
+          : UserStatusEnum.ACTIVE,
       } as UsersModel,
-      id
+      id,
     );
   }
 }

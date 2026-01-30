@@ -17,8 +17,7 @@ export const AuthorizationModel = {
   signup: {
     params: {},
     body: {
-      firstName: Joi.string().required(),
-      lastName: Joi.string().required(),
+      name: Joi.string().required(),
       email: Joi.string().email().required(),
       password: Joi.string().required(),
       role: Joi.string().required(),

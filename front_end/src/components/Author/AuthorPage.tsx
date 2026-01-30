@@ -1,38 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../MainLayout";
 import type { Author, AuthorFormData } from "../../types/author";
 import { authorService } from "../../services/authorService";
-import "./AuthorPage.css";
 import type { SearchParams } from "../../types/role";
 import AuthorModal from "./AuthorModal";
-import CustomButton from "../common/Button/CustomButton";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
+import DataTable from "../common/DataTable";
+import "./AuthorPage.css";
 import IconButtons from "../common/Button/IconButtons";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null);
 
-  useEffect(() => {
-    loadAuthors({ limit: 10, offset: 0 });
-  }, []);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
+  });
 
-  const loadAuthors = async (params: SearchParams) => {
+  const loadAuthors = async () => {
     try {
       setLoading(true);
-      const authorsData = await authorService.searchAuthors(params);
-      setAuthors(authorsData);
+
+      const res = await authorService.searchAuthors({
+        offset: paginationModel.page,
+        limit: paginationModel.pageSize,
+      } as SearchParams);
+
+      setAuthors(res.rows);
+      setTotalCount(res.count);
     } catch (error) {
-      console.error("Error loading books:", error);
+      console.error("Error loading authors:", error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAuthors();
+  }, [paginationModel]);
 
   const handleAddAuthor = () => {
     setModalMode("add");
@@ -47,19 +58,13 @@ const AuthorPage: React.FC = () => {
   };
 
   const handleDeleteAuthor = async (authorId: string) => {
-    if (window.confirm("Are you sure you want to delete this Author?")) {
-      try {
-        await authorService.deleteAuthor(authorId);
-        const updatedAuthors = await authorService.searchAuthors({
-          limit: 10,
-          offset: 0,
-        } as SearchParams);
-        setAuthors(updatedAuthors);
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Error deleting author:", error);
-        alert("Error deleting author. Please try again.");
-      }
+    if (!window.confirm("Are you sure you want to delete this author?")) return;
+
+    try {
+      await authorService.deleteAuthor(authorId);
+      loadAuthors();
+    } catch (error) {
+      console.error("Error deleting author:", error);
     }
   };
 
@@ -70,89 +75,54 @@ const AuthorPage: React.FC = () => {
       } else if (modalMode === "edit" && selectedAuthor) {
         await authorService.updateAuthor(selectedAuthor._id, authorData);
       }
-      const updatedAuthors = await authorService.searchAuthors({
-        limit: 10,
-        offset: 0,
-      } as SearchParams);
-      setAuthors(updatedAuthors);
+
       setIsModalOpen(false);
+      loadAuthors();
     } catch (error) {
-      console.error("Error saving book:", error);
+      console.error("Error saving author:", error);
       throw error;
     }
   };
-
-  const filteredAuthor = authors;
 
   return (
     <MainLayout>
       <div className="book-page">
         <div className="page-header">
-          <div className="header-content"></div>
-          <CustomButton
-            variant="contained"
+          <IconButtons
             onClick={handleAddAuthor}
-            label="Add New Author"
+            label={<AddIcon />}
+            ariaLabel="Add New Author"
             className="add-author-btn"
-            startIcon={<AddIcon />}
           />
         </div>
 
-        {loading ? (
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Loading authors...</p>
-          </div>
-        ) : (
-          <div className="books-table-container">
-            {filteredAuthor.length === 0 ? (
-              <div className="empty-state">
-                <h3>No author found</h3>
-                <p>
-                  {"Your library is empty. Add your first book to get started."}
-                </p>
-              </div>
-            ) : (
-              <table className="books-table">
-                <thead>
-                  <tr>
-                    <th>Author Name</th>
-                    <th>Bio</th>
-                    <th>Birth Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAuthor.map((author) => (
-                    <tr key={author._id}>
-                      <td>
-                        <div className="book-title">
-                          <strong>{author.name}</strong>
-                        </div>
-                      </td>
-                      <td>{author.bio}</td>
-                      <td>{author.birthDate}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <IconButtons
-                            onClick={() => handleEditAuthor(author)}
-                            label={<ModeEditIcon />}
-                            ariaLabel="edit"
-                          />
-                          <IconButtons
-                            onClick={() => handleDeleteAuthor(author._id)}
-                            label={<DeleteIcon />}
-                            ariaLabel="Delete"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
+        <DataTable
+          rows={authors}
+          rowCount={totalCount}
+          paginationModel={paginationModel}
+          onPaginationChange={setPaginationModel}
+          loading={loading}
+          onEdit={handleEditAuthor}
+          onDelete={(row) => handleDeleteAuthor(row._id)}
+          columns={[
+            {
+              field: "name",
+              headerName: "Author Name",
+              flex: 1,
+            },
+            {
+              field: "bio",
+              headerName: "Bio",
+              flex: 2,
+            },
+            {
+              field: "birthDate",
+              headerName: "Birth Date",
+              flex: 1,
+              valueFormatter: (params) => new Date(params).toLocaleDateString(),
+            },
+          ]}
+        />
 
         <AuthorModal
           isOpen={isModalOpen}

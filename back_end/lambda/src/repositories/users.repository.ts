@@ -1,8 +1,4 @@
-<<<<<<< HEAD:back_end/src/repositories/users.repository.ts
-import { UsersModel, Users } from "../../common/database/models/users";
-=======
 import { UsersModel, Users } from "common";
->>>>>>> 74355e3e0d8474fbefe72dfaf8d3a107a1bc230d:back_end/lambda/src/repositories/users.repository.ts
 import { UsersSearchParams } from "../interface/common.interface";
 
 export class UsersRepository {
@@ -14,7 +10,9 @@ export class UsersRepository {
     return Users.findByIdAndDelete({ _id: id });
   }
 
-  public async searchUsers(params: UsersSearchParams): Promise<UsersModel[]> {
+  public async searchUsers(
+    params: UsersSearchParams,
+  ): Promise<{ count: number; rows: UsersModel[] }> {
     let query = {};
     if (params.name) {
       query = { ...query, userName: { $regex: params.name, $options: "i" } };
@@ -37,13 +35,16 @@ export class UsersRepository {
     } else {
       order = { createdAt: -1 };
     }
-    return Users.find(query).populate("role", "name")
+    const count = await Users.countDocuments(query);
+    const rows = await Users.find(query)
+      .populate("role", "name")
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+    return { count, rows };
   }
 
-   public async getUserByEmail(email: string, id?: string): Promise<number> {
+  public async getUserByEmail(email: string, id?: string): Promise<number> {
     if (id) {
       return Users.countDocuments({ email, _id: { $ne: id } });
     }

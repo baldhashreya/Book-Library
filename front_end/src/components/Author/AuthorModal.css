@@ -40,21 +40,12 @@
   padding: 30px;
 }
 
-.form-row {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
 .form-group {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.form-group.full-width {
-  flex: 0 0 100%;
-}
 
 .form-group label {
   margin-bottom: 8px;
@@ -119,11 +110,6 @@
 
   .modal-content {
     max-height: 95vh;
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: 15px;
   }
 
   .modal-header,

@@ -33,8 +33,7 @@ export const authService = {
 
   // Register new user
   async register(userData: {
-    firstName: string;
-    lastName: string;
+    name: string;
     email: string;
     password: string;
     role: string;

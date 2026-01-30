@@ -59,9 +59,7 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
               key={u._id}
               value={u._id}
             >
-              {u.userName
-                ? u.userName
-                : (u.firstName || "") + " " + (u.lastName || "")}
+              {u.userName ? u.userName : u.name}
             </option>
           ))}
         </select>

@@ -5,14 +5,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1;
 }
 
 /* Modal box */
 .modal-container {
   background: #fff;
   padding: 30px 35px;
-  width: 480px;
+  width: 300px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   animation: fadeIn 0.25s ease-out;
@@ -99,11 +99,12 @@
 .action-button {
   text-transform: none !important;
   font-weight: 700 !important;
-  background-color: #3030d2f9 !important;
+  background-color: #4F46E5 !important;
+  color: #FFFFFF !important;
 }
 
 .action-button:hover {
-  background-color: white !important;
-  color: #3030d2f9 !important;
-  border: 1px solid #3030d2f9 !important;
+  background-color: #EEF2FF !important;
+  color: #4338CA !important;
+  border: 1px solid #4338CA !important;
 }

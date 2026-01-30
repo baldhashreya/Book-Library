@@ -1,0 +1,34 @@
+<svg width="90" height="90" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Book shape -->
+  <path
+    d="M8 10
+       C8 8.9 8.9 8 10 8
+       H24
+       C28 8 32 12 32 12
+       C32 12 36 8 40 8
+       H54
+       C55.1 8 56 8.9 56 10
+       V44
+       C56 48 52 52 46 52
+       C40 52 34 48 32 48
+       C30 48 24 52 18 52
+       C12 52 8 48 8 44
+       Z"
+    fill="#2F80ED"
+  />
+
+  <!-- Center fold -->
+  <path
+    d="M32 12V48"
+    stroke="white"
+    stroke-width="2"
+  />
+
+  <!-- Window squares -->
+  <rect x="38" y="18" width="5" height="5" rx="1" fill="white"/>
+  <rect x="45" y="18" width="5" height="5" rx="1" fill="white"/>
+  <rect x="38" y="25" width="5" height="5" rx="1" fill="white"/>
+  <rect x="45" y="25" width="5" height="5" rx="1" fill="white"/>
+
+</svg>

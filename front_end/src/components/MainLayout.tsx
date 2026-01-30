@@ -163,7 +163,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <CustomButton
               variant="outlined"
               onClick={handleProfileClick}
-              label={currentUser.firstName || currentUser.userName}
+              label={currentUser.name || currentUser.userName}
               className="profile-btn"
               startIcon={<PersonOutlineIcon />}
             />

@@ -7,7 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Login from "./components/credentials/Login";
+import Login from "./components/credentials/LoginMainPage";
 import Signup from "./components/credentials/Signup";
 import Dashboard from "./components/Dashboard";
 import BookPage from "./components/book/BookPage";

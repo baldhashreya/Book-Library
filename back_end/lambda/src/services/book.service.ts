@@ -46,7 +46,7 @@ export class BooksService {
 
     const existingBook = await this.booksRepository.getBookByTitle(
       bookData.title,
-      id
+      id,
     );
 
     if (existingBook > 0) {
@@ -56,7 +56,7 @@ export class BooksService {
     }
 
     const authorExist = await this.booksRepository.getAuthorById(
-      bookData.author as string
+      bookData.author as string,
     );
 
     if (!authorExist) {
@@ -66,7 +66,7 @@ export class BooksService {
     }
 
     const categoryExist = await this.booksRepository.getCategoryById(
-      bookData.category as string
+      bookData.category as string,
     );
     if (!categoryExist) {
       const err = new Error();
@@ -77,7 +77,9 @@ export class BooksService {
     return true;
   }
 
-  public async searchBooks(params: any) {
+  public async searchBooks(
+    params: any,
+  ): Promise<{ count: number; rows: BooksModel[] }> {
     return this.booksRepository.searchBooks(params);
   }
 
@@ -100,10 +102,12 @@ export class BooksService {
       // determine role name whether role is a populated object or a raw id/string
       const currentUserRoleName =
         CurrentUserModel &&
-        (typeof (CurrentUserModel.role as any) === "object" &&
-        (CurrentUserModel.role as any)?.name
-          ? (CurrentUserModel.role as any).name
-          : (CurrentUserModel.role as any)?.toString());
+        ((
+          typeof (CurrentUserModel.role as any) === "object" &&
+          (CurrentUserModel.role as any)?.name
+        ) ?
+          (CurrentUserModel.role as any).name
+        : (CurrentUserModel.role as any)?.toString());
 
       if (CurrentUserModel && currentUserRoleName === "Member") {
         const err = new Error();

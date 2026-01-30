@@ -1,7 +1,7 @@
 import Button from "@mui/material/Button";
 
 interface CustomButtonProps {
-  onClick: (e?:any) => void;
+  onClick?: (e?: any) => void;
   label: string;
   variant: "text" | "outlined" | "contained";
   className?: string;
@@ -11,13 +11,13 @@ interface CustomButtonProps {
 }
 
 function CustomButton({
-  onClick,
   label,
   className,
   variant,
   type,
   disabled,
-  startIcon
+  startIcon,
+  onClick,
 }: CustomButtonProps) {
   return (
     <Button

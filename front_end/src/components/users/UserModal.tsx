@@ -6,6 +6,7 @@ import CancelButton from "../common/Button/CancleButton";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../common/Button/CustomButton";
 import IconButtons from "../common/Button/IconButtons";
+import { Grid } from "@mui/material";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -23,8 +24,7 @@ const UserModal: React.FC<UserModalProps> = ({
   mode,
 }) => {
   const [formData, setFormData] = useState<UserFormData>({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     role: "",
     status: "active",
@@ -41,8 +41,7 @@ const UserModal: React.FC<UserModalProps> = ({
       setError("");
       if (mode === "edit" && user) {
         setFormData({
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
           email: user.email,
           role: user.role._id,
           status: user.status,
@@ -51,8 +50,7 @@ const UserModal: React.FC<UserModalProps> = ({
         });
       } else {
         setFormData({
-          firstName: "",
-          lastName: "",
+          name: "",
           email: "",
           role: "",
           phone: 0,
@@ -77,7 +75,7 @@ const UserModal: React.FC<UserModalProps> = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -95,13 +93,8 @@ const UserModal: React.FC<UserModalProps> = ({
     console.log(formData);
     try {
       // Validate form
-      if (!formData.firstName.trim()) {
-        setError("First name is required");
-        return;
-      }
-
-      if (!formData.lastName.trim()) {
-        setError("Last name is required");
+      if (!formData.name.trim()) {
+        setError("Name is required");
         return;
       }
 
@@ -151,134 +144,125 @@ const UserModal: React.FC<UserModalProps> = ({
           className="user-form"
         >
           {error && <div className="error-message">{error}</div>}
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name*</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter firstName"
-                maxLength={30}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name*</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter lastName"
-                maxLength={30}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="role">Role *</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role || ""}
-                onChange={(e) => {
-                  const selectedRoleId = e.target.value;
-                  setFormData((prev) => ({
-                    ...prev,
-                    role: selectedRoleId,
-                  }));
-                }}
-                disabled={loading}
-                required
-              >
-                <option
-                  value=""
-                  disabled
-                  hidden
-                >
-                  -- Select Role --
-                </option>
-                {roles.map((role) => (
-                  <option
-                    key={role.value}
-                    value={role.value}
-                  >
-                    {role.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter email address"
-              />
-            </div>
-            {mode === "edit" && user && (
+          <Grid
+            container
+            spacing={2}
+          >
+            <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
+                <label htmlFor="name">Name*</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                   disabled={loading}
+                  placeholder="Enter Name"
+                  maxLength={30}
+                />
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="role">Role *</label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role || ""}
+                  onChange={(e) => {
+                    const selectedRoleId = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      role: selectedRoleId,
+                    }));
+                  }}
+                  disabled={loading}
+                  required
                 >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option
+                    value=""
+                    disabled
+                    hidden
+                  >
+                    -- Select Role --
+                  </option>
+                  {roles.map((role) => (
+                    <option
+                      key={role.value}
+                      value={role.value}
+                    >
+                      {role.label}
+                    </option>
+                  ))}
                 </select>
               </div>
-            )}
-
-            <div className="form-group">
-              <label htmlFor="phone">Phone *</label>
-              <input
-                type="number"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter lastName"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="address">Address*</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                placeholder="Enter address"
-              />
-            </div>
-          </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter email address"
+                />
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              {mode === "edit" && user && (
+                <div className="form-group">
+                  <label htmlFor="status">Status *</label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <div className="form-group">
+                <label htmlFor="phone">Phone *</label>
+                <input
+                  type="number"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter phone"
+                />
+              </div>
+            </Grid>
+            <Grid size={12}>
+              <div className="form-group">
+                <label htmlFor="address">Address*</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  placeholder="Enter address"
+                />
+              </div>
+            </Grid>
+          </Grid>
 
           <div className="form-actions">
             <CancelButton
@@ -286,13 +270,11 @@ const UserModal: React.FC<UserModalProps> = ({
               disabled={loading}
             />
             <CustomButton
-              onClick={onClose}
               label={
-                loading
-                  ? "Saving..."
-                  : mode === "add"
-                  ? "Add User"
-                  : "Update User"
+                loading ? "Saving..."
+                : mode === "add" ?
+                  "Add User"
+                : "Update User"
               }
               variant="contained"
               disabled={loading}

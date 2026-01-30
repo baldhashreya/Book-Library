@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Signup.css";
+import "../common/common-css/common.css";
 import type { signupFormData } from "../../types/auth";
 import { roleService } from "../../services/roleService";
 import type { Role } from "../../types/role";
 import { authService } from "../../services/authService";
+import { TextField, Box, MenuItem } from "@mui/material";
+import CustomButton from "../common/Button/CustomButton";
+import CustomLink from "../common/CustomLink";
+import BlueLogo from "../../assets/logo-blue.svg"
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<signupFormData>({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -28,6 +31,7 @@ const Signup: React.FC = () => {
   const loadRoles = async () => {
     try {
       const result = await roleService.searchRoles({ limit: 100, offset: 0 });
+      console.log("result", result);
       setRoles(result);
     } catch (error) {
       console.error("Error loading roles:", error);
@@ -35,7 +39,7 @@ const Signup: React.FC = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
 
@@ -68,113 +72,98 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="signup-container">
-      <div className="signup-card">
+    <div className="login-container">
+      <div className="login-card">
+        <img src={BlueLogo} alt="Logo"/>
         <h2>Create an Account</h2>
-        <p className="signup-subtitle">Join our Book Library</p>
-
+        <p className="login-subtitle">Join our Book Library</p>
         <form onSubmit={handleSubmit}>
-          {/* NAME ROW */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>First Name</label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="Enter first name"
-                required
-              />
-            </div>
+          <Box sx={{ "& > :not(style)": { m: 1, width: "300px" } }}>
+            <TextField
+              fullWidth
+              label="Name"
+              variant="standard"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
 
-            <div className="form-group">
-              <label>Last Name</label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Enter last name"
-                required
-              />
-            </div>
-          </div>
+            <TextField
+              fullWidth
+              label="Email Address"
+              variant="standard"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
 
-          {/* EMAIL + ROLE */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter email"
-                required
-              />
-            </div>
+            <TextField
+              fullWidth
+              label="Password"
+              variant="standard"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
 
-            <div className="form-group">
-              <label>Select Role</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-                disabled={loading}
+            <TextField
+              select
+              label="Select Role"
+              variant="standard"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              disabled={loading}
+              required
+              sx={{
+                width: "150px",
+              }}
+            >
+              <MenuItem
+                value=""
+                disabled
               >
-                <option value="" disabled hidden>
-                  -- Select Role --
-                </option>
+                -- Select Role --
+              </MenuItem>
 
-                {roles.map((role) => (
-                  <option key={role._id} value={role._id}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+              {roles.map((role) => (
+                <MenuItem
+                  key={role._id}
+                  value={role._id}
+                >
+                  {role.name}
+                </MenuItem>
+              ))}
+            </TextField>
 
-          {/* PASSWORD ROW */}
-          <div className="form-row">
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                required
+            <div className="login-btn">
+              <CustomButton
+                className="login-button"
+                type="submit"
+                label={loading ? "Processing..." : "Sign Up"}
+                onClick={() => {}}
+                disabled={loading}
+                variant="contained"
               />
             </div>
-
-            <div className="form-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                required
-              />
-            </div>
-          </div>
-
-          <button className="signup-button" disabled={loading}>
-            {loading ? "Processing..." : "Sign Up"}
-          </button>
+          </Box>
         </form>
 
-        <div className="signup-footer">
+        <div className="signup-section">
           <p>
             Already have an account?{" "}
-            <button className="signup-link" onClick={() => navigate("/login")}>
-              Sign In
-            </button>
+            <CustomLink
+              component="button"
+              variant="body2"
+              onClick={() => navigate("/login")}
+              label="Sign In"
+              className="redirect-link"
+            />
           </p>
         </div>
       </div>

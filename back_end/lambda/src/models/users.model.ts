@@ -5,8 +5,7 @@ export const UserModel = {
   Create: {
     params: {},
     body: {
-      firstName: Joi.string().required(),
-      lastName: Joi.string().required(),
+      name: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
       address: Joi.string().required(),
@@ -20,8 +19,7 @@ export const UserModel = {
       status: Joi.string()
         .required()
         .valid(...Object.values(UserStatusEnum)),
-      firstName: Joi.string().required(),
-      lastName: Joi.string().required(),
+      name: Joi.string().required(),
       email: Joi.string().email().required(),
       role: Joi.string().required(),
       address: Joi.string().required(),
