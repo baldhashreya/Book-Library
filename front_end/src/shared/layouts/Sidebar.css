@@ -1,0 +1,94 @@
+/* Sidebar container */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  background-image: none;
+  background-size: cover;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e73e8;
+  margin-bottom: 30px;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.715);
+  border-radius: 10px;
+  padding: 15px
+}
+
+/* Menu item */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2b2b2b;
+  transition: all 0.25s ease;
+}
+
+/* Icon color */
+.menu-item svg {
+  color: #6b7280;
+}
+
+/* Hover effect */
+.menu-item:hover {
+  background: rgba(30, 115, 232, 0.08);
+  transform: translateX(4px);
+  border-left: 3px solid #1e73e8;
+}
+
+/* Active item (Dashboard look) */
+.menu-item.active {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 115, 232, 0.18),
+    rgba(30, 115, 232, 0.08)
+  );
+  color: #1e73e8;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(30, 115, 232, 0.15);
+}
+
+.menu-item.active svg {
+  color: #1e73e8;
+}
+
+/* Logout */
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #444;
+  transition: all 0.25s ease;
+  margin-top: 40px;
+}
+
+.logout:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateX(4px);
+}

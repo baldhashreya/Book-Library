@@ -17,10 +17,8 @@ export interface AuthState {
 }
 
 export interface LoginResponse {
-  success: boolean;
-  user?: User;
   message?: string;
-  token?: string;
+  data: any;
 }
 
 export interface AuthContextType {
@@ -32,7 +30,7 @@ export interface AuthContextType {
 }
 
 export interface signupFormData {
-  name:string;
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
