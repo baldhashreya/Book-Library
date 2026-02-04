@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import { authService } from '../services/authService';
+import React, { createContext, useContext, useState } from "react";
+import { authService } from "../features/login/authService";
 
 // Define User interface
 interface User {
@@ -27,13 +27,15 @@ export const useAuth = () => {
       isAuthenticated: false,
       login: async () => false,
       logout: () => {},
-      loading: false
+      loading: false,
     };
   }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -41,23 +43,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // This might be making another API call or expecting different parameters
       const response = await authService.login({ email, password });
-      console.log('AuthContext login response:', response);
+      console.log("AuthContext login response:", response);
       if (response.data?.access_token) {
         setToken(response.data.access_token);
         // Store token and user data
-        localStorage.setItem('token', response.data.access_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        
+        localStorage.setItem("token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+
         // You might need to fetch user data here
         const userData = { email }; // or fetch user profile
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        
+        localStorage.setItem("user", JSON.stringify(userData));
+
         return { success: true };
       }
       return { success: false };
     } catch (error) {
-      console.error('AuthContext login error:', error);
+      console.error("AuthContext login error:", error);
       return { success: false };
     }
   };
