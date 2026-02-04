@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import { useAuth } from "../../../contexts/AuthContext";
-import "./AboutMePage.css";
+import "./ProfilePage.css";
 import EditProfileModal from "../components/EditProfileModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
 import { userService } from "../../users/userService";

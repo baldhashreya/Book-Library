@@ -1,65 +1,84 @@
 import {
-  Box,
-  IconButton,
-  InputAdornment,
-  Link,
   TextField,
+  Box,
+  Link,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
-import CustomButton from "../../../shared/components/Button/CustomButton";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
 import { authService } from "../authService";
 import { toast } from "react-toastify";
-import "../../../shared/styles/common.css";
 import {
   EmailOutlined,
   LockOutlined,
-  Visibility,
   VisibilityOff,
+  Visibility,
 } from "@mui/icons-material";
+import CustomButton from "../../../shared/components/Button/CustomButton";
+import CustomLink from "../../../shared/components/CustomLink";
+import "../pages/Login.css";
+import "../../../shared/styles/common.css";
 
 interface props {
-  email: string;
-  password: string;
-  isLoading: boolean;
-  setShowForgotPassword: any;
-  handleBackToLogin: any;
   setIsLoading: any;
-  setResetEmail: any;
   loading: boolean;
+  setShowForgotPassword: any;
+  email?: string;
+  password?: string;
+  setEmail?: any;
+  setPassword?: any;
 }
-
-export function ForgotPassword({
+export function LoginForm({
+  setIsLoading,
+  loading,
+  setShowForgotPassword,
+  setEmail,
+  setPassword,
   email,
   password,
-  isLoading,
-  setShowForgotPassword,
-  handleBackToLogin,
-  setIsLoading,
-  setResetEmail,
-  loading,
 }: props) {
-  const [newResetPassword, setNewResetPassword] = useState(password);
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const handleToggle = () => {
-    setShowPassword((prev) => !prev);
-  };
-  const handleResetPassword = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await authService.resetPassword(email, newResetPassword);
-      toast.success(response.message);
-      setShowForgotPassword(false);
+      const response = await authService.login({ email: email || '', password:password || ''});
+      if (response.data && response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+        const user = await authService.getCurrentUser();
+        localStorage.setItem("user", JSON.stringify(user || { email }));
+        await login(email || '', password || '');
+        toast.success(response.message);
+        navigate("/dashboard");
+      } else {
+        toast.error(
+          response.message || "Login failed. Please check credentials.",
+        );
+      }
     } catch (err) {
-      console.log(err);
-      toast.error("Failed to reset password. Try again.");
+      console.error(err);
+      toast.error("Unable to connect to server.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleToggle = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleForgotPassword = () => {
+    setShowForgotPassword(true);
+  };
   return (
     <div className="login-form">
-      <form onSubmit={handleResetPassword}>
+      <form onSubmit={handleSubmit}>
         <Box sx={{ "& > :not(style)": { m: 1, width: "260px" } }}>
           <TextField
             label="email"
@@ -69,7 +88,7 @@ export function ForgotPassword({
             required
             disabled={loading}
             value={email}
-            onChange={(e) => setResetEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -108,12 +127,12 @@ export function ForgotPassword({
           <TextField
             label="password"
             variant="outlined"
+            placeholder="Enter password"
             type={showPassword ? "text" : "password"}
-            placeholder="Enter new password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
-            value={newResetPassword}
             disabled={loading}
-            onChange={(e) => setNewResetPassword(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -161,13 +180,23 @@ export function ForgotPassword({
               },
             }}
           />
-
+          <div className="forgot-password">
+            <Link
+              component="button"
+              variant="body1"
+              onClick={handleForgotPassword}
+              color="#4F46E5"
+              sx={{ fontWeight: "500", fontSize: "13px" }}
+            >
+              Forgot Password?
+            </Link>
+          </div>
+          {/* Login button */}
           <div className="login-btn">
             <CustomButton
               className="login-button"
-              onClick={() => {}}
-              disabled={isLoading}
-              label={isLoading ? "Updating..." : "Update Password"}
+              disabled={loading}
+              label={loading ? "Signing In..." : "Sign In"}
               variant="contained"
               type="submit"
             />
@@ -175,20 +204,17 @@ export function ForgotPassword({
         </Box>
       </form>
       <div className="signup-section">
-        <Link
-          component="button"
-          variant="body2"
-          onClick={handleBackToLogin}
-          className="back-button"
-          sx={{
-            fontWeight: "500",
-            fontSize: "15px",
-            marginTop: "10px",
-          }}
-        >
-          Back to Login
-        </Link>
+        <p>
+          Don’t have an account?
+          <CustomLink
+            component="button"
+            variant="body2"
+            onClick={() => navigate("/signup")}
+            label="SignUp"
+            className="redirect-link"
+          />
+        </p>
       </div>
-    </div>
+    </div>  
   );
 }

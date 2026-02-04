@@ -6,7 +6,7 @@ import { userService } from "../userService";
 import AddIcon from "@mui/icons-material/Add";
 import SyncIcon from "@mui/icons-material/Sync";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import "../common/common-css/button.css";
+import "../../../shared/styles/button.css";
 import "./UserPage.css";
 import DataTable from "../../../shared/components/DataTable";
 

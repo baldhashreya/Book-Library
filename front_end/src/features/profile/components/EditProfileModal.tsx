@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../../users/userService";
-import "../aboutMe/EditProfileModal.css";
+import "./EditProfileModal.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
 import IconButtons from "../../../shared/components/Button/IconButtons";

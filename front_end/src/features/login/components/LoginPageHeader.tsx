@@ -1,5 +1,5 @@
-import BlueLogo from "../../assets/logo-blue.svg";
-import "./Login.css";
+import BlueLogo from "../../../assets/logo-blue.svg";
+import "../pages/Login.css";
 
 export function LoginPageHeader() {
   return (

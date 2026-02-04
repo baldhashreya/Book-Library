@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../common/common-css/common.css";
+import "../../../shared/styles/common.css";
 import type { signupFormData } from "../../../types/auth";
 import { roleService } from "../../role/roleService";
 import type { Role } from "../../../types/role";
 import { authService } from "../authService";
-import { TextField, Box, MenuItem } from "@mui/material";
+import { TextField, Box, MenuItem, InputAdornment } from "@mui/material";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CustomLink from "../../../shared/components/CustomLink";
-import BlueLogo from "../../assets/logo-blue.svg";
+import { LoginPageHeader } from "../components/LoginPageHeader";
+import {
+  EmailOutlined,
+  PersonOutlineOutlined,
+  LockOutlined,
+  PermContactCalendarOutlined,
+} from "@mui/icons-material";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +23,6 @@ const Signup: React.FC = () => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
     role: "",
   });
 
@@ -42,11 +47,11 @@ const Signup: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+    console.log(formData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,67 +78,221 @@ const Signup: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <img
-          src={BlueLogo}
-          alt="Logo"
-        />
-        <h2>Create an Account</h2>
-        <p className="login-subtitle">Join our Book Library</p>
+      <div className="signup-card">
+        <LoginPageHeader />
+        <h2>Create your TatvaLib account</h2>
+        <p className="login-subtitle">Start managing your library in minutes</p>
         <form onSubmit={handleSubmit}>
           <Box sx={{ "& > :not(style)": { m: 1, width: "300px" } }}>
             <TextField
-              fullWidth
               label="Name"
-              variant="standard"
               name="name"
+              variant="outlined"
+              type="text"
+              placeholder="Enter name"
+              required
+              disabled={loading}
               value={formData.name}
               onChange={handleChange}
-              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonOutlineOutlined
+                      sx={{ color: "gray", fontSize: "20px" }}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: 320,
+                /* input text */
+                "& .MuiInputBase-input": {
+                  fontSize: "12px", //text size
+                  padding: "10px", //vertical + horizontal padding
+                  color: "#6b6b6b",
+                },
+                /* outlined container */
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                },
+                /* label */
+                "& .MuiInputLabel-root": {
+                  fontSize: "13px",
+                  color: "#9e9e9e",
+                  marginBottom: "6px",
+                },
+                /* focused label */
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#7a7a7a",
+                },
+                /* icon spacing */
+                "& .MuiInputAdornment-root": {
+                  marginRight: "6px",
+                },
+              }}
             />
 
             <TextField
-              fullWidth
-              label="Email Address"
-              variant="standard"
-              type="email"
+              label="Email"
               name="email"
+              variant="outlined"
+              type="email"
+              placeholder="Enter email"
+              required
+              disabled={loading}
               value={formData.email}
               onChange={handleChange}
-              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlined sx={{ color: "gray", fontSize: "20px" }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: 320,
+                /* input text */
+                "& .MuiInputBase-input": {
+                  fontSize: "12px", //text size
+                  padding: "10px", //vertical + horizontal padding
+                  color: "#6b6b6b",
+                },
+                /* outlined container */
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                },
+                /* label */
+                "& .MuiInputLabel-root": {
+                  fontSize: "13px",
+                  color: "#9e9e9e",
+                  marginBottom: "6px",
+                },
+                /* focused label */
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#7a7a7a",
+                },
+                /* icon spacing */
+                "& .MuiInputAdornment-root": {
+                  marginRight: "6px",
+                },
+              }}
             />
 
             <TextField
-              fullWidth
               label="Password"
-              variant="standard"
-              type="password"
               name="password"
+              variant="outlined"
+              type="password"
+              placeholder="Enter password"
+              required
+              disabled={loading}
               value={formData.password}
               onChange={handleChange}
-              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlined sx={{ color: "gray", fontSize: "20px" }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: 320,
+                /* input text */
+                "& .MuiInputBase-input": {
+                  fontSize: "12px", //text size
+                  padding: "10px", //vertical + horizontal padding
+                  color: "#6b6b6b",
+                },
+                /* outlined container */
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                },
+                /* label */
+                "& .MuiInputLabel-root": {
+                  fontSize: "13px",
+                  color: "#9e9e9e",
+                  marginBottom: "6px",
+                },
+                /* focused label */
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#7a7a7a",
+                },
+                /* icon spacing */
+                "& .MuiInputAdornment-root": {
+                  marginRight: "6px",
+                },
+              }}
             />
 
             <TextField
               select
-              label="Select Role"
-              variant="standard"
+              label="Role"
+              variant="outlined"
+              type="email"
               name="role"
+              required
+              disabled={loading}
               value={formData.role}
               onChange={handleChange}
-              disabled={loading}
-              required
+              displayEmpty={true}
+              SelectProps={{
+                displayEmpty: true,
+                renderValue: (selected) => {
+                  if (!selected || (selected as string).length === 0) {
+                    return (
+                      <span style={{ color: "#9e9e9e" }}>Select Role</span>
+                    );
+                  }
+                  // Find and display the role name instead of the ID
+                  const selectedRole = roles.find((r) => r._id === selected);
+                  return selectedRole ?
+                      selectedRole.name
+                    : (selected as string);
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PermContactCalendarOutlined
+                      sx={{ color: "gray", fontSize: "20px" }}
+                    />
+                  </InputAdornment>
+                ),
+              }}
               sx={{
-                width: "150px",
+                width: 320,
+                /* input text */
+                "& .MuiInputBase-input": {
+                  fontSize: "12px", //text size
+                  padding: "10px", //vertical + horizontal padding
+                  color: "#6b6b6b",
+                },
+                /* outlined container */
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                },
+                /* label */
+                "& .MuiInputLabel-root": {
+                  fontSize: "13px",
+                  color: "#9e9e9e",
+                  marginBottom: "6px",
+                },
+                /* focused label */
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#7a7a7a",
+                },
+                /* icon spacing */
+                "& .MuiInputAdornment-root": {
+                  marginRight: "6px",
+                },
               }}
             >
               <MenuItem
                 value=""
                 disabled
               >
-                -- Select Role --
+                Select Role
               </MenuItem>
-
               {roles.map((role) => (
                 <MenuItem
                   key={role._id}
