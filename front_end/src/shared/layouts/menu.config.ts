@@ -12,6 +12,15 @@ export const MENU_ITEMS = [
     label: "Dashboard",
     icon: LayoutDashboard,
     path: "/dashboard",
+    showInPage: true,
+    roles: ["admin", "librarian", "member"],
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: LayoutDashboard,
+    path: "/about-me",
+    showInPage: false,
     roles: ["admin", "librarian", "member"],
   },
   {
@@ -19,6 +28,7 @@ export const MENU_ITEMS = [
     label: "Book",
     icon: Book,
     path: "/books",
+    showInPage: true,
     roles: ["admin", "librarian", "member"],
   },
   {
@@ -26,6 +36,7 @@ export const MENU_ITEMS = [
     label: "Category",
     icon: ChartColumnStacked,
     path: "/categories",
+    showInPage: true,
     roles: ["admin", "librarian"],
   },
   {
@@ -33,6 +44,7 @@ export const MENU_ITEMS = [
     label: "Author",
     icon: BookA,
     path: "/author",
+    showInPage: true,
     roles: ["admin", "librarian"],
   },
   {
@@ -40,6 +52,15 @@ export const MENU_ITEMS = [
     label: "Users",
     icon: Users,
     path: "/users",
+    showInPage: true,
     roles: ["admin", "librarian"],
+  },
+  {
+    id: "role",
+    label: "Role",
+    icon: Users,
+    path: "/role",
+    showInPage: true,
+    roles: ["admin"],
   },
 ];

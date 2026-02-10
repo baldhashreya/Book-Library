@@ -1,4 +1,8 @@
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  type GridSortModel,
+} from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -15,6 +19,8 @@ interface DataTableProps {
   checkboxSelection?: boolean;
   disableMultipleRowSelection?: boolean;
   onRowSelect?: (ids: string[]) => void;
+  onSortModelChange?: (model: GridSortModel) => void;
+  onFilterModelChange?: (model: any) => void;
 }
 
 export default function DataTable({
@@ -29,6 +35,8 @@ export default function DataTable({
   checkboxSelection,
   disableMultipleRowSelection,
   onRowSelect,
+  onSortModelChange,
+  onFilterModelChange
 }: DataTableProps) {
   const actionColumn = {
     field: "actions",
@@ -40,15 +48,16 @@ export default function DataTable({
         icon={<EditIcon />}
         label="Edit"
         onClick={() => onEdit(params.row)}
+        color="primary"
       />,
       <GridActionsCellItem
         icon={<DeleteIcon />}
         label="Delete"
         onClick={() => onDelete(params.row)}
+        color="error"
       />,
     ],
   };
-
   return (
     <Paper sx={{ height: 430, width: "100%" }}>
       <DataGrid
@@ -57,6 +66,10 @@ export default function DataTable({
         getRowId={(row) => row._id}
         pagination
         paginationMode="server"
+        sortingMode="server"
+        filterMode="server"
+        onFilterModelChange={onFilterModelChange}
+        onSortModelChange={onSortModelChange}
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationChange}
         rowCount={rowCount}
@@ -68,7 +81,7 @@ export default function DataTable({
         onRowSelectionModelChange={(selectionModel) => {
           const ids =
             Array.isArray(selectionModel) ? selectionModel : selectionModel.ids;
-          console.log(Array.from(ids));
+
           onRowSelect?.(Array.from(ids));
         }}
       />

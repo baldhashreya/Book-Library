@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import type { Book, BookFormData } from "../../../types/book";
-import "./BookModal.css";
 import type { SearchParams } from "../../../types/role";
-import { categoryService } from "../../category/categoryService";
 import type { Category } from "../../../types/category";
-import { authorService } from "../../author/authorService";
 import type { Author } from "../../../types/author";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
+
+import "./BookModal.css";
+import "../../../shared/styles/model.css";
+
 import { Grid } from "@mui/material";
+import { useFormik } from "formik";
+
+import { categoryService } from "../../category/categoryService";
+import { authorService } from "../../author/authorService";
+import ModelHeader from "../../../shared/components/FormHeader";
+import AppTextField from "../../../shared/components/AppTextField";
+import { bookSchema } from "./book.model";
+import FormAction from "../../../shared/components/FormAction";
 
 interface BookModalProps {
   isOpen: boolean;
@@ -27,301 +32,227 @@ const BookModal: React.FC<BookModalProps> = ({
   book,
   mode,
 }) => {
-  const [formData, setFormData] = useState<BookFormData>({
-    title: "",
-    author: "",
-    category: "",
-    status: "AVAILABLE",
-    isbn: "",
-    publisher: undefined,
-    quantity: 1,
-    description: "",
-  });
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [loading, setLoading] = useState(false);
 
+  /* -------- Load dropdown data -------- */
   useEffect(() => {
     if (isOpen) {
       loadCategories();
       loadAuthors();
-      if (mode === "edit" && book) {
-        setFormData({
-          title: book.title,
-          author:
-            typeof book.author === "object" ? book.author._id : book.author,
-          category:
-            typeof book.category === "object" ?
-              book.category._id
-            : book.category,
-          status: book.status,
-          isbn: book.isbn || "",
-          publisher: book.publisher,
-          quantity: book.quantity,
-          description: book.description || "",
-        });
-      } else {
-        setFormData({
-          title: "",
-          author: "",
-          category: "",
-          status: "AVAILABLE",
-          isbn: "",
-          publisher: undefined,
-          description: "",
-          quantity: 1,
-        });
-      }
     }
-  }, [isOpen, mode, book]);
+  }, [isOpen]);
 
   const loadCategories = async () => {
-    try {
-      const cats = await categoryService.searchCategories({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setCategories(cats.rows);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
+    const cats = await categoryService.searchCategories({
+      limit: 100,
+      offset: 0,
+    } as SearchParams);
+    setCategories(cats.rows);
   };
 
   const loadAuthors = async () => {
-    try {
-      const authorData = await authorService.searchAuthors({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setAuthors(authorData.rows);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
+    const auth = await authorService.searchAuthors({
+      limit: 100,
+      offset: 0,
+    } as SearchParams);
+    setAuthors(auth.rows);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  /* -------- Initial Values -------- */
+  const initialValues: BookFormData =
+    mode === "edit" && book ?
+      {
+        title: book.title,
+        author: typeof book.author === "object" ? book.author._id : book.author,
+        category:
+          typeof book.category === "object" ? book.category._id : book.category,
+        status: book.status,
+        isbn: book.isbn || "",
+        publisher: book.publisher || undefined,
+        quantity: book.quantity || 1,
+        description: book.description || "",
+      }
+    : {
+        title: "",
+        author: "",
+        category: "",
+        status: "AVAILABLE",
+        isbn: "",
+        publisher: undefined,
+        quantity: 1,
+        description: "",
+      };
 
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value ? parseInt(value) : undefined,
-    }));
-  };
+  /* ---------------- Formik ---------------- */
+  const formik = useFormik({
+    initialValues,
+    validationSchema: bookSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, actions) => {
+      try {
+        setLoading(true);
+        await onSave(values);
+        actions.resetForm();
+        onClose();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+        actions.setSubmitting(false);
+      }
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving book:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fieldProps = (name: keyof typeof formik.values) => ({
+    name,
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[name] && Boolean(formik.errors[name]),
+    helperText: formik.touched[name] && formik.errors[name],
+  });
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Book" : "Edit Book"}</h2>
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-          />
-        </div>
+        <ModelHeader
+          header={mode === "add" ? "Add New Book" : "Edit Book"}
+          onClose={onClose}
+          loading={loading}
+        />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="book-form"
         >
           <Grid
             container
             spacing={2}
           >
+            {/* Title */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="title">Book Title *</label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <AppTextField
+                label="Book Title"
+                {...fieldProps("title")}
+                fullWidth
+              />
             </Grid>
+
+            {/* Author */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="author">Author *</label>
-                <select
-                  id="author"
-                  name="author"
-                  value={formData.author}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
+              <AppTextField
+                label="Author"
+                select
+                fullWidth
+                {...fieldProps("author")}
+              >
+                <option
+                  value=""
+                  disabled
+                  hidden
                 >
+                  -- Select Author --
+                </option>
+                {authors.map((a) => (
                   <option
-                    value=""
-                    disabled
-                    hidden
+                    key={a._id}
+                    value={a._id}
                   >
-                    -- Select Author --
+                    {a.name}
                   </option>
-                  {authors.map((cat) => (
-                    <option
-                      key={cat._id}
-                      value={cat._id}
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                ))}
+              </AppTextField>
             </Grid>
+
+            {/* Category */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="category">Category *</label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
+              <AppTextField
+                label="Category"
+                select
+                fullWidth
+                {...fieldProps("category")}
+              >
+                <option
+                  value=""
+                  disabled
+                  hidden
                 >
+                  -- Select Category --
+                </option>
+                {categories.map((c) => (
                   <option
-                    value=""
-                    disabled
-                    hidden
+                    key={c._id}
+                    value={c._id}
                   >
-                    -- Select Category --
+                    {c.name}
                   </option>
-                  {categories.map((cat) => (
-                    <option
-                      key={cat._id}
-                      value={cat._id}
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                ))}
+              </AppTextField>
             </Grid>
+
+            {/* Status */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value="AVAILABLE">Available</option>
-                  <option value="CHECKED_OUT">Borrowed</option>
-                  <option value="RESERVED">Maintenance</option>
-                  <option value="LOST">Lost</option>
-                </select>
-              </div>
+              <AppTextField
+                label="Status"
+                select
+                fullWidth
+                SelectProps={{ native: true }}
+                {...fieldProps("status")}
+              >
+                <option value="AVAILABLE">Available</option>
+                <option value="CHECKED_OUT">Borrowed</option>
+                <option value="RESERVED">Maintenance</option>
+                <option value="LOST">Lost</option>
+              </AppTextField>
             </Grid>
+
+            {/* ISBN */}
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="isbn">ISBN</label>
-                <input
-                  type="text"
-                  id="isbn"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleChange}
-                  disabled={loading}
-                  placeholder="Optional"
-                />
-              </div>
+              <AppTextField
+                label="ISBN"
+                {...fieldProps("isbn")}
+              />
             </Grid>
+
+            {/* Published Year */}
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="publisher">Published Year</label>
-                <input
-                  type="number"
-                  id="publisher"
-                  name="publisher"
-                  value={formData.publisher || ""}
-                  onChange={handleNumberChange}
-                  disabled={loading}
-                  min="1000"
-                  max="2024"
-                  placeholder="Optional"
-                />
-              </div>
+              <AppTextField
+                label="Published Year"
+                type="number"
+                {...fieldProps("publisher")}
+              />
             </Grid>
+
+            {/* Quantity */}
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="Quantity">Quantity</label>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  value={formData.quantity || 1}
-                  onChange={handleNumberChange}
-                  disabled={loading}
-                  min="1"
-                />
-              </div>
+              <AppTextField
+                label="Quantity"
+                type="number"
+                {...fieldProps("quantity")}
+              />
             </Grid>
+
+            {/* Description */}
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  disabled={loading}
-                  rows={4}
-                  placeholder="Optional book description"
-                />
-              </div>
+              <AppTextField
+                label="Description"
+                fullWidth
+                multiline
+                rows={2}
+                {...fieldProps("description")}
+              />
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              variant="contained"
-              onClick={handleSubmit}
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Book"
-                : "Update Book"
-              }
-              className="action-button"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            onClose={onClose}
+            loading={loading}
+            label={mode === "add" ? "Add Book" : "Update Book"}
+          />
         </form>
       </div>
     </div>

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import type { Author, AuthorFormData } from "../../../types/author";
-import { authorService } from "../authorService";
 import "./AuthorModal.css";
-import type { SearchParams } from "../../../types/role";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
+import "../../../shared/styles/model.css";
+
 import { Grid } from "@mui/material";
+import { useFormik } from "formik";
+import ModelHeader from "../../../shared/components/FormHeader";
+import AppTextField from "../../../shared/components/AppTextField";
+import { authorSchema } from "./author.model";
+import FormAction from "../../../shared/components/FormAction";
 
 interface AuthorModalProps {
   isOpen: boolean;
@@ -24,155 +25,107 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   author,
   mode,
 }) => {
-  const [formData, setFormData] = useState<AuthorFormData>({
-    name: "",
-    bio: "",
-    birthDate: "",
-  });
-  const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadAuthors();
-      if (mode === "edit" && author) {
-        setFormData({
-          name: author.name,
-          bio: author.bio,
-          birthDate: author.birthDate,
-        });
-      } else {
-        setFormData({
-          name: "",
-          bio: "",
-          birthDate: new Date(),
-        });
+  const initialValues: AuthorFormData = {
+    name: mode === "edit" && author ? author.name : "",
+    bio: mode === "edit" && author ? author.bio : "",
+    birthDate:
+      mode === "edit" && author ?
+        author.birthDate
+      : new Date().toISOString().split("T")[0],
+  };
+
+  const formik = useFormik({
+    initialValues,
+    validationSchema: authorSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, actions) => {
+      try {
+        setLoading(true);
+        await onSave(values);
+        actions.resetForm();
+        onClose();
+      } catch (error) {
+        console.error("Error saving author:", error);
+      } finally {
+        setLoading(false);
+        actions.setSubmitting(false);
       }
-    }
-  }, [isOpen, mode, author]);
+    },
+  });
 
-  const loadAuthors = async () => {
-    try {
-      const authors = await authorService.searchAuthors({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setAuthors(authors);
-    } catch (error) {
-      console.error("Error loading authors:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving author:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fieldProps = (name: keyof typeof formik.values) => ({
+    name,
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[name] && Boolean(formik.errors[name]),
+    helperText: formik.touched[name] && formik.errors[name],
+  });
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Author" : "Edit Author"}</h2>
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-            disabled={loading}
-          />
-        </div>
+        <ModelHeader
+          header={mode === "add" ? "Add New Author" : "Edit Author"}
+          onClose={onClose}
+          loading={loading}
+        />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="author-form"
         >
           <Grid
             container
             spacing={2}
           >
+            {/* Author Name */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Author Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <AppTextField
+                label="Author Name"
+                required
+                placeholder="Enter author name"
+                {...fieldProps("name")}
+                disabled={loading}
+              />
             </Grid>
+
+            {/* Birth Date */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="isbn">Birth Date *</label>
-                <input
-                  type="date"
-                  id="birthDate"
-                  name="birthDate"
-                  value={formData.birthDate}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <AppTextField
+                label="Birth Date"
+                type="date"
+                required
+                InputLabelProps={{ shrink: true }}
+                {...fieldProps("birthDate")}
+                disabled={loading}
+              />
             </Grid>
+
+            {/* Bio */}
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="bio">Bio</label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleChange}
-                  disabled={loading}
-                  rows={4}
-                  placeholder="Optional author bio"
-                />
-              </div>
+              <AppTextField
+                label="Bio"
+                multiline
+                fullWidth
+                required
+                rows={4}
+                placeholder="Optional author bio"
+                {...fieldProps("bio")}
+                disabled={loading}
+              />
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              variant="contained"
-              onClick={handleSubmit}
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Author"
-                : "Update Author"
-              }
-              className="action-button"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            onClose={onClose}
+            loading={loading}
+            label={mode === "add" ? "Add Author" : "Update Author"}
+          />
         </form>
       </div>
     </div>

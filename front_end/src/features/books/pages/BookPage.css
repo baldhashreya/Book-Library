@@ -149,15 +149,6 @@
   color: #721c24;
 }
 
-.action-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
 
 .view-btn:hover {
   background-color: #e3f2fd;
@@ -207,10 +198,6 @@
     min-width: 600px;
   }
 
-  .action-btn {
-    padding: 6px;
-    font-size: 14px;
-  }
 }
 
 @media (max-width: 480px) {

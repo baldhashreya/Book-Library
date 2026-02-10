@@ -9,6 +9,7 @@ import CategoryPage from "../features/category/pages/CategoryPage";
 import AuthorPage from "../features/author/pages/AuthorPage";
 import UserPage from "../features/users/pages/UserPage";
 import ProfilePage from "../features/profile/pages/ProfilePage";
+import RolePage from "../features/role/Pages/RolePage";
 
 const AppRoutes = () => (
   <Routes>
@@ -48,6 +49,15 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute
           element={<UserPage />}
+          roles={["admin", "librarian"]}
+        />
+      }
+    />
+    <Route
+      path="/role"
+      element={
+        <ProtectedRoute
+          element={<RolePage />}
           roles={["admin", "librarian"]}
         />
       }

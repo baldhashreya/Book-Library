@@ -9,6 +9,7 @@ import CustomButton from "../../../shared/components/Button/CustomButton";
 import "../../../shared/styles/button.css";
 import "./UserPage.css";
 import DataTable from "../../../shared/components/DataTable";
+import { toast } from "react-toastify";
 
 const UserPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -83,14 +84,19 @@ const UserPage: React.FC = () => {
   const handleSaveUser = async (data: UserFormData & { _id?: string }) => {
     try {
       if (modalMode === "edit" && selectedUser._id) {
-        await userService.updateUser(selectedUser._id, data);
+        const response = await userService.updateUser(selectedUser._id, data);
+        await loadUsers();
+        setIsModalOpen(false);
+        toast.success(response.message || "User updated successfully");
       } else {
-        await userService.createUser(data);
+        const response = await userService.createUser(data);
+        toast.success(response.message || "User created successfully");
+        await loadUsers();
+        setIsModalOpen(false);
       }
-      await loadUsers();
-      setIsModalOpen(false);
     } catch (err) {
       console.error("Save user error:", err);
+      toast.error(err.message || "An error occurred while saving the user");
     }
   };
 

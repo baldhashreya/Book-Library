@@ -1,11 +1,12 @@
 .book-page {
   padding: 0;
   max-width: 100%;
+  background-color: white;
 }
 
 .page-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .add-author-btn {

@@ -29,6 +29,7 @@ export const messages = {
     Deleted: "User deleted successfully.",
     UserIsInactive: "User is not active.",
     create: "User created successfully.",
+    get: "User fetched successfully.",
   },
   CategoriesMessages: {
     CategoryNotFound: "Category not found.",

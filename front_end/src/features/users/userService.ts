@@ -1,4 +1,4 @@
-import type { User, UserFormData, UsersSearchParams } from "../../types/user";
+import type { UserFormData, UsersSearchParams } from "../../types/user";
 import { apiService } from "../../services/api";
 
 export interface UserExistsResponse {
@@ -36,12 +36,10 @@ export const userService = {
     }
   },
 
-  // Get user by ID
-  async getUserById(id: string): Promise<User | null> {
+  async getUserById(id: string){
     try {
-      console.log(`userService.getUserById(${id}) called`);
       const result = await apiService.get(`/users/${id}`);
-      return result.data || null;
+      return result;
     } catch (error) {
       console.error("Error fetching user:", error);
       throw error;
@@ -49,7 +47,7 @@ export const userService = {
   },
 
   // Create new user
-  async createUser(userData: UserFormData): Promise<User> {
+  async createUser(userData: UserFormData){
     try {
       console.log("userService.createUser() called:", userData);
       const data = await apiService.post("/users", userData);
@@ -61,11 +59,11 @@ export const userService = {
   },
 
   // Update user
-  async updateUser(id: string, userData: UserFormData): Promise<User> {
+  async updateUser(id: string, userData: UserFormData){
     try {
       console.log(`userService.updateUser(${id}) called:`, userData);
       const data = await apiService.put(`/users/${id}`, userData);
-      return data.user;
+      return data;
     } catch (error) {
       console.error("Error updating user:", error);
       throw error;

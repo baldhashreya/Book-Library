@@ -5,14 +5,26 @@ import { authorService } from "../authorService";
 import type { SearchParams } from "../../../types/role";
 import AuthorModal from "../components/AuthorModal";
 import AddIcon from "@mui/icons-material/Add";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import DataTable from "../../../shared/components/DataTable";
-import "./AuthorPage.css";
 import IconButtons from "../../../shared/components/Button/IconButtons";
+import "./AuthorPage.css";
+import AuthorPageFilter from "./AuthorPageFilter";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  // ✅ sorting
+  const [sortModel, setSortModel] = useState<{
+    field: string;
+    sort: "asc" | "desc";
+  } | null>(null);
+
+  // ✅ drawer filters
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
@@ -23,13 +35,16 @@ const AuthorPage: React.FC = () => {
     pageSize: 5,
   });
 
+  // ✅ API call
   const loadAuthors = async () => {
     try {
       setLoading(true);
 
       const res = await authorService.searchAuthors({
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
+        order: sortModel ? [[sortModel.field, sortModel.sort]] : [],
+        ...filters,
       } as SearchParams);
 
       setAuthors(res.rows);
@@ -43,7 +58,7 @@ const AuthorPage: React.FC = () => {
 
   useEffect(() => {
     loadAuthors();
-  }, [paginationModel]);
+  }, [paginationModel, sortModel]);
 
   const handleAddAuthor = () => {
     setModalMode("add");
@@ -60,42 +75,38 @@ const AuthorPage: React.FC = () => {
   const handleDeleteAuthor = async (authorId: string) => {
     if (!window.confirm("Are you sure you want to delete this author?")) return;
 
-    try {
-      await authorService.deleteAuthor(authorId);
-      loadAuthors();
-    } catch (error) {
-      console.error("Error deleting author:", error);
-    }
+    await authorService.deleteAuthor(authorId);
+    loadAuthors();
   };
 
   const handleSaveAuthor = async (authorData: AuthorFormData) => {
-    try {
-      if (modalMode === "add") {
-        await authorService.createAuthor(authorData);
-      } else if (modalMode === "edit" && selectedAuthor) {
-        await authorService.updateAuthor(selectedAuthor._id, authorData);
-      }
-
-      setIsModalOpen(false);
-      loadAuthors();
-    } catch (error) {
-      console.error("Error saving author:", error);
-      throw error;
+    if (modalMode === "add") {
+      await authorService.createAuthor(authorData);
+    } else if (selectedAuthor) {
+      await authorService.updateAuthor(selectedAuthor._id, authorData);
     }
+
+    setIsModalOpen(false);
+    loadAuthors();
   };
 
   return (
     <MainLayout>
+       <IconButtons
+            onClick={handleAddAuthor}
+            label={<AddIcon />}
+            ariaLabel="Add Author"
+          />
       <div className="book-page">
         <div className="page-header">
           <IconButtons
-            onClick={handleAddAuthor}
-            label={<AddIcon />}
-            ariaLabel="Add New Author"
-            className="add-author-btn"
+            onClick={() => setIsFilterOpen(true)}
+            label={<FilterListIcon />}
+            ariaLabel="Open Filters"
           />
         </div>
 
+        {/* ✅ Data Table */}
         <DataTable
           rows={authors}
           rowCount={totalCount}
@@ -104,26 +115,41 @@ const AuthorPage: React.FC = () => {
           loading={loading}
           onEdit={handleEditAuthor}
           onDelete={(row) => handleDeleteAuthor(row._id)}
+          onSortModelChange={(model) => {
+            if (model.length > 0) {
+              setSortModel({
+                field: model[0].field,
+                sort: model[0].sort as "asc" | "desc",
+              });
+            } else {
+              setSortModel(null);
+            }
+          }}
           columns={[
-            {
-              field: "name",
-              headerName: "Author Name",
-              flex: 1,
-            },
-            {
-              field: "bio",
-              headerName: "Bio",
-              flex: 2,
-            },
+            { field: "name", headerName: "Author Name", flex: 1 },
+            { field: "bio", headerName: "Bio", flex: 2 },
             {
               field: "birthDate",
               headerName: "Birth Date",
               flex: 1,
-              valueFormatter: (params) => new Date(params).toLocaleDateString(),
+              valueFormatter: (params) =>
+                new Date(params).toLocaleDateString(),
             },
           ]}
         />
 
+        {/* ✅ Filter Drawer */}
+
+        <AuthorPageFilter
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+          filters={filters}
+          setFilters={setFilters}
+          setPaginationModel={setPaginationModel}
+          loadAuthors={loadAuthors}
+        />
+
+        {/* ✅ Modal */}
         <AuthorModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

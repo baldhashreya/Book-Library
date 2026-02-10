@@ -1,0 +1,56 @@
+/* Root TextField */
+.app-textfield .MuiOutlinedInput-root {
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+/* Border */
+.app-textfield .MuiOutlinedInput-notchedOutline {
+  border-color: #e2e8f0;
+}
+
+.app-textfield:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #94a3b8;
+}
+
+/* Focus */
+.app-textfield
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Input text */
+.app-textfield .MuiInputBase-input {
+  font-size: 13px;
+  padding: 10px 12px;
+  color: #4b5563;
+}
+
+/* Label */
+.app-textfield .MuiInputLabel-root {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.app-textfield .MuiInputLabel-root.Mui-focused {
+  color: #3b82f6;
+}
+
+/* Icon spacing */
+.app-textfield .MuiInputAdornment-root {
+  margin-right: 6px;
+  color: #9ca3af;
+}
+
+/* Remove MUI Grid side gutters inside modal forms */
+.user-form .MuiGrid-container {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.user-form .MuiGrid-item {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
