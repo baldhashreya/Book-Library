@@ -8,6 +8,7 @@ interface CustomButtonProps {
   disabled?: boolean;
   type?: "submit" | "reset" | "button";
   startIcon?: React.ReactNode;
+  fullWidth?: boolean;
 }
 
 function CustomButton({
@@ -18,6 +19,7 @@ function CustomButton({
   disabled,
   startIcon,
   onClick,
+  fullWidth
 }: CustomButtonProps) {
   return (
     <Button
@@ -27,6 +29,7 @@ function CustomButton({
       className={className}
       type={type}
       disabled={disabled}
+      fullWidth={fullWidth}
     >
       {label}
     </Button>

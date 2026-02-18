@@ -1,69 +1,168 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import { Grid, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { changePasswordSchema } from "./change-password-model.ts";
 import "./ChangePasswordModal.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
+import "../../../shared/styles/model.css";
+import ModelHeader from "../../../shared/components/FormHeader.tsx";
+import AppTextField from "../../../shared/components/AppTextField";
+import FormAction from "../../../shared/components/FormAction.tsx";
 
-const ChangePasswordModal = ({ onClose, onSave }: any) => {
-  const [form, setForm] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+interface Props {
+  onClose: () => void;
+  onSave: (data: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => Promise<void>;
+}
+
+const ChangePasswordModal: React.FC<Props> = ({ onClose, onSave }) => {
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
   });
 
-  const handleChange = (e: any) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const togglePassword = (field: keyof typeof showPassword) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    try {
-      onSave(form.newPassword);
-      onClose();
-    } catch (err) {
-      console.error("Error loading users:", err);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+    validationSchema: changePasswordSchema,
+    onSubmit: async (values, actions) => {
+      try {
+        setLoading(true);
+        await onSave(values);
+        actions.resetForm();
+        toast.success("Password updated successfully!");
+        onClose();
+      } catch (err) {
+        setLoading(false);
+        console.error(err);
+        toast.error("Failed to update password");
+      }
+    },
+  });
+
+  const fieldProps = (name: keyof typeof formik.values) => ({
+    name,
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[name] && Boolean(formik.errors[name]),
+    helperText: formik.touched[name] && formik.errors[name],
+  });
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
-        <h2>Change Password</h2>
+      <div className="modal-content">
+        <ModelHeader
+          header="Change Password"
+          onClose={onClose}
+        />
 
-        <div className="form-grid">
-          <label>Old Password</label>
-          <input
-            type="password"
-            name="oldPassword"
-            onChange={handleChange}
-            required
-          />
+        <form
+          className="user-form"
+          onSubmit={formik.handleSubmit}
+        >
+          <Grid
+            container
+            spacing={2}
+          >
+            {/* Old Password */}
+            <Grid size={12}>
+              <AppTextField
+                label="Old Password"
+                type={showPassword.oldPassword ? "text" : "password"}
+                placeholder="Enter old password"
+                {...fieldProps("oldPassword")}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => togglePassword("oldPassword")}
+                        edge="end"
+                      >
+                        {showPassword.oldPassword ?
+                          <VisibilityOff />
+                        : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
 
-          <label>New Password</label>
-          <input
-            type="password"
-            name="newPassword"
-            onChange={handleChange}
-            required
-          />
+            {/* New Password */}
+            <Grid size={12}>
+              <AppTextField
+                label="New Password"
+                type={showPassword.newPassword ? "text" : "password"}
+                placeholder="Enter new password"
+                {...fieldProps("newPassword")}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => togglePassword("newPassword")}
+                        edge="end"
+                      >
+                        {showPassword.newPassword ?
+                          <VisibilityOff />
+                        : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
 
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            onChange={handleChange}
-            required
-          />
-        </div>
+            {/* Confirm Password */}
+            <Grid size={12}>
+              <AppTextField
+                label="Confirm Password"
+                type={showPassword.confirmPassword ? "text" : "password"}
+                placeholder="Confirm password"
+                {...fieldProps("confirmPassword")}
+                fullWidth
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => togglePassword("confirmPassword")}
+                        edge="end"
+                      >
+                        {showPassword.confirmPassword ?
+                          <VisibilityOff />
+                        : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
 
-        <div className="modal-actions">
-          <CustomButton
-            variant="contained"
-            onClick={handleSubmit}
-            label="Update"
-            className="update-button"
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label="Update Password"
           />
-          <CancelButton onClick={onClose} />
-        </div>
+        </form>
       </div>
     </div>
   );

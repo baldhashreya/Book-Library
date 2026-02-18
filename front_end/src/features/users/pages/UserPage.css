@@ -3,12 +3,6 @@
   max-width: 100%;
 }
 
-.page-header {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 25px;
-}
-
 .toolbar {
   display: flex;
   gap: 15px;
@@ -64,14 +58,6 @@
 .status-inactive {
   background: #f8d7da;
   color: #721c24;
-}
-
-.action-btn {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  border-radius: 6px;
 }
 
 .change-status-btn {

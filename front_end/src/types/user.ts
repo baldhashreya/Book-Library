@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role: {
@@ -20,7 +20,7 @@ export interface UserFormData {
   name: string;
   email: string;
   role: string;
-  status?: "active" | "inactive";
+  status: "active" | "inactive";
   phone: number;
   address: string;
 }

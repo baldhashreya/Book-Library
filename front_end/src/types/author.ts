@@ -8,5 +8,5 @@ export interface Author {
 export interface AuthorFormData {
   name: string;
   bio: string;
-  birthDate: Date;
+  birthDate: Date | string;
 }

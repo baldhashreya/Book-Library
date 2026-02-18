@@ -57,7 +57,7 @@ export class RolesServices {
     return roleDeleted;
   }
 
-  public async searchRoles(params: RolesSearchParams): Promise<RoleModel[]> {
+  public async searchRoles(params: RolesSearchParams): Promise<{ rows: RoleModel[]; count: number }> {
     return this.rolesRepository.searchRoles(params);
   }
 

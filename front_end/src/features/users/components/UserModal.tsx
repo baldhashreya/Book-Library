@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../userService";
 import "./UserModal.css";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
-import { Grid } from "@mui/material";
+import { Grid, MenuItem } from "@mui/material";
+import { useFormik } from "formik";
+import ModelHeader from "../../../shared/components/FormHeader";
+import AppTextField from "../../../shared/components/AppTextField";
+import { UserValidationSchema } from "./user.model";
+import FormAction from "../../../shared/components/FormAction";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -23,264 +24,197 @@ const UserModal: React.FC<UserModalProps> = ({
   user,
   mode,
 }) => {
-  const [formData, setFormData] = useState<UserFormData>({
-    name: "",
-    email: "",
-    role: "",
-    status: "active",
-    phone: 0,
-    address: "",
-  });
   const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (isOpen) {
-      loadRoles();
-      setError("");
-      if (mode === "edit" && user) {
-        setFormData({
-          name: user.name,
-          email: user.email,
-          role: user.role._id,
-          status: user.status,
-          phone: user.phone,
-          address: user.address,
-        });
-      } else {
-        setFormData({
-          name: "",
-          email: "",
-          role: "",
-          phone: 0,
-          address: "",
-        });
-      }
-    }
-  }, [isOpen, mode, user]);
+    if (isOpen) loadRoles();
+  }, [isOpen]);
 
   const loadRoles = async () => {
-    try {
-      const rolesData = await userService.getRolesForDropdown();
-      setRoles(rolesData);
-
-      // Set default role if adding new user and roles are available
-      if (mode === "add" && rolesData.length > 0 && !formData.role) {
-        setFormData((prev) => ({ ...prev, role: rolesData[0].value }));
-      }
-    } catch (error) {
-      console.error("Error loading roles:", error);
-    }
+    const data = await userService.getRolesForDropdown();
+    setRoles(data);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error) setError("");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    console.log(formData);
-    try {
-      // Validate form
-      if (!formData.name.trim()) {
-        setError("Name is required");
-        return;
+  const initialValues: UserFormData =
+    mode === "edit" && user ?
+      {
+        name: user.name,
+        email: user.email,
+        role: user.role._id,
+        status: user.status,
+        phone: user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone: 0,
+        address: user.contactInfo && user.contactInfo.address ? user.contactInfo.address : "",
       }
+    : {
+        name: "",
+        email: "",
+        role: "",
+        status: "active",
+        phone: 0,
+        address: "",
+      };
 
-      if (!formData.email.trim()) {
-        setError("Email is required");
-        return;
+  const formik = useFormik({
+    initialValues,
+    validationSchema: UserValidationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, actions) => {
+      try {
+        setLoading(true);
+        console.log("Submitting user data:", values);
+        await onSave(values);
+        actions.resetForm();
+        onClose();
+      } finally {
+        setLoading(false);
+        actions.setSubmitting(false);
       }
+    },
+  });
 
-      if (!formData.role) {
-        setError("Role is required");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving user:", error);
-      setError("An error occurred while saving the user");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fieldProps = (name: keyof typeof formik.values) => ({
+    name,
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[name] && Boolean(formik.errors[name]),
+    helperText: formik.touched[name] && formik.errors[name],
+  });
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content-user">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <IconButtons
-            ariaLabel="Close"
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-          />
-        </div>
+      <div className="modal-content">
+        <ModelHeader
+          header={mode === "add" ? "Add New User" : "Edit User"}
+          onClose={onClose}
+          loading={loading}
+        />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="user-form"
         >
-          {error && <div className="error-message">{error}</div>}
           <Grid
             container
             spacing={2}
           >
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Name*</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter Name"
-                  maxLength={30}
-                />
-              </div>
+              <AppTextField
+                label="Name"
+                {...fieldProps("name")}
+                fullWidth
+                required
+                disabled={loading}
+                placeholder="Enter name"
+                onBlur={formik.handleBlur}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
+              />
             </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="role">Role *</label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role || ""}
-                  onChange={(e) => {
-                    const selectedRoleId = e.target.value;
-                    setFormData((prev) => ({
-                      ...prev,
-                      role: selectedRoleId,
-                    }));
-                  }}
-                  disabled={loading}
+              <AppTextField
+                label="Email"
+                type="email"
+                {...fieldProps("email")}
+                required
+                disabled={loading}
+                placeholder="Enter email"
+                onBlur={formik.handleBlur}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <AppTextField
+                label="Role"
+                select
+                fullWidth
+                {...fieldProps("role")}
+                required
+                disabled={loading}
+                placeholder="Select role"
+                onBlur={formik.handleBlur}
+                error={formik.touched.role && Boolean(formik.errors.role)}
+                helperText={formik.touched.role && formik.errors.role}
+              >
+                {roles.map((role) => (
+                  <MenuItem
+                    key={role.value}
+                    value={role.value}
+                  >
+                    {role.label}
+                  </MenuItem>
+                ))}
+              </AppTextField>
+            </Grid>
+
+            {mode === "edit" && (
+              <Grid size={{ xs: 12, md: 4 }}>
+                <AppTextField
+                  label="Status"
+                  select
+                  fullWidth
+                  {...fieldProps("status")}
                   required
+                  disabled={loading}
+                  placeholder="Select status"
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.status && Boolean(formik.errors.status)}
+                  helperText={formik.touched.status && formik.errors.status}
+                  value={formik.values.status.toLocaleLowerCase()}
                 >
-                  <option
-                    value=""
-                    disabled
-                    hidden
-                  >
-                    -- Select Role --
-                  </option>
-                  {roles.map((role) => (
-                    <option
-                      key={role.value}
-                      value={role.value}
-                    >
-                      {role.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </Grid>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </AppTextField>
+              </Grid>
+            )}
+
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter email address"
-                />
-              </div>
+              <AppTextField
+                label="Phone"
+                type="number"
+                {...fieldProps("phone")}
+                required
+                disabled={loading}
+                placeholder="Enter phone"
+                onBlur={formik.handleBlur}
+                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                helperText={formik.touched.phone && formik.errors.phone}
+              />
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              {mode === "edit" && user && (
-                <div className="form-group">
-                  <label htmlFor="status">Status *</label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    required
-                    disabled={loading}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              )}
-            </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="phone">Phone *</label>
-                <input
-                  type="number"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter phone"
-                />
-              </div>
-            </Grid>
+
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="address">Address*</label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter address"
-                />
-              </div>
+              <AppTextField
+                label="Address"
+                {...fieldProps("address")}
+                fullWidth
+                multiline
+                rows={3}
+                required
+                disabled={loading}
+                placeholder="Enter address"
+                onBlur={formik.handleBlur}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address}
+              />
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add User"
-                : "Update User"
-              }
-              variant="contained"
-              disabled={loading}
-              type="submit"
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={
+              loading ? "Saving..."
+              : mode === "add" ?
+                "Add User"
+              : "Update User"
+            }
+          />
         </form>
       </div>
     </div>

@@ -1,12 +1,24 @@
-import React, { useState, useEffect } from "react";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import React, { useState } from "react";
+import { useFormik } from "formik";
 import type { User, UserFormData } from "../../../types/user";
-import { userService } from "../../users/userService";
 import "./EditProfileModal.css";
+import "../../../shared/styles/model.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
+import CancelButton from "../../../shared/components/Button/CancelButton";
 import Grid from "@mui/material/Grid";
+import ModelHeader from "../../../shared/components/FormHeader";
+import AppTextField from "../../../shared/components/AppTextField";
+import {
+  Phone,
+  Home,
+  Person,
+  SupervisorAccount,
+  Email,
+  FiberManualRecord,
+} from "@mui/icons-material";
+import { editProfileSchema } from "./edit-profile-validation";
+import { toast } from "react-toastify";
+import FormAction from "../../../shared/components/FormAction";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -21,95 +33,17 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   onSave,
   user,
 }) => {
-  console.log(user);
-  const [formData, setFormData] = useState<any>({
-    name: "",
-    email: "",
-    role: "",
-    status: "active",
-    phone: 0,
-    address: "",
-  });
-  const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      loadRoles();
-      setError("");
-      setFormData({
-        name: user.name,
-        email: user.email,
-        role: user.role._id,
-        status: user.status,
-        phone:
-          user.contactInfo && user.contactInfo.phone ?
-            user.contactInfo.phone
-          : 0,
-        address:
-          user.contactInfo && user.contactInfo.address ?
-            user.contactInfo.address
-          : "",
-      });
-    }
-  }, [isOpen, user]);
-
-  const loadRoles = async () => {
-    try {
-      const rolesData = await userService.getRolesForDropdown();
-      setRoles(rolesData);
-    } catch (error) {
-      console.error("Error loading roles:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error) setError("");
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    console.log(formData);
     try {
-      // Validate form
-      if (!formData.name.trim()) {
-        setError("name is required");
-        return;
-      }
-
-      if (!formData.email.trim()) {
-        setError("Email is required");
-        return;
-      }
-
-      if (!formData.role) {
-        setError("Role is required");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
       await onSave(formData);
       onClose();
     } catch (error) {
       console.error("Error saving user:", error);
-      setError("An error occurred while saving the user");
+      toast.error("An error occurred while saving the user");
     } finally {
       setLoading(false);
     }
@@ -117,121 +51,134 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 
   if (!isOpen) return null;
 
+  const formik = useFormik({
+    initialValues: {
+      name: user.name,
+      email: user.email,
+      status: user.status,
+      role: user.role.name,
+      phone:
+        user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
+      address:
+        user.contactInfo && user.contactInfo.address ?
+          user.contactInfo.address
+        : "",
+    },
+    validationSchema: editProfileSchema,
+    onSubmit: handleSubmit,
+  });
+
   return (
     <div className="modal-overlay">
-      <div className="modal-content-user">
-        <div className="modal-header">
-          <h2>Edit User</h2>
-
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-            disabled={loading}
-          />
-        </div>
+      <div className="modal-content">
+        <ModelHeader
+          header="Edit User"
+          onClose={onClose}
+          loading={loading}
+        />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.onSubmit}
           className="user-form"
         >
-          {error && <div className="error-message">{error}</div>}
-
           <Grid
             container
             spacing={2}
           >
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Name*</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter Name"
-                  maxLength={30}
-                />
-              </div>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter email address"
-                />
-              </div>
+              <AppTextField
+                label="Name"
+                name="name"
+                fullWidth
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                startIcon={<Person fontSize="small" />}
+                required
+                disabled={loading}
+                placeholder="Enter name"
+                onBlur={formik.handleBlur}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
+              />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="phone">Phone *</label>
-                <input
-                  type="string"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone.toString()}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter phone"
-                />
-              </div>
+              <AppTextField
+                label="Role"
+                name="role"
+                fullWidth
+                value={formik.values.role}
+                onChange={formik.handleChange}
+                startIcon={<SupervisorAccount fontSize="small" />}
+                required
+                disabled={true}
+                placeholder="Enter Role"
+              />
             </Grid>
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="address">Address*</label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter address"
-                />
-              </div>
+              <AppTextField
+                label="Email"
+                name="email"
+                fullWidth
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                startIcon={<Email fontSize="small" />}
+                required
+                disabled={true}
+                placeholder="Enter Email"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <AppTextField
+                label="Phone"
+                name="phone"
+                fullWidth
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                startIcon={<Phone fontSize="small" />}
+                required
+                disabled={loading}
+                placeholder="Enter phone"
+                onBlur={formik.handleBlur}
+                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                helperText={formik.touched.phone && formik.errors.phone}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <AppTextField
+                label="Status"
+                name="status"
+                fullWidth
+                value={formik.values.status.toLocaleLowerCase()}
+                onChange={formik.handleChange}
+                startIcon={<FiberManualRecord fontSize="small" />}
+                required
+                disabled={true}
+                placeholder="Enter phone"
+              />
+            </Grid>
+            <Grid size={12}>
+              <AppTextField
+                label="Address"
+                name="address"
+                value={formik.values.address}
+                onChange={formik.handleChange}
+                startIcon={<Home fontSize="small" />}
+                required
+                fullWidth
+                disabled={loading}
+                placeholder="Enter address"
+                onBlur={formik.handleBlur}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address}
+              />
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton onClick={onClose} />
-            <CustomButton
-              variant="contained"
-              onClick={() => {}}
-              label="Update User"
-              className="action-button"
-              type="submit"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label="Update User"
+          />
         </form>
       </div>
     </div>

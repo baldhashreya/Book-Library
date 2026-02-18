@@ -53,12 +53,6 @@
   border-color: #007bff;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .cancel-btn {
   background: #f44336 !important;
   color: #fff !important;

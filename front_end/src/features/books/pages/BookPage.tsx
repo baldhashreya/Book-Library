@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import BookModal from "../components/BookModal";
 import type { Book, BookFormData } from "../../../types/book";
@@ -10,6 +10,8 @@ import CustomButton from "../../../shared/components/Button/CustomButton";
 import AddIcon from "@mui/icons-material/Add";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import DataTable from "../../../shared/components/DataTable";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import BookPageFilter from "../components/BookPageFilter";
 
 const BookPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -21,21 +23,20 @@ const BookPage: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<string[] | null>([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [assignBook, setAssignBook] = useState<Book | null>(null);
+   const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [filters, setFilters] = useState({});
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 5,
   });
 
-  useEffect(() => {
-    loadBooks();
-  }, [paginationModel]);
-
-  const loadBooks = async () => {
+  const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
       const booksData = await bookService.searchBooks({
         limit: paginationModel.pageSize,
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
+        ...filters,
       });
       setBooks(booksData.rows);
       setTotalCount(booksData.count);
@@ -44,47 +45,50 @@ const BookPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, paginationModel]);
 
-  const handleAddBook = () => {
+  useEffect(() => {
+    loadBooks();
+  }, [loadBooks]);
+
+  const handleAddBook = useCallback(() => {
     setModalMode("add");
     setSelectedBook(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEditBook = (book: Book) => {
+  const handleEditBook = useCallback((book: Book) => {
     setModalMode("edit");
     setSelectedBook(book);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteBook = async () => {
+  const handleDeleteBook = useCallback(async (bookId: string) => {
     if (window.confirm("Are you sure you want to delete this book?")) {
       try {
-        await bookService.deleteBook(selectedRow[0]);
+        await bookService.deleteBook(bookId);
         await loadBooks();
-        setIsModalOpen(false);
       } catch (error) {
         console.error("Error deleting book:", error);
         alert("Error deleting book. Please try again.");
       }
     }
-  };
+  }, [loadBooks]);
 
-  const handleAssignBook = (book: Book) => {
+  const handleAssignBook = useCallback((book: Book) => {
     console.log(book);
     setAssignBook(book);
     setIsAssignModalOpen(true);
-  };
+  }, []);
 
-  const saveAssignedBook = async (param: {
+  const saveAssignedBook = useCallback(async (param: {
     userId: string;
     returnDate: Date;
   }) => {
     if (!assignBook) return;
 
     try {
-      await bookService.assignBook(assignBook._id, param);
+      await bookService.assignBook(assignBook._id, param as any);
       await loadBooks();
       setIsAssignModalOpen(false);
       setAssignBook(null);
@@ -92,9 +96,9 @@ const BookPage: React.FC = () => {
       console.error("Error assigning book:", err);
       alert("Failed to assign book");
     }
-  };
+  }, [assignBook, loadBooks]);
 
-  const handleSaveBook = async (bookData: BookFormData) => {
+  const handleSaveBook = useCallback(async (bookData: BookFormData) => {
     try {
       if (modalMode === "add") {
         await bookService.createBook(bookData);
@@ -109,9 +113,9 @@ const BookPage: React.FC = () => {
       console.error("Error saving book:", error);
       throw error;
     }
-  };
+  }, [loadBooks, modalMode, selectedBook]);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = useCallback((status: string) => {
     const statusConfig = {
       available: { class: "status-available", text: "Available" },
       borrowed: { class: "status-borrowed", text: "Borrowed" },
@@ -124,46 +128,59 @@ const BookPage: React.FC = () => {
     return (
       <span className={`status-badge ${config.class}`}>{config.text}</span>
     );
-  };
+  }, []);
 
-  const filteredBooks = books;
+  const columns = useMemo(() => [
+    {
+      field: "name",
+      headerName: "Book Name",
+      flex: 1,
+      valueGetter: (_value, row) => row.title || "",
+    },
+    {
+      field: "author",
+      headerName: "Author",
+      flex: 1,
+      valueGetter: (_value, row) => row.author.name || "",
+    },
+    {
+      field: "category",
+      headerName: "Category",
+      flex: 1,
+      valueGetter: (_value, row) => row.category.name || "",
+    },
+    {
+      field: "bookCount",
+      headerName: "Available Book",
+      flex: 1,
+      valueGetter: (_value, row) =>
+        row.quantity - (row.issuedBook || 0),
+    },
+    {
+      field: "status",
+      headerName: "status",
+      flex: 1,
+      renderCell: (params) => getStatusBadge(params.value),
+    },
+  ], [getStatusBadge]);
+
+  const handleRowSelection = useCallback((ids: string[] | null) => {
+    setSelectedRow(ids);
+  }, []);
 
   return (
     <MainLayout>
-      <div className="book-page">
-        <div className="page-header">
-          <div className="toolbar">
-            <CustomButton
-              className="add-selected-btn btn"
+      <div className="page-header">
+          <div className="header-right">
+            <CustomButton 
+              variant="outlined"
               onClick={handleAddBook}
-              label="Add New Book"
-              variant="contained"
+              label="Add Book"
+              className="add-button"
+              disabled={loading}
               startIcon={<AddIcon />}
             />
 
-            {/* <CustomButton
-              className="delete-selected-btn btn"
-              onClick={() => {
-                if (selectedRow) {
-                  handleDeleteBook(selectedRow);
-                }
-              }}
-              label="Delete Book"
-              variant="contained"
-              startIcon={<DeleteIcon />}
-              disabled={!selectedRow}
-            />
-            <CustomButton
-              className="edit-selected-btn btn"
-              onClick={() => {
-                const bookToEdit = books.find((b) => b._id === selectedRow);
-                if (bookToEdit) handleEditBook(bookToEdit);
-              }}
-              label="Edit Book"
-              variant="contained"
-              disabled={!selectedRow}
-              startIcon={<EditIcon />}
-            /> */}
             <CustomButton
               className="assign-selected-btn btn"
               onClick={() => {
@@ -176,73 +193,35 @@ const BookPage: React.FC = () => {
               disabled={!selectedRow}
               startIcon={<AssignmentIcon />}
             />
+
+            <CustomButton 
+              variant="outlined"
+              onClick={() => setIsFilterOpen(true)}
+              label="Filter"
+              className="filter-button"
+              disabled={loading}
+              startIcon={<FilterListIcon />}
+            />
+            
           </div>
         </div>
+      <div className="main-page">
 
-        {loading ?
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Loading books...</p>
-          </div>
-        : <div className="books-table-container">
-            {filteredBooks.length === 0 ?
-              <div className="empty-state">
-                <h3>No books found</h3>
-                <p>
-                  Your library is empty. Add your first book to get started.
-                </p>
-              </div>
-            : <DataTable
-                rows={filteredBooks}
+        <DataTable
+                rows={books}
                 rowCount={totalCount}
                 paginationModel={paginationModel}
                 onPaginationChange={setPaginationModel}
                 loading={loading}
                 onEdit={handleEditBook}
                 onDelete={(row) => {
-                  setSelectedRow([row._id]);
-                  handleDeleteBook();
+                  handleDeleteBook(row._id);
                 }}
-                columns={[
-                  {
-                    field: "name",
-                    headerName: "Book Name",
-                    flex: 1,
-                    valueGetter: (_value, row) => row.title || "",
-                  },
-                  {
-                    field: "author",
-                    headerName: "Author",
-                    flex: 1,
-                    valueGetter: (_value, row) => row.author.name || "",
-                  },
-                  {
-                    field: "category",
-                    headerName: "Category",
-                    flex: 1,
-                    valueGetter: (_value, row) => row.category.name || "",
-                  },
-                  {
-                    field: "bookCount",
-                    headerName: "Available Book",
-                    flex: 1,
-                    valueGetter: (_value, row) =>
-                      row.quantity - (row.issuedBook || 0),
-                  },
-                  {
-                    field: "status",
-                    headerName: "status",
-                    flex: 1,
-                    renderCell: (params) => getStatusBadge(params.value),
-                  },
-                ]}
+                columns={columns}
                 checkboxSelection={true}
                 disableMultipleRowSelection={true}
-                onRowSelect={setSelectedRow}
+                onRowSelect={handleRowSelection}
               />
-            }
-          </div>
-        }
 
         <BookModal
           isOpen={isModalOpen}
@@ -258,6 +237,15 @@ const BookPage: React.FC = () => {
           onSave={saveAssignedBook}
           book={assignBook}
         />
+
+        <BookPageFilter
+                  isFilterOpen={isFilterOpen}
+                  setIsFilterOpen={setIsFilterOpen}
+                  filters={filters}
+                  setFilters={setFilters}
+                  setPaginationModel={setPaginationModel}
+                  loadBooks={loadBooks}
+                />
       </div>
     </MainLayout>
   );

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
-import type { Role, RoleFormData, RolePermission } from "../../types/role";
-import { roleService, availablePermissions } from "../../services/roleService";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import "./RoleModal.css";
-import IconButtons from "../../shared/components/Button/IconButtons";
-import CancelButton from "../../shared/components/Button/CancleButton";
-import CustomButton from "../../shared/components/Button/CustomButton";
+import ModelHeader from "../../../shared/components/FormHeader";
+import FormAction from "../../../shared/components/FormAction";
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -126,14 +122,11 @@ const RoleModal: React.FC<RoleModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content role-modal">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Role" : "Edit Role"}</h2>
-          <IconButtons
-            ariaLabel="Close"
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-          />
-        </div>
+        <ModelHeader
+          header={mode === "add" ? "Add New Role" : "Edit Role"}
+          onClose={onClose}
+          loading={loading}
+        />
 
         <form
           onSubmit={handleSubmit}
@@ -217,24 +210,16 @@ const RoleModal: React.FC<RoleModalProps> = ({
             <div className="char-count">{formData.description.length}/200</div>
           </div>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              onClick={() => {}}
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Role"
-                : "Update Role"
-              }
-              type="submit"
-              variant="contained"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={
+              loading ? "Saving..."
+              : mode === "add" ?
+                "Add Role"
+              : "Update Role"
+            }
+          />
         </form>
       </div>
     </div>
