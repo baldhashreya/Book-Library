@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import type { Author, AuthorFormData } from "../../../types/author";
 import { authorService } from "../authorService";
@@ -7,22 +7,20 @@ import AuthorModal from "../components/AuthorModal";
 import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import DataTable from "../../../shared/components/DataTable";
-import IconButtons from "../../../shared/components/Button/IconButtons";
 import "./AuthorPage.css";
-import AuthorPageFilter from "./AuthorPageFilter";
+import AuthorPageFilter from "../components/AuthorPageFilter";
+import CustomButton from "../../../shared/components/Button/CustomButton";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // ✅ sorting
   const [sortModel, setSortModel] = useState<{
     field: string;
     sort: "asc" | "desc";
   } | null>(null);
 
-  // ✅ drawer filters
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
 
@@ -35,8 +33,7 @@ const AuthorPage: React.FC = () => {
     pageSize: 5,
   });
 
-  // ✅ API call
-  const loadAuthors = async () => {
+  const loadAuthors = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -54,59 +51,85 @@ const AuthorPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [paginationModel, sortModel, filters]);
 
   useEffect(() => {
     loadAuthors();
-  }, [paginationModel, sortModel]);
+  }, [loadAuthors]);
 
-  const handleAddAuthor = () => {
+  const handleAddAuthor = useCallback(() => {
     setModalMode("add");
     setSelectedAuthor(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEditAuthor = (author: Author) => {
+  const handleEditAuthor = useCallback((author: Author) => {
     setModalMode("edit");
     setSelectedAuthor(author);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteAuthor = async (authorId: string) => {
+  const handleDeleteAuthor = useCallback(async (authorId: string) => {
     if (!window.confirm("Are you sure you want to delete this author?")) return;
 
     await authorService.deleteAuthor(authorId);
-    loadAuthors();
-  };
+    await loadAuthors();
+  }, [loadAuthors]);
 
-  const handleSaveAuthor = async (authorData: AuthorFormData) => {
-    if (modalMode === "add") {
-      await authorService.createAuthor(authorData);
-    } else if (selectedAuthor) {
-      await authorService.updateAuthor(selectedAuthor._id, authorData);
+  const handleSaveAuthor = useCallback(async (authorData: AuthorFormData) => {
+    try {
+      if (modalMode === "add") {
+        await authorService.createAuthor(authorData);
+      } else if (selectedAuthor) {
+        await authorService.updateAuthor(selectedAuthor._id, authorData);
+      }
+
+      setIsModalOpen(false);
+      await loadAuthors();
+    } catch (error) {
+      console.error("Error saving author:", error);
     }
+  }, [modalMode, selectedAuthor, loadAuthors]);
 
-    setIsModalOpen(false);
-    loadAuthors();
-  };
+  const columns = useMemo(() => [
+    { field: "name", headerName: "Author Name", flex: 1 },
+    { field: "bio", headerName: "Bio", flex: 2 },
+    {
+      field: "birthDate",
+      headerName: "Birth Date",
+      flex: 1,
+      valueFormatter: (params: string) =>
+        new Date(params).toLocaleDateString(),
+    },
+  ], []);
 
   return (
     <MainLayout>
-       <IconButtons
-            onClick={handleAddAuthor}
-            label={<AddIcon />}
-            ariaLabel="Add Author"
-          />
-      <div className="book-page">
         <div className="page-header">
-          <IconButtons
-            onClick={() => setIsFilterOpen(true)}
-            label={<FilterListIcon />}
-            ariaLabel="Open Filters"
-          />
-        </div>
+          <div className="header-right">
+            <CustomButton 
+              variant="outlined"
+              onClick={handleAddAuthor}
+              label="Add Authors"
+              className="add-button"
+              disabled={loading}
+              startIcon={<AddIcon />}
+            />
 
-        {/* ✅ Data Table */}
+            <CustomButton 
+              variant="outlined"
+              onClick={() => setIsFilterOpen(true)}
+              label="Filter"
+              className="filter-button"
+              disabled={loading}
+              startIcon={<FilterListIcon />}
+            />
+            
+          </div>
+        </div>
+      <div className="main-page">
+
+        {/* Data Table */}
         <DataTable
           rows={authors}
           rowCount={totalCount}
@@ -125,20 +148,10 @@ const AuthorPage: React.FC = () => {
               setSortModel(null);
             }
           }}
-          columns={[
-            { field: "name", headerName: "Author Name", flex: 1 },
-            { field: "bio", headerName: "Bio", flex: 2 },
-            {
-              field: "birthDate",
-              headerName: "Birth Date",
-              flex: 1,
-              valueFormatter: (params) =>
-                new Date(params).toLocaleDateString(),
-            },
-          ]}
+          columns={columns}
         />
 
-        {/* ✅ Filter Drawer */}
+        {/* Filter Drawer */}
 
         <AuthorPageFilter
           isFilterOpen={isFilterOpen}
@@ -149,7 +162,7 @@ const AuthorPage: React.FC = () => {
           loadAuthors={loadAuthors}
         />
 
-        {/* ✅ Modal */}
+        {/* Modal */}
         <AuthorModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

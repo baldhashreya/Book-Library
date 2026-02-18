@@ -74,8 +74,9 @@ export default function DataTable({
         onPaginationModelChange={onPaginationChange}
         rowCount={rowCount}
         pageSizeOptions={[5, 10, 20]}
+        disableColumnMenu
         loading={loading}
-        sx={{ border: 0 }}
+        sx={{ border: "none" }}
         checkboxSelection={checkboxSelection}
         disableMultipleRowSelection={disableMultipleRowSelection}
         onRowSelectionModelChange={(selectionModel) => {

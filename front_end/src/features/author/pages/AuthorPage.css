@@ -1,44 +1,16 @@
-.book-page {
-  padding: 0;
-  max-width: 100%;
-  background-color: white;
-}
-
-.page-header {
-  display: flex;
-  justify-content: flex-start;
-}
 
 .add-author-btn {
   text-transform: none !important;
   font-weight: 700 !important;
-  color: white !important;
-  background-color: #007fff !important;
+  color: var(--text-white) !important;
+  background-color: var(--action-blue) !important;
   border-radius: 10px !important;
   padding: 8px !important;
   border: none !important ;
 }
 
 .add-author-btn:hover {
-  color: #007fff !important;
-  background-color: white !important;
-  border: 1px solid #007fff !important;
+  color: var(--action-blue) !important;
+  background-color: var(--bg-white) !important;
+  border: 1px solid var(--action-blue) !important;
 }
-
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-

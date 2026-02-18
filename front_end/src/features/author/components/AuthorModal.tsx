@@ -7,7 +7,7 @@ import { Grid } from "@mui/material";
 import { useFormik } from "formik";
 import ModelHeader from "../../../shared/components/FormHeader";
 import AppTextField from "../../../shared/components/AppTextField";
-import { authorSchema } from "./author.model";
+import { authorSchema } from "../author.model";
 import FormAction from "../../../shared/components/FormAction";
 
 interface AuthorModalProps {

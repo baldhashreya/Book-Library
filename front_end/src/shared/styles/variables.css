@@ -1,0 +1,25 @@
+:root {
+  /* Brand & Primary Colors */
+  --primary-color: #4F46E5;
+  --primary-dark: #4338CA;
+  --primary-light: #EEF2FF;
+  
+  /* Text Colors */
+  --heading-color: #191970;
+  --text-white: #ffffff;
+  --text-gray: gray;
+
+  /* Action/State Colors */
+  --action-blue: #007fff;
+  --action-red: #d32f2f;
+  --action-green: #077f23;
+  --action-yellow: #b98a07;
+  --action-dark-blue: rgb(26, 26, 107);
+
+  /* UI Elements (Borders, Backgrounds, Overlays) */
+  --bg-white: #ffffff;
+  --border-color: #e0e0e0;
+  --border-light: #eee;
+  --modal-overlay: rgba(8, 12, 20, 0.45);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
