@@ -4,20 +4,13 @@ import { apiService } from "../../services/api";
 export const authService = {
   async login(credentials: LoginFormData): Promise<LoginResponse> {
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-      });
-      if (!response.ok) {
+       const response: any = await apiService.post("/auth/login", credentials);
+       console.log(response);
+      if (!response.data) {
         throw new Error("Login failed");
       }
-
-      const data = await response.json();
-      console.log("Login response:", data);
-      return data;
+      console.log("Login response:", response);
+      return response;
     } catch (error) {
       console.error("Login API error:", error);
       return {
@@ -38,9 +31,9 @@ export const authService = {
     role: string;
   }): Promise<LoginResponse> {
     try {
-      const data = await apiService.post("/auth/signup", userData);
+      const data: any = await apiService.post("/auth/signup", userData);
 
-      if (data.success && data.user ) {
+      if (data && data.success && data.user ) {
         return {
           success: true,
           user: data.data,
@@ -49,7 +42,7 @@ export const authService = {
       } else {
         return {
           success: false,
-          message: data.message || "Registration failed.",
+          message: data?.message || "Registration failed.",
         };
       }
     } catch (error) {
@@ -105,11 +98,11 @@ export const authService = {
     email: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const data = await apiService.post("/auth/forgot-password", { email });
+      const data: any = await apiService.post("/auth/forgot-password", { email });
       return {
-        success: data.success,
+        success: data?.success || true,
         message:
-          data.message ||
+          data?.message ||
           "If an account exists with this email, you will receive a reset link.",
       };
     } catch (error) {
@@ -131,13 +124,13 @@ export const authService = {
   ): Promise<{ success: boolean; message: string }> {
     console.log("email:::::::::::",email);
     try {
-      const data = await apiService.post("/auth/reset-password", {
+      const data: any = await apiService.post("/auth/reset-password", {
         email,
         password: newPassword,
       });
       return {
-        success: data.success,
-        message: data.message || "Password reset successfully.",
+        success: data?.success || true,
+        message: data?.message || "Password reset successfully.",
       };
     } catch (error) {
       console.error("Reset password error:", error);

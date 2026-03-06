@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import type { Role, RoleFormData, RolePermission } from "../../types/role";
-import { roleService, availablePermissions } from "../../services/roleService";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import "./RoleModal.css";
-import IconButtons from "../../shared/components/Button/IconButtons";
-import CancelButton from "../../shared/components/Button/CancleButton";
-import CustomButton from "../../shared/components/Button/CustomButton";
+import type { Role, RoleFormData, RolePermission } from "../../../types/role";
+import { roleService, availablePermissions } from "../roleService";
+import CancelButton from "../../../shared/components/Button/CancleButton";
+import CustomButton from "../../../shared/components/Button/CustomButton";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -126,14 +124,10 @@ const RoleModal: React.FC<RoleModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content role-modal">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Role" : "Edit Role"}</h2>
-          <IconButtons
-            ariaLabel="Close"
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-          />
-        </div>
+        <ModalHeader
+          title={mode === "add" ? "Add New Role" : "Edit Role"}
+          onClose={onClose}
+        />
 
         <form
           onSubmit={handleSubmit}

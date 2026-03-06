@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../../users/userService";
 import "./EditProfileModal.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
 import Grid from "@mui/material/Grid";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -120,16 +119,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content-user">
-        <div className="modal-header">
-          <h2>Edit User</h2>
-
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-            disabled={loading}
-          />
-        </div>
+        <ModalHeader title="Edit User" onClose={onClose} disabled={loading} />
 
         <form
           onSubmit={handleSubmit}

@@ -10,6 +10,7 @@ import CustomButton from "../../../shared/components/Button/CustomButton";
 import AddIcon from "@mui/icons-material/Add";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import DataTable from "../../../shared/components/DataTable";
+import ConfirmModal from "../../../shared/components/ConfirmModal";
 
 const BookPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -21,6 +22,8 @@ const BookPage: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<string[] | null>([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [assignBook, setAssignBook] = useState<Book | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 5,
@@ -58,17 +61,36 @@ const BookPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteBook = async () => {
-    if (window.confirm("Are you sure you want to delete this book?")) {
-      try {
-        await bookService.deleteBook(selectedRow[0]);
-        await loadBooks();
-        setIsModalOpen(false);
-      } catch (error) {
-        console.error("Error deleting book:", error);
-        alert("Error deleting book. Please try again.");
+  const handleDeleteBook = (id?: string) => {
+    const targetId = id || (selectedRow && selectedRow[0]);
+    if (!targetId) return;
+    
+    setBookToDelete(targetId);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!bookToDelete) return;
+
+    try {
+      await bookService.deleteBook(bookToDelete);
+      await loadBooks();
+      setIsConfirmModalOpen(false);
+      setBookToDelete(null);
+      
+      // Clear selection if the deleted book was selected
+      if (selectedRow && selectedRow[0] === bookToDelete) {
+        setSelectedRow([]);
       }
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      alert("Error deleting book. Please try again.");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsConfirmModalOpen(false);
+    setBookToDelete(null);
   };
 
   const handleAssignBook = (book: Book) => {
@@ -140,40 +162,16 @@ const BookPage: React.FC = () => {
               variant="contained"
               startIcon={<AddIcon />}
             />
-
-            {/* <CustomButton
-              className="delete-selected-btn btn"
-              onClick={() => {
-                if (selectedRow) {
-                  handleDeleteBook(selectedRow);
-                }
-              }}
-              label="Delete Book"
-              variant="contained"
-              startIcon={<DeleteIcon />}
-              disabled={!selectedRow}
-            />
-            <CustomButton
-              className="edit-selected-btn btn"
-              onClick={() => {
-                const bookToEdit = books.find((b) => b._id === selectedRow);
-                if (bookToEdit) handleEditBook(bookToEdit);
-              }}
-              label="Edit Book"
-              variant="contained"
-              disabled={!selectedRow}
-              startIcon={<EditIcon />}
-            /> */}
             <CustomButton
               className="assign-selected-btn btn"
               onClick={() => {
-                const bookToAssign = books.find((b) => b._id === selectedRow);
+                const bookToAssign = books.find((b) => selectedRow && selectedRow.length > 0 && b._id === selectedRow[0]);
                 console.log(bookToAssign);
                 if (bookToAssign) handleAssignBook(bookToAssign);
               }}
               label="Assign Book"
               variant="contained"
-              disabled={!selectedRow}
+              disabled={!selectedRow || selectedRow.length === 0}
               startIcon={<AssignmentIcon />}
             />
           </div>
@@ -200,8 +198,7 @@ const BookPage: React.FC = () => {
                 loading={loading}
                 onEdit={handleEditBook}
                 onDelete={(row) => {
-                  setSelectedRow([row._id]);
-                  handleDeleteBook();
+                  handleDeleteBook(row._id);
                 }}
                 columns={[
                   {
@@ -257,6 +254,14 @@ const BookPage: React.FC = () => {
           onClose={() => setIsAssignModalOpen(false)}
           onSave={saveAssignedBook}
           book={assignBook}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          title="Delete Book"
+          message="Are you sure you want to delete this book? This action cannot be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
         />
       </div>
     </MainLayout>

@@ -6,11 +6,9 @@ import { categoryService } from "../../category/categoryService";
 import type { Category } from "../../../types/category";
 import { authorService } from "../../author/authorService";
 import type { Author } from "../../../types/author";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
-import { Grid } from "@mui/material";
+import { Grid, TextField, MenuItem } from "@mui/material";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface BookModalProps {
   isOpen: boolean;
@@ -132,19 +130,35 @@ const BookModal: React.FC<BookModalProps> = ({
     }
   };
 
+  const customInputStyles = {
+    "& .MuiInputBase-root": {
+      fontSize: "14px", // input font size here
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "14px", // label font size here
+    },
+    "& .MuiOutlinedInput-root": {
+      "& input": {
+        padding: "10px 14px", //padding and height here
+      },
+    },
+    "& .MuiSelect-select": {
+      padding: "10px 14px !important", // Changes padding/height for <select> inputs
+    },
+    "& .MuiInputLabel-outlined:not(.MuiInputLabel-shrink)": {
+      transform: "translate(14px, 10px) scale(1)", // Adjust this if you change the padding
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Book" : "Edit Book"}</h2>
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-          />
-        </div>
+        <ModalHeader
+          title={mode === "add" ? "Add Book" : "Edit Book"}
+          onClose={onClose}
+        />
 
         <form
           onSubmit={handleSubmit}
@@ -155,158 +169,156 @@ const BookModal: React.FC<BookModalProps> = ({
             spacing={2}
           >
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="title">Book Title *</label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
-              </div>
+              <TextField
+                fullWidth
+                id="title"
+                name="title"
+                label="Book Title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                variant="outlined"
+                sx={customInputStyles}
+              />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="author">Author *</label>
-                <select
-                  id="author"
-                  name="author"
-                  value={formData.author}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option
-                    value=""
-                    disabled
-                    hidden
-                  >
-                    -- Select Author --
-                  </option>
-                  {authors.map((cat) => (
-                    <option
-                      key={cat._id}
-                      value={cat._id}
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <TextField
+                select
+                fullWidth
+                id="author"
+                name="author"
+                label="Author"
+                value={formData.author}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={customInputStyles}
+              >
+                <MenuItem value="" disabled sx={{ fontSize: "14px" }}>
+                  <em>-- Select Author --</em>
+                </MenuItem>
+                {authors.map((cat) => (
+                  <MenuItem key={cat._id} value={cat._id} sx={{ fontSize: "14px" }}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="category">Category *</label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option
-                    value=""
-                    disabled
-                    hidden
-                  >
-                    -- Select Category --
-                  </option>
-                  {categories.map((cat) => (
-                    <option
-                      key={cat._id}
-                      value={cat._id}
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <TextField
+                select
+                fullWidth
+                id="category"
+                name="category"
+                label="Category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={customInputStyles}
+              >
+                <MenuItem value="" disabled sx={{ fontSize: "14px" }}>
+                  <em>-- Select Category --</em>
+                </MenuItem>
+                {categories.map((cat) => (
+                  <MenuItem key={cat._id} value={cat._id} sx={{ fontSize: "14px" }}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value="AVAILABLE">Available</option>
-                  <option value="CHECKED_OUT">Borrowed</option>
-                  <option value="RESERVED">Maintenance</option>
-                  <option value="LOST">Lost</option>
-                </select>
-              </div>
+              <TextField
+                select
+                fullWidth
+                id="status"
+                name="status"
+                label="Status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                disabled={loading}
+                sx={customInputStyles}
+              >
+                <MenuItem value="AVAILABLE" sx={{ fontSize: "14px" }}>Available</MenuItem>
+                <MenuItem value="CHECKED_OUT" sx={{ fontSize: "14px" }}>Borrowed</MenuItem>
+                <MenuItem value="RESERVED" sx={{ fontSize: "14px" }}>Maintenance</MenuItem>
+                <MenuItem value="LOST" sx={{ fontSize: "14px" }}>Lost</MenuItem>
+              </TextField>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="isbn">ISBN</label>
-                <input
-                  type="text"
-                  id="isbn"
-                  name="isbn"
-                  value={formData.isbn}
-                  onChange={handleChange}
-                  disabled={loading}
-                  placeholder="Optional"
-                />
-              </div>
+              <TextField
+                fullWidth
+                id="isbn"
+                name="isbn"
+                label="ISBN"
+                value={formData.isbn}
+                onChange={handleChange}
+                disabled={loading}
+                placeholder="Optional"
+                sx={customInputStyles}
+              />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="publisher">Published Year</label>
-                <input
-                  type="number"
-                  id="publisher"
-                  name="publisher"
-                  value={formData.publisher || ""}
-                  onChange={handleNumberChange}
-                  disabled={loading}
-                  min="1000"
-                  max="2024"
-                  placeholder="Optional"
-                />
-              </div>
+              <TextField
+                fullWidth
+                type="number"
+                id="publisher"
+                name="publisher"
+                label="Published Year"
+                value={formData.publisher || ""}
+                onChange={handleNumberChange}
+                disabled={loading}
+                slotProps={{ htmlInput: { min: 1000, max: 2024 } }}
+                placeholder="Optional"
+                sx={customInputStyles}
+              />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="Quantity">Quantity</label>
-                <input
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  value={formData.quantity || 1}
-                  onChange={handleNumberChange}
-                  disabled={loading}
-                  min="1"
-                />
-              </div>
+              <TextField
+                fullWidth
+                type="number"
+                id="quantity"
+                name="quantity"
+                label="Quantity"
+                value={formData.quantity || 1}
+                onChange={handleNumberChange}
+                disabled={loading}
+                slotProps={{ htmlInput: { min: 1 } }}
+                sx={customInputStyles}
+              />
             </Grid>
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  disabled={loading}
-                  rows={4}
-                  placeholder="Optional book description"
-                />
-              </div>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                id="description"
+                name="description"
+                label="Description"
+                value={formData.description}
+                onChange={handleChange}
+                disabled={loading}
+                placeholder="Optional book description"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    fontSize: "14px",
+                  },
+                  "& .MuiInputLabel-root": {
+                    fontSize: "14px",
+                  }
+                }}
+              />
             </Grid>
           </Grid>
 
           <div className="form-actions">
-            <CancelButton
+            <CustomButton
+              variant="contained"
               onClick={onClose}
+              label="Cancel"
+              className="cancel-btn"
               disabled={loading}
             />
             <CustomButton
@@ -318,7 +330,7 @@ const BookModal: React.FC<BookModalProps> = ({
                   "Add Book"
                 : "Update Book"
               }
-              className="action-button"
+              className="save-btn"
               disabled={loading}
             />
           </div>

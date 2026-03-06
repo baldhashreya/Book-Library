@@ -3,10 +3,9 @@ import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../userService";
 import "./UserModal.css";
 import CancelButton from "../../../shared/components/Button/CancleButton";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
 import { Grid } from "@mui/material";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -130,14 +129,10 @@ const UserModal: React.FC<UserModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content-user">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <IconButtons
-            ariaLabel="Close"
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-          />
-        </div>
+        <ModalHeader
+          title={mode === "add" ? "Add New User" : "Edit User"}
+          onClose={onClose}
+        />
 
         <form
           onSubmit={handleSubmit}

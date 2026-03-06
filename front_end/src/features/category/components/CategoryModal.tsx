@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import type { Category, CategoryFormData } from "../../../types/category";
 import "./CategoryModal.css";
-import IconButtons from "../../../shared/components/Button/IconButtons";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CancelButton from "../../../shared/components/Button/CancleButton";
 import CustomButton from "../../../shared/components/Button/CustomButton";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -99,14 +98,10 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Category" : "Edit Category"}</h2>
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-          />
-        </div>
+        <ModalHeader
+          title={mode === "add" ? "Add New Category" : "Edit Category"}
+          onClose={onClose}
+        />
 
         <form
           onSubmit={handleSubmit}

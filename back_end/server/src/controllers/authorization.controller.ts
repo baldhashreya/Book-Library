@@ -9,24 +9,30 @@ export class AuthorizationController {
 
   public loginUser = async (req: Request, res: Response): Promise<Response> => {
     addLog(LogLevel.info, "login User", req.body);
-    const result = await this.authorizationServices.loginUser(req.body);
+    let result = '';
+    try {
+       result = await this.authorizationServices.loginUser(req.body);
+       console.log('Result:::::::::::::::', result);
+    } catch (err) {
+      console.log(err);
+    }
     return baseController.getResult(res, 200, result, AuthOperations.LOGIN);
   };
 
   public logoutUser = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "logout User", req.params.id);
     const result = await this.authorizationServices.logOutUser(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(res, 200, result, AuthOperations.LOGOUT);
   };
 
   public signUpUser = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "signUp User", req.body);
     const result = await this.authorizationServices.signUpUser(req.body);
@@ -35,35 +41,35 @@ export class AuthorizationController {
 
   public refreshToken = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "refresh Token", req.body);
     const result = await this.authorizationServices.refreshToken(
       req.body.token,
-      req.body.id
+      req.body.id,
     );
     return baseController.getResult(
       res,
       200,
       result,
-      AuthOperations.REFRESH_TOKEN
+      AuthOperations.REFRESH_TOKEN,
     );
   };
 
   public resetPassword = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "reset Password", req.body);
     const result = await this.authorizationServices.resetPassword(
       req.body.password,
-      req.body.email as string
+      req.body.email as string,
     );
     return baseController.getResult(
       res,
       200,
       result,
-      AuthOperations.RESET_PASSWORD
+      AuthOperations.RESET_PASSWORD,
     );
   };
 }

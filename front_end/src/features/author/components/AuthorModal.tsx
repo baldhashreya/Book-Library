@@ -3,11 +3,10 @@ import type { Author, AuthorFormData } from "../../../types/author";
 import { authorService } from "../authorService";
 import "./AuthorModal.css";
 import type { SearchParams } from "../../../types/role";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
-import IconButtons from "../../../shared/components/Button/IconButtons";
 import { Grid } from "@mui/material";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface AuthorModalProps {
   isOpen: boolean;
@@ -93,15 +92,11 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New Author" : "Edit Author"}</h2>
-          <IconButtons
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-            ariaLabel="Close"
-            disabled={loading}
-          />
-        </div>
+        <ModalHeader
+          title={mode === "add" ? "Add New Author" : "Edit Author"}
+          onClose={onClose}
+          disabled={loading}
+        />
 
         <form
           onSubmit={handleSubmit}

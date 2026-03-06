@@ -37,12 +37,12 @@ export default function DataTable({
     width: 120,
     getActions: (params) => [
       <GridActionsCellItem
-        icon={<EditIcon />}
+        icon={<EditIcon color="primary" />}
         label="Edit"
         onClick={() => onEdit(params.row)}
       />,
       <GridActionsCellItem
-        icon={<DeleteIcon />}
+        icon={<DeleteIcon color="error" />}
         label="Delete"
         onClick={() => onDelete(params.row)}
       />,

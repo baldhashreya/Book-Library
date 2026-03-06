@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./ChangePasswordModal.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 const ChangePasswordModal = ({ onClose, onSave }: any) => {
   const [form, setForm] = useState({
@@ -27,7 +28,7 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
   return (
     <div className="modal-overlay">
       <div className="modal-container">
-        <h2>Change Password</h2>
+        <ModalHeader title="Change Password" onClose={onClose} />
 
         <div className="form-grid">
           <label>Old Password</label>

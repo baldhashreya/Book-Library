@@ -70,19 +70,6 @@
   color: #333;
 }
 
-/* Base modal styles (same as other modals) */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
 
 .modal-content-user {
   background: white;
@@ -92,22 +79,6 @@
   overflow-y: auto;
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
 }
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 25px 30px 20px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.modal-header h2 {
-  margin: 0;
-  color: #191970;
-  font-size: 24px;
-}
-
-
 
 .error-message {
   background-color: rgba(255, 0, 0, 0.1);
@@ -130,17 +101,8 @@
 }
 
 @media (max-width: 768px) {
-  .modal-overlay {
-    padding: 10px;
-  }
-
-  .modal-content {
-    max-height: 95vh;
-  }
-
-  .modal-header,
-  .user-form {
-    padding: 20px;
+  .modal-content-user {
+    width: 90%;
   }
 
   .form-actions {
