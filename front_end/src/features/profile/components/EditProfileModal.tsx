@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { User, UserFormData } from "../../../types/user";
-import { userService } from "../../users/userService";
 import "./EditProfileModal.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
@@ -14,105 +15,64 @@ interface UserModalProps {
   user: User;
 }
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  role: Yup.string().required("Role is required"),
+  status: Yup.string().required("Status is required"),
+  phone: Yup.number().required("Phone is required"),
+  address: Yup.string().required("Address is required"),
+});
+
 const EditProfileModal: React.FC<UserModalProps> = ({
   isOpen,
   onClose,
   onSave,
   user,
 }) => {
-  console.log(user);
-  const [formData, setFormData] = useState<any>({
-    name: "",
-    email: "",
-    role: "",
-    status: "active",
-    phone: 0,
-    address: "",
-  });
-  const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      role: "",
+      status: "active" as "active" | "inactive",
+      phone: 0,
+      address: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      setError("");
+      try {
+        await onSave(values as UserFormData);
+        onClose();
+      } catch (error) {
+        console.error("Error saving user:", error);
+        setError("An error occurred while saving the user");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
   useEffect(() => {
     if (isOpen) {
-      loadRoles();
       setError("");
-      setFormData({
+      formik.setValues({
         name: user.name,
         email: user.email,
         role: user.role._id,
-        status: user.status,
-        phone:
-          user.contactInfo && user.contactInfo.phone ?
-            user.contactInfo.phone
-          : 0,
-        address:
-          user.contactInfo && user.contactInfo.address ?
-            user.contactInfo.address
-          : "",
+        status: user.status as any,
+        phone: user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
+        address: user.contactInfo && user.contactInfo.address ? user.contactInfo.address : "",
       });
     }
   }, [isOpen, user]);
-
-  const loadRoles = async () => {
-    try {
-      const rolesData = await userService.getRolesForDropdown();
-      setRoles(rolesData);
-    } catch (error) {
-      console.error("Error loading roles:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error) setError("");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    console.log(formData);
-    try {
-      // Validate form
-      if (!formData.name.trim()) {
-        setError("name is required");
-        return;
-      }
-
-      if (!formData.email.trim()) {
-        setError("Email is required");
-        return;
-      }
-
-      if (!formData.role) {
-        setError("Role is required");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving user:", error);
-      setError("An error occurred while saving the user");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -122,7 +82,7 @@ const EditProfileModal: React.FC<UserModalProps> = ({
         <ModalHeader title="Edit User" onClose={onClose} disabled={loading} />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="user-form"
         >
           {error && <div className="error-message">{error}</div>}
@@ -138,13 +98,17 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                   type="text"
                   id="name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
                   placeholder="Enter Name"
                   maxLength={30}
+                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
                 />
+                {formik.touched.name && formik.errors.name && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+                )}
               </div>
             </Grid>
 
@@ -155,12 +119,16 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
                   placeholder="Enter email address"
+                  className={formik.touched.email && formik.errors.email ? "input-error" : ""}
                 />
+                {formik.touched.email && formik.errors.email && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.email}</div>
+                )}
               </div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -169,29 +137,37 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                 <select
                   id="status"
                   name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.status}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
+                  className={formik.touched.status && formik.errors.status ? "input-error" : ""}
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
+                {formik.touched.status && formik.errors.status && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.status}</div>
+                )}
               </div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
                 <label htmlFor="phone">Phone *</label>
                 <input
-                  type="string"
+                  type="number"
                   id="phone"
                   name="phone"
-                  value={formData.phone.toString()}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.phone}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
                   placeholder="Enter phone"
+                  className={formik.touched.phone && formik.errors.phone ? "input-error" : ""}
                 />
+                {formik.touched.phone && formik.errors.phone && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.phone}</div>
+                )}
               </div>
             </Grid>
             <Grid size={12}>
@@ -201,12 +177,16 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                   type="text"
                   id="address"
                   name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.address}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
                   placeholder="Enter address"
+                  className={formik.touched.address && formik.errors.address ? "input-error" : ""}
                 />
+                {formik.touched.address && formik.errors.address && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.address}</div>
+                )}
               </div>
             </Grid>
           </Grid>
@@ -215,10 +195,9 @@ const EditProfileModal: React.FC<UserModalProps> = ({
             <CancelButton onClick={onClose} />
             <CustomButton
               variant="contained"
-              onClick={() => {}}
+              type="submit"
               label="Update User"
               className="action-button"
-              type="submit"
               disabled={loading}
             />
           </div>

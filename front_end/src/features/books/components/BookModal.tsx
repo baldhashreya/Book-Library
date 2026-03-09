@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { Book, BookFormData } from "../../../types/book";
 import "./BookModal.css";
 import type { SearchParams } from "../../../types/role";
@@ -18,6 +20,21 @@ interface BookModalProps {
   mode: "add" | "edit";
 }
 
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required("Title is required"),
+  author: Yup.string().required("Author is required"),
+  category: Yup.string().required("Category is required"),
+  status: Yup.string().required("Status is required"),
+  isbn: Yup.string(),
+  publisher: Yup.number()
+    .min(1000, "Publisher year must be at least 1000")
+    .max(2024, "Publisher year must be at most 2024")
+    .nullable()
+    .transform((value, originalValue) => (String(originalValue).trim() === "" ? null : value)),
+  quantity: Yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
+  description: Yup.string().nullable(),
+});
+
 const BookModal: React.FC<BookModalProps> = ({
   isOpen,
   onClose,
@@ -25,50 +42,67 @@ const BookModal: React.FC<BookModalProps> = ({
   book,
   mode,
 }) => {
-  const [formData, setFormData] = useState<BookFormData>({
-    title: "",
-    author: "",
-    category: "",
-    status: "AVAILABLE",
-    isbn: "",
-    publisher: undefined,
-    quantity: 1,
-    description: "",
-  });
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      author: "",
+      category: "",
+      status: "AVAILABLE",
+      isbn: "",
+      publisher: "" as number | "",
+      quantity: 1,
+      description: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const payload: BookFormData = {
+          ...values,
+          publisher: values.publisher === "" ? undefined : (values.publisher as number),
+        };
+        await onSave(payload);
+        onClose();
+      } catch (error) {
+        console.error("Error saving book:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       loadCategories();
       loadAuthors();
       if (mode === "edit" && book) {
-        setFormData({
+        formik.setValues({
           title: book.title,
-          author:
-            typeof book.author === "object" ? book.author._id : book.author,
-          category:
-            typeof book.category === "object" ?
-              book.category._id
-            : book.category,
-          status: book.status,
+          author: typeof book.author === "object" ? book.author._id : book.author,
+          category: typeof book.category === "object" ? book.category._id : book.category,
+          status: book.status as any,
           isbn: book.isbn || "",
-          publisher: book.publisher,
+          publisher: book.publisher || "",
           quantity: book.quantity,
           description: book.description || "",
         });
       } else {
-        setFormData({
+        formik.setValues({
           title: "",
           author: "",
           category: "",
           status: "AVAILABLE",
           isbn: "",
-          publisher: undefined,
+          publisher: "",
           description: "",
           quantity: 1,
         });
+        formik.setTouched({});
+        formik.setErrors({});
       }
     }
   }, [isOpen, mode, book]);
@@ -94,39 +128,6 @@ const BookModal: React.FC<BookModalProps> = ({
       setAuthors(authorData.rows);
     } catch (error) {
       console.error("Error loading categories:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value ? parseInt(value) : undefined,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving book:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -161,7 +162,7 @@ const BookModal: React.FC<BookModalProps> = ({
         />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="book-form"
         >
           <Grid
@@ -174,9 +175,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="title"
                 name="title"
                 label="Book Title"
-                value={formData.title}
-                onChange={handleChange}
-                required
+                value={formik.values.title}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.title && Boolean(formik.errors.title)}
+                helperText={formik.touched.title && formik.errors.title}
                 disabled={loading}
                 variant="outlined"
                 sx={customInputStyles}
@@ -189,9 +192,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="author"
                 name="author"
                 label="Author"
-                value={formData.author}
-                onChange={handleChange}
-                required
+                value={formik.values.author}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.author && Boolean(formik.errors.author)}
+                helperText={formik.touched.author && formik.errors.author}
                 disabled={loading}
                 sx={customInputStyles}
               >
@@ -212,9 +217,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="category"
                 name="category"
                 label="Category"
-                value={formData.category}
-                onChange={handleChange}
-                required
+                value={formik.values.category}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.category && Boolean(formik.errors.category)}
+                helperText={formik.touched.category && formik.errors.category}
                 disabled={loading}
                 sx={customInputStyles}
               >
@@ -235,9 +242,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="status"
                 name="status"
                 label="Status"
-                value={formData.status}
-                onChange={handleChange}
-                required
+                value={formik.values.status}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.status && Boolean(formik.errors.status)}
+                helperText={formik.touched.status && formik.errors.status}
                 disabled={loading}
                 sx={customInputStyles}
               >
@@ -253,8 +262,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="isbn"
                 name="isbn"
                 label="ISBN"
-                value={formData.isbn}
-                onChange={handleChange}
+                value={formik.values.isbn}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.isbn && Boolean(formik.errors.isbn)}
+                helperText={formik.touched.isbn && formik.errors.isbn}
                 disabled={loading}
                 placeholder="Optional"
                 sx={customInputStyles}
@@ -267,8 +279,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="publisher"
                 name="publisher"
                 label="Published Year"
-                value={formData.publisher || ""}
-                onChange={handleNumberChange}
+                value={formik.values.publisher}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.publisher && Boolean(formik.errors.publisher)}
+                helperText={formik.touched.publisher && formik.errors.publisher}
                 disabled={loading}
                 slotProps={{ htmlInput: { min: 1000, max: 2024 } }}
                 placeholder="Optional"
@@ -282,8 +297,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="quantity"
                 name="quantity"
                 label="Quantity"
-                value={formData.quantity || 1}
-                onChange={handleNumberChange}
+                value={formik.values.quantity}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                helperText={formik.touched.quantity && formik.errors.quantity}
                 disabled={loading}
                 slotProps={{ htmlInput: { min: 1 } }}
                 sx={customInputStyles}
@@ -297,8 +315,11 @@ const BookModal: React.FC<BookModalProps> = ({
                 id="description"
                 name="description"
                 label="Description"
-                value={formData.description}
-                onChange={handleChange}
+                value={formik.values.description}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.description && Boolean(formik.errors.description)}
+                helperText={formik.touched.description && formik.errors.description}
                 disabled={loading}
                 placeholder="Optional book description"
                 sx={{
@@ -323,7 +344,7 @@ const BookModal: React.FC<BookModalProps> = ({
             />
             <CustomButton
               variant="contained"
-              onClick={handleSubmit}
+              type="submit"
               label={
                 loading ? "Saving..."
                 : mode === "add" ?

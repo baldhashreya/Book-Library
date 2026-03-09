@@ -7,6 +7,8 @@ import {
 } from "@mui/material";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { authService } from "../authService";
 import { toast } from "react-toastify";
 import "../../../shared/styles/common.css";
@@ -18,58 +20,70 @@ import {
 } from "@mui/icons-material";
 
 interface props {
-  email: string;
-  password: string;
   isLoading: boolean;
   setShowForgotPassword: any;
   handleBackToLogin: any;
   setIsLoading: any;
-  setResetEmail: any;
-  loading: boolean;
 }
 
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("New password is required"),
+});
+
 export function ForgotPassword({
-  email,
-  password,
   isLoading,
   setShowForgotPassword,
   handleBackToLogin,
   setIsLoading,
-  setResetEmail,
-  loading,
 }: props) {
-  const [newResetPassword, setNewResetPassword] = useState(password);
   const [showPassword, setShowPassword] = useState(false);
+  
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      try {
+        const response = await authService.resetPassword(values.email, values.password);
+        toast.success(response.message);
+        setShowForgotPassword(false);
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to reset password. Try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
+
   const handleToggle = () => {
     setShowPassword((prev) => !prev);
   };
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await authService.resetPassword(email, newResetPassword);
-      toast.success(response.message);
-      setShowForgotPassword(false);
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to reset password. Try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
   return (
     <div className="login-form">
-      <form onSubmit={handleResetPassword}>
+      <form onSubmit={formik.handleSubmit}>
         <Box sx={{ "& > :not(style)": { m: 1, width: "260px" } }}>
           <TextField
-            label="email"
+            id="email"
+            name="email"
+            label="Email"
             variant="outlined"
             type="email"
             placeholder="Enter email"
-            required
-            disabled={loading}
-            value={email}
-            onChange={(e) => setResetEmail(e.target.value)}
+            disabled={isLoading}
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -106,14 +120,18 @@ export function ForgotPassword({
             }}
           />
           <TextField
-            label="password"
+            id="password"
+            name="password"
+            label="New Password"
             variant="outlined"
             type={showPassword ? "text" : "password"}
             placeholder="Enter new password"
-            required
-            value={newResetPassword}
-            disabled={loading}
-            onChange={(e) => setNewResetPassword(e.target.value)}
+            value={formik.values.password}
+            disabled={isLoading}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { Category, CategoryFormData } from "../../../types/category";
 import "./CategoryModal.css";
 import CancelButton from "../../../shared/components/Button/CancleButton";
@@ -13,6 +15,18 @@ interface CategoryModalProps {
   mode: "add" | "edit";
 }
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string()
+    .required("Category name is required")
+    .max(50, "Category name must be at most 50 characters"),
+  description: Yup.string()
+    .required("Category description is required")
+    .max(200, "Description must be at most 200 characters"),
+  status: Yup.string()
+    .oneOf(["ACTIVE", "IN_ACTIVE"])
+    .required("Category status is required"),
+});
+
 const CategoryModal: React.FC<CategoryModalProps> = ({
   isOpen,
   onClose,
@@ -20,78 +34,51 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
   mode,
 }) => {
-  const [formData, setFormData] = useState<CategoryFormData>({
-    name: "",
-    description: "",
-    status: "ACTIVE",
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      description: "",
+      status: "ACTIVE" as "ACTIVE" | "IN_ACTIVE",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      setError("");
+      try {
+        await onSave(values as CategoryFormData);
+        onClose();
+      } catch (error) {
+        console.error("Error saving category:", error);
+        setError("An error occurred while saving the category");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       setError("");
       if (mode === "edit" && category) {
-        setFormData({
+        formik.setValues({
           name: category.name,
           description: category.description || "",
-          status: category.status || "ACTIVE",
+          status: category.status as "ACTIVE" | "IN_ACTIVE" || "ACTIVE",
         });
       } else {
-        setFormData({
+        formik.setValues({
           name: "",
           description: "",
           status: "ACTIVE",
         });
+        formik.setTouched({});
+        formik.setErrors({});
       }
     }
   }, [isOpen, mode, category]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (error) setError("");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // Validate category name
-      if (!formData.name.trim()) {
-        setError("Category name is required");
-        return;
-      }
-
-      if (!formData.description.trim()) {
-        setError("Category description is required");
-        return;
-      }
-
-      if (formData.status !== "ACTIVE" && formData.status !== "IN_ACTIVE") {
-        setError("Category status is required");
-        return;
-      }
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving category:", error);
-      setError("An error occurred while saving the category");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -104,7 +91,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="category-form"
         >
           {error && <div className="error-message">{error}</div>}
@@ -115,14 +102,18 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               type="text"
               id="name"
               name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={loading}
               placeholder="Enter category name"
               maxLength={50}
+              className={formik.touched.name && formik.errors.name ? "input-error" : ""}
             />
-            <div className="char-count">{formData.name.length}/50</div>
+            {formik.touched.name && formik.errors.name && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+            )}
+            <div className="char-count">{formik.values.name.length}/50</div>
           </div>
 
           <div className="form-group">
@@ -130,14 +121,18 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             <select
               id="status"
               name="status"
-              value={formData.status}
-              onChange={handleChange}
-              required
+              value={formik.values.status}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={loading}
+              className={formik.touched.status && formik.errors.status ? "input-error" : ""}
             >
               <option value="ACTIVE">Active</option>
               <option value="IN_ACTIVE">Inactive</option>
             </select>
+            {formik.touched.status && formik.errors.status && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.status}</div>
+            )}
           </div>
 
           <div className="form-group">
@@ -145,16 +140,20 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             <textarea
               id="description"
               name="description"
-              value={formData.description}
-              onChange={handleChange}
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={loading}
               rows={4}
               placeholder="Optional category description"
               maxLength={200}
-              required
+              className={formik.touched.description && formik.errors.description ? "input-error" : ""}
             />
+            {formik.touched.description && formik.errors.description && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.description}</div>
+            )}
             <div className="char-count">
-              {formData.description?.length || 0}/200
+              {formik.values.description?.length || 0}/200
             </div>
           </div>
 
@@ -171,7 +170,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             />
             <CustomButton
               variant="contained"
-              onClick={handleSubmit}
+              type="submit"
               label={
                 loading ? "Saving..."
                 : mode === "add" ?
@@ -179,7 +178,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                 : "Update Category"
               }
               className="action-button"
-              type="submit"
               disabled={loading}
             />
           </div>

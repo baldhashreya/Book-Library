@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { Author, AuthorFormData } from "../../../types/author";
-import { authorService } from "../authorService";
 import "./AuthorModal.css";
-import type { SearchParams } from "../../../types/role";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
 import { Grid } from "@mui/material";
@@ -16,6 +16,12 @@ interface AuthorModalProps {
   mode: "add" | "edit";
 }
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Author Name is required"),
+  bio: Yup.string(),
+  birthDate: Yup.date().required("Birth Date is required"),
+});
+
 const AuthorModal: React.FC<AuthorModalProps> = ({
   isOpen,
   onClose,
@@ -23,69 +29,47 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   author,
   mode,
 }) => {
-  const [formData, setFormData] = useState<AuthorFormData>({
-    name: "",
-    bio: "",
-    birthDate: "",
-  });
-  const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      bio: "",
+      birthDate: "" as any,
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        await onSave(values as AuthorFormData);
+        onClose();
+      } catch (error) {
+        console.error("Error saving author:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
-      loadAuthors();
       if (mode === "edit" && author) {
-        setFormData({
+        formik.setValues({
           name: author.name,
-          bio: author.bio,
+          bio: author.bio || "",
           birthDate: author.birthDate,
         });
       } else {
-        setFormData({
+        formik.setValues({
           name: "",
           bio: "",
-          birthDate: new Date(),
+          birthDate: "",
         });
+        formik.setTouched({});
+        formik.setErrors({});
       }
     }
   }, [isOpen, mode, author]);
-
-  const loadAuthors = async () => {
-    try {
-      const authors = await authorService.searchAuthors({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setAuthors(authors);
-    } catch (error) {
-      console.error("Error loading authors:", error);
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving author:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -99,7 +83,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
         />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="author-form"
         >
           <Grid
@@ -113,11 +97,15 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
                   type="text"
                   id="name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
+                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
                 />
+                {formik.touched.name && formik.errors.name && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+                )}
               </div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -127,11 +115,15 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
                   type="date"
                   id="birthDate"
                   name="birthDate"
-                  value={formData.birthDate}
-                  onChange={handleChange}
-                  required
+                  value={formik.values.birthDate as any}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
+                  className={formik.touched.birthDate && formik.errors.birthDate ? "input-error" : ""}
                 />
+                {formik.touched.birthDate && formik.errors.birthDate && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.birthDate as string}</div>
+                )}
               </div>
             </Grid>
             <Grid size={12}>
@@ -140,12 +132,17 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
                 <textarea
                   id="bio"
                   name="bio"
-                  value={formData.bio}
-                  onChange={handleChange}
+                  value={formik.values.bio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={loading}
                   rows={4}
                   placeholder="Optional author bio"
+                  className={formik.touched.bio && formik.errors.bio ? "input-error" : ""}
                 />
+                {formik.touched.bio && formik.errors.bio && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.bio}</div>
+                )}
               </div>
             </Grid>
           </Grid>
@@ -157,7 +154,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
             />
             <CustomButton
               variant="contained"
-              onClick={handleSubmit}
+              type="submit"
               label={
                 loading ? "Saving..."
                 : mode === "add" ?
