@@ -1,19 +1,5 @@
-:root {
-  --midnight-blue: #191970;
-  --midnight-blue-dark: #0f0f4d;
-  --midnight-blue-light: #2a2a8a;
-  --azure: #007fff;
-  --azure-dark: #0066cc;
-  --azure-light: #3399ff;
-  --sidebar-width: 260px;
-  --header-height: 70px;
-  --white: #ffffff;
-  --background-light: #f8f9fa;
-  --text-dark: #333333;
-  --text-light: #666666;
-  --border-light: #e0e0e0;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+/* Main variables are defined in index.css */
+
 
 .layout {
   display: flex;
@@ -35,7 +21,7 @@
 .logo {
   font-size: 20px;
   font-weight: 700;
-  color: #1e3a8a;
+  color: var(--accent-blue-dark);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -50,17 +36,17 @@
   padding: 10px 14px;
   border-radius: 12px;
   cursor: pointer;
-  color: #475569;
+  color: var(--text-slate);
   transition: 0.2s;
 }
 
 .menu-item:hover {
-  background: #e0f2fe;
+  background: var(--azure-soft);
 }
 
 .menu-item.active {
-  background: linear-gradient(90deg, #dbeafe, #eff6ff);
-  color: #0b57d0;
+  background: linear-gradient(90deg, var(--bg-soft-blue), var(--bg-hover));
+  color: var(--azure-dark);
   font-weight: 600;
 }
 
@@ -69,15 +55,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #475569;
+  color: var(--text-slate);
   cursor: pointer;
   padding: 10px;
   border-radius: 10px;
 }
 
 .logout:hover {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--danger-bg);
+  color: var(--danger-dark);
 }
 
 /* Right */
@@ -95,18 +81,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 30px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .page-title {
   font-size: 22px;
-  color: #1e3a8a;
+  color: var(--accent-blue-dark);
 }
 
 .profile-btn {
-  border: 1px solid #93c5fd;
-  background: white;
-  color: #0b57d0;
+  border: 1px solid var(--border-blue);
+  background: var(--bg-white);
+  color: var(--azure-dark);
   border-radius: 20px;
   padding: 6px 14px;
   display: flex;
@@ -122,6 +108,7 @@
   background: rgba(255, 255, 255, 0.381);
 
 }
+
 .main-layout {
   display: flex;
   min-height: 100vh;
@@ -204,9 +191,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  margin-left: var(
-    --sidebar-width
-  ); /* Add margin to account for fixed sidebar */
+  margin-left: var(--sidebar-width);
+  /* Add margin to account for fixed sidebar */
 }
 
 .top-header {
@@ -221,7 +207,7 @@
 }
 
 .header-left .page-title {
-  color: #130e6a;
+  color: var(--accent-blue-deep);
   font-size: 24px;
   font-weight: 700;
   margin: 0;
@@ -252,11 +238,9 @@
 }
 
 .welcome-section {
-  background: linear-gradient(
-    135deg,
-    var(--midnight-blue) 0%,
-    var(--azure) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--midnight-blue) 0%,
+      var(--azure) 100%);
   color: var(--white);
   padding: 30px;
   border-radius: 12px;
@@ -274,6 +258,7 @@
   opacity: 0.9;
   font-size: 16px;
 }
+
 .stat-card {
   background: var(--white);
   padding: 25px;

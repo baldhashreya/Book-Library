@@ -1,10 +1,10 @@
 .confirm-modal-content {
-  background: white;
+  background: var(--bg-white);
   border-radius: 16px;
   width: 100%;
   position: relative;
   max-width: 450px;
-  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-heavy);
   padding: 30px;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@
 }
 
 .confirm-modal-icon-bg {
-  background-color: #f0f4f8;
+  background-color: var(--bg-light);
   border-radius: 50%;
   width: 80px;
   height: 80px;
@@ -33,14 +33,14 @@
 .confirm-modal-title {
   margin: 0 0 10px;
   font-size: 22px;
-  color: #191970;
+  color: var(--midnight-blue);
   font-weight: 700;
 }
 
 .confirm-modal-subtitle {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--text-dark);
   line-height: 1.5;
   text-align: left;
 }
@@ -59,9 +59,9 @@
 
 .confirm-cancel-btn {
   flex: 0 1 120px;
-  background-color: #4b4949ff !important;
-  border: 1px solid #4b4949ff !important;
-  color: #fff !important;
+  background-color: var(--text-slate) !important;
+  border: 1px solid var(--text-slate) !important;
+  color: var(--text-white) !important;
   border-radius: 8px !important;
   padding: 10px 0 !important;
   text-transform: none !important;
@@ -70,14 +70,14 @@
 }
 
 .confirm-cancel-btn:hover {
-  background-color: #fff !important;
-  color: #4b4949ff !important;
+  background-color: var(--text-white) !important;
+  color: var(--text-slate) !important;
 }
 
 .confirm-action-btn {
   flex: 0 1 120px;
-  background-color: #0d0d40 !important;
-  color: white !important;
+  background-color: var(--midnight-blue-dark) !important;
+  color: var(--text-white) !important;
   border-radius: 8px !important;
   padding: 10px 0 !important;
   text-transform: none !important;
@@ -86,7 +86,7 @@
 }
 
 .confirm-action-btn:hover {
-  background-color: white !important;
-  border: 1px solid #0d0d40 !important;
-  color: #0d0d40 !important;
+  background-color: var(--text-white) !important;
+  border: 1px solid var(--midnight-blue-dark) !important;
+  color: var(--midnight-blue-dark) !important;
 }

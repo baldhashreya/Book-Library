@@ -23,7 +23,7 @@
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  color: #007fff;
+  color: var(--primary-main);
   cursor: pointer;
 }
 
@@ -51,8 +51,8 @@
 }
 
 .permission-item:hover {
-  border-color: #007fff;
-  background-color: #f0f8ff;
+  border-color: var(--primary-main);
+  background-color: var(--primary-light);
 }
 
 .permission-item input {
@@ -105,8 +105,8 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #007fff;
-  box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.1);
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .form-group input:disabled,

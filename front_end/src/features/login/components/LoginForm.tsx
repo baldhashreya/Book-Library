@@ -185,8 +185,7 @@ export function LoginForm({
               component="button"
               variant="body1"
               onClick={handleForgotPassword}
-              color="#4F46E5"
-              sx={{ fontWeight: "500", fontSize: "13px" }}
+              sx={{ color: "var(--primary-main)", fontWeight: "500", fontSize: "13px" }}
             >
               Forgot Password?
             </Link>

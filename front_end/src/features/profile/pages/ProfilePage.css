@@ -7,9 +7,9 @@
 }
 
 .profile-card {
-  background: white;
+  background: var(--bg-white);
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-light);
   overflow: hidden;
   padding: 30px;
 }
@@ -28,12 +28,12 @@
 }
 
 .detail-section h3 {
-  color: #4f46e5;
+  color: var(--primary-main);
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 600;
   padding-bottom: 10px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--border-light);
 }
 
 .detail-grid {
@@ -50,19 +50,19 @@
 }
 
 .label {
-  color: #6b7280 !important;
+  color: var(--text-muted) !important;
   font-weight: 500 !important;
 }
 
 .value {
-  color: #1f2937 !important;
+  color: var(--text-dark) !important;
   font-weight: 600 !important;
 }
 
 
 .stat-card {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background: var(--bg-light);
+  border: 1px solid var(--border-subtle);
   border-radius: 8px;
   padding: 20px;
   display: flex;
@@ -73,19 +73,19 @@
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow-light);
 }
 
 .stat-icon {
   font-size: 24px;
   width: 50px;
   height: 50px;
-  background: white;
+  background: var(--bg-white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow-light);
 }
 
 .stat-info {
@@ -96,20 +96,20 @@
 .stat-number {
   font-size: 24px;
   font-weight: 700;
-  color: #191970;
+  color: var(--midnight-blue);
   line-height: 1;
 }
 
 .stat-text {
   font-size: 16px;
   font-weight: 600;
-  color: #191970;
+  color: var(--midnight-blue);
   line-height: 1;
 }
 
 .stat-label {
   font-size: 12px;
-  color: #666;
+  color: var(--text-grey);
   margin-top: 4px;
 }
 
@@ -135,22 +135,22 @@
 }
 
 .status-indicator.active {
-  color: #155724 !important;
-  background: #d4edda !important;
+  color: var(--success-text) !important;
+  background: var(--success-bg) !important;
 }
 
 .status-indicator.in-active {
-  color: #DC2626 !important;
-  background: #FEE2E2;
+  color: var(--danger-main) !important;
+  background: var(--danger-bg);
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--error-bg);
+  color: var(--error-text);
   padding: 20px;
   border-radius: 8px;
   text-align: center;
-  border: 1px solid #f5c6cb;
+  border: 1px solid var(--error-border);
 }
 
 @media (max-width: 1024px) {

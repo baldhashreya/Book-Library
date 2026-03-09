@@ -7,7 +7,7 @@
   flex-direction: column;
   background-image: none;
   background-size: cover;
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  border-right: 1px solid var(--shadow-light);
 }
 
 /* Logo */
@@ -17,7 +17,7 @@
   gap: 10px;
   font-size: 20px;
   font-weight: 700;
-  color: #1e73e8;
+  color: var(--azure);
   margin-bottom: 30px;
 }
 
@@ -42,36 +42,32 @@
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  color: #2b2b2b;
+  color: var(--text-dark);
   transition: all 0.25s ease;
 }
 
 /* Icon color */
 .menu-item svg {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 /* Hover effect */
 .menu-item:hover {
-  background: rgba(30, 115, 232, 0.08);
+  background: var(--azure-soft);
   transform: translateX(4px);
-  border-left: 3px solid #1e73e8;
+  border-left: 3px solid var(--azure);
 }
 
 /* Active item (Dashboard look) */
 .menu-item.active {
-  background: linear-gradient(
-    90deg,
-    rgba(30, 115, 232, 0.18),
-    rgba(30, 115, 232, 0.08)
-  );
-  color: #1e73e8;
+  background: var(--bg-hover);
+  color: var(--azure);
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(30, 115, 232, 0.15);
+  box-shadow: 0 6px 16px var(--shadow-light);
 }
 
 .menu-item.active svg {
-  color: #1e73e8;
+  color: var(--azure);
 }
 
 /* Logout */
@@ -83,12 +79,12 @@
   border-radius: 10px;
   cursor: pointer;
   font-size: 15px;
-  color: #444;
+  color: var(--text-slate);
   transition: all 0.25s ease;
   margin-top: 40px;
 }
 
 .logout:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--shadow-light);
   transform: translateX(4px);
 }

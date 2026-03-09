@@ -7,7 +7,7 @@
   background-position: center;
   background-repeat: no-repeat;
   flex-direction: row-reverse;
-  
+
 }
 
 .login-card {
@@ -16,7 +16,7 @@
   height: 450px;
   background-color: rgba(255, 255, 255, 0.441);
   border-radius: 18px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-light);
   position: relative;
   right: 160px;
   top: 70px;
@@ -28,7 +28,7 @@
   height: 480px;
   background-color: rgba(255, 255, 255, 0.441);
   border-radius: 18px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-light);
   position: relative;
   right: 160px;
   top: 70px;
@@ -37,13 +37,13 @@
 .login-card h2 {
   margin-top: 10px;
   margin-bottom: 10px;
-  color: #120bb4;
+  color: var(--accent-blue);
   font-size: 23px;
   font-weight: 700;
 }
 
 .login-subtitle {
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
@@ -53,21 +53,22 @@
   width: 180px !important;
   text-transform: none !important;
   text-align: center !important;
-  color: #ffffff !important;
+  color: var(--text-white) !important;
   border-radius: 8px;
 }
 
 .login-form {
   background-color: rgba(255, 255, 255, 0.578);
   border-radius: 18px;
-  box-shadow: -8px 7px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: -8px 7px 10px var(--shadow-light);
   width: 310px;
   padding: 20px;
 }
+
 .login-button:hover {
-  background-color: white !important;
-  border: 1px solid#4338CA !important;
-  color: #4338ca !important;
+  background-color: var(--primary-light) !important;
+  border: 1px solid var(--primary-border) !important;
+  color: var(--primary-main) !important;
 }
 
 .login-button:disabled {
@@ -80,19 +81,19 @@
   text-align: center;
   margin-top: 15px;
   padding-top: 10px;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid var(--border-grey);
   font-size: 14px;
 }
 
 .signup-section p {
-  color: #6b7280;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .redirect-link {
   font-weight: 500 !important;
   font-size: 13px !important;
-  color: #4f46e5 !important;
+  color: var(--primary-main) !important;
   margin-left: 10px !important;
 }
 
