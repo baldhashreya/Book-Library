@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import UserModal from "../components/UserModal";
 import type { SearchParams, User, UserFormData } from "../../../types/user";
@@ -24,11 +24,27 @@ const UserPage: React.FC = () => {
     pageSize: 5,
   });
 
+  const loadUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const usersData = await userService.getUsers({
+        offset: paginationModel.page,
+        limit: paginationModel.pageSize,
+      } as SearchParams);
+      setUsers(usersData.rows);
+      setTotalCount(usersData.count);
+    } catch (error) {
+      console.error("UserPage: Error loading users:", error);
+      setUsers([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [paginationModel.page, paginationModel.pageSize]);
+
   useEffect(() => {
     loadUsers();
-  }, [paginationModel]);
-
-  const loadUsers = async () => {
+  }, [loadUsers]);
     try {
       setLoading(true);
       const usersData = await userService.getUsers({
@@ -46,19 +62,20 @@ const UserPage: React.FC = () => {
     }
   };
 
-  const handleAddUser = () => {
+  const handleAddUser = useCallback(() => {
     setModalMode("add");
     setSelectedUser(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEditUser = (user: User) => {
+  const handleEditUser = useCallback((user: User) => {
     setModalMode("edit");
     setSelectedUser(user);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleChangeStatusUser = async () => {
+  const handleChangeStatusUser = useCallback(async () => {
+    if (!selectedRow || selectedRow.length === 0) return;
     try {
       await userService.changeUserStatus(selectedRow[0]);
       await loadUsers();
@@ -66,23 +83,23 @@ const UserPage: React.FC = () => {
       console.error("Bulk charge status user error:", error);
       alert("Some deletions failed.");
     }
-  };
+  }, [selectedRow, loadUsers]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async (userIds: string[]) => {
     if (window.confirm(`Delete selected users?`)) {
       try {
-        await userService.deleteUser(selectedRow[0]);
+        await userService.deleteUser(userIds[0]);
         await loadUsers();
       } catch (error) {
         console.error("Bulk delete error:", error);
         alert("Some deletions failed.");
       }
     }
-  };
+  }, [loadUsers]);
 
-  const handleSaveUser = async (data: UserFormData & { _id?: string }) => {
+  const handleSaveUser = useCallback(async (data: UserFormData & { _id?: string }) => {
     try {
-      if (modalMode === "edit" && selectedUser._id) {
+      if (modalMode === "edit" && selectedUser?._id) {
         await userService.updateUser(selectedUser._id, data);
       } else {
         await userService.createUser(data);
@@ -92,7 +109,45 @@ const UserPage: React.FC = () => {
     } catch (err) {
       console.error("Save user error:", err);
     }
-  };
+  }, [modalMode, selectedUser, loadUsers]);
+
+  const columns = useMemo(() => [
+    {
+      field: "username",
+      headerName: "Username",
+      flex: 1,
+      valueGetter: (_value: any, row: any) =>
+        row.name || row.userName || "N/A",
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1,
+      valueGetter: (_value: any, row: any) => row.email || "N/A",
+    },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 1,
+      valueGetter: (_value: any, row: any) => row.role?.name || "N/A",
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params: any) => (
+        <span
+          className={
+            params.value === "ACTIVE" ?
+              "status-badge status-active"
+            : "status-badge status-inactive"
+          }
+        >
+          {params.value}
+        </span>
+      ),
+    },
+  ], []);
 
   return (
     <MainLayout>
@@ -133,45 +188,9 @@ const UserPage: React.FC = () => {
               onEdit={handleEditUser}
               onDelete={(row) => {
                 setSelectedRow([row._id]);
-                handleDelete();
+                handleDelete([row._id]);
               }}
-              columns={[
-                {
-                  field: "username",
-                  headerName: "Username",
-                  flex: 1,
-                  valueGetter: (_value, row) =>
-                    row.name || row.userName || "N/A",
-                },
-                {
-                  field: "email",
-                  headerName: "Email",
-                  flex: 1,
-                  valueGetter: (_value, row) => row.email || "N/A",
-                },
-                {
-                  field: "role",
-                  headerName: "Role",
-                  flex: 1,
-                  valueGetter: (_value, row) => row.role?.name || "N/A",
-                },
-                {
-                  field: "status",
-                  headerName: "Status",
-                  flex: 1,
-                  renderCell: (params) => (
-                    <span
-                      className={
-                        params.value === "ACTIVE" ?
-                          "status-badge status-active"
-                        : "status-badge status-inactive"
-                      }
-                    >
-                      {params.value}
-                    </span>
-                  ),
-                },
-              ]}
+              columns={columns}
               checkboxSelection={true}
               disableMultipleRowSelection={true}
               onRowSelect={setSelectedRow}
@@ -181,7 +200,7 @@ const UserPage: React.FC = () => {
 
         <UserModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={useCallback(() => setIsModalOpen(false), [])}
           onSave={handleSaveUser}
           user={selectedUser}
           mode={modalMode}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -14,56 +14,43 @@ import { Box } from "@mui/material";
 import CustomTypography from "../../../shared/components/CustomTypography";
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
-  const [userData, setUserData] = useState<any>(null);
+  const { user, loading: authLoading, setUserData } = useAuth();
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        let currentUser = user;
-        if (!currentUser) {
-          const userStr = localStorage.getItem("user");
-          if (userStr) {
-            currentUser = JSON.parse(userStr);
-          }
-        }
-        setUserData(currentUser);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Rely on AuthContext's loading state rather than parsing localStorage
+    if (!authLoading) {
+      setLoading(false);
+    }
+  }, [authLoading]);
 
-    fetchUser();
-  }, [user]);
-
-  const handleUpdateProfile = async (updatedData: UserFormData) => {
+  const handleUpdateProfile = useCallback(async (updatedData: UserFormData) => {
+    if (!user) return;
     try {
       console.log(updatedData);
-      await userService.updateUser(userData._id, updatedData);
-      const response = await userService.getUserById(userData._id);
+      await userService.updateUser(user._id, updatedData);
+      const response = await userService.getUserById(user._id);
       localStorage.setItem("user", JSON.stringify(response));
-      setUserData(response);
+      setUserData(response); // Update the AuthContext user
     } catch (error) {
       console.error("Error updating profile:", error);
     }
-  };
+  }, [user, setUserData]);
 
-  const handleUpdatePassword = async (password: string) => {
+  const handleUpdatePassword = useCallback(async (password: string) => {
+    if (!user) return;
     try {
-      const userModel = JSON.parse(localStorage.getItem("user"));
-      await authService.resetPassword(userModel.email, password);
-      setUserData(userModel);
+      await authService.resetPassword(user.email, password);
+      // user instance doesn't actually need to be set to a new object unless response changed
+      setUserData({ ...user }); 
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating password:", error);
     }
-  };
+  }, [user, setUserData]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <MainLayout>
         <div className="loading-state">
@@ -74,7 +61,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  if (!userData) {
+  if (!user) {
     return (
       <MainLayout>
         <div className="empty-state">
@@ -101,7 +88,7 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className="value"
-                  label={userData.userName || userData.name}
+                  label={user.userName || user.name}
                 />
               </Box>
 
@@ -114,7 +101,7 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className="value"
-                  label={userData.email || "N/A"}
+                  label={user.email || "N/A"}
                 />
               </Box>
 
@@ -127,7 +114,7 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className="value"
-                  label={userData.role?.name || "N/A"}
+                  label={user.role?.name || "N/A"}
                 />
               </Box>
 
@@ -140,9 +127,9 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className={`value status-indicator ${
-                    userData.status === "active" ? "active" : "in-active"
+                    user.status === "active" ? "active" : "in-active"
                   }`}
-                  label={userData.status === "active" ? "Active" : "Inactive"}
+                  label={user.status === "active" ? "Active" : "Inactive"}
                 />
               </Box>
 
@@ -155,7 +142,7 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className="value"
-                  label={userData.contactInfo?.phone || "N/A"}
+                  label={user.contactInfo?.phone || "N/A"}
                 />
               </Box>
 
@@ -168,7 +155,7 @@ const ProfilePage: React.FC = () => {
                 <CustomTypography
                   variant="body2"
                   className="value"
-                  label={userData.contactInfo?.address || "N/A"}
+                  label={user.contactInfo?.address || "N/A"}
                 />
               </Box>
             </Box>
@@ -201,16 +188,16 @@ const ProfilePage: React.FC = () => {
       {isEditOpen && (
         <EditProfileModal
           isOpen={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          user={userData}
+          onClose={useCallback(() => setIsEditOpen(false), [])}
+          user={user}
           onSave={(updatedData) => handleUpdateProfile(updatedData)}
         />
       )}
 
       {isPasswordOpen && (
         <ChangePasswordModal
-          onClose={() => setIsPasswordOpen(false)}
-          onSave={(data) => handleUpdatePassword(data)}
+          onClose={useCallback(() => setIsPasswordOpen(false), [])}
+          onSave={(data: string) => handleUpdatePassword(data)}
         />
       )}
     </MainLayout>

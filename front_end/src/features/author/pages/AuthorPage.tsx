@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import type { Author, AuthorFormData } from "../../../types/author";
 import { authorService } from "../authorService";
@@ -23,7 +23,7 @@ const AuthorPage: React.FC = () => {
     pageSize: 5,
   });
 
-  const loadAuthors = async () => {
+  const loadAuthors = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -39,25 +39,25 @@ const AuthorPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [paginationModel.page, paginationModel.pageSize]);
 
   useEffect(() => {
     loadAuthors();
-  }, [paginationModel]);
+  }, [loadAuthors]);
 
-  const handleAddAuthor = () => {
+  const handleAddAuthor = useCallback(() => {
     setModalMode("add");
     setSelectedAuthor(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEditAuthor = (author: Author) => {
+  const handleEditAuthor = useCallback((author: Author) => {
     setModalMode("edit");
     setSelectedAuthor(author);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteAuthor = async (authorId: string) => {
+  const handleDeleteAuthor = useCallback(async (authorId: string) => {
     if (!window.confirm("Are you sure you want to delete this author?")) return;
 
     try {
@@ -66,9 +66,9 @@ const AuthorPage: React.FC = () => {
     } catch (error) {
       console.error("Error deleting author:", error);
     }
-  };
+  }, [loadAuthors]);
 
-  const handleSaveAuthor = async (authorData: AuthorFormData) => {
+  const handleSaveAuthor = useCallback(async (authorData: AuthorFormData) => {
     try {
       if (modalMode === "add") {
         await authorService.createAuthor(authorData);
@@ -82,7 +82,26 @@ const AuthorPage: React.FC = () => {
       console.error("Error saving author:", error);
       throw error;
     }
-  };
+  }, [modalMode, selectedAuthor, loadAuthors]);
+
+  const columns = useMemo(() => [
+    {
+      field: "name",
+      headerName: "Author Name",
+      flex: 1,
+    },
+    {
+      field: "bio",
+      headerName: "Bio",
+      flex: 2,
+    },
+    {
+      field: "birthDate",
+      headerName: "Birth Date",
+      flex: 1,
+      valueFormatter: (params: any) => new Date(params).toLocaleDateString(),
+    },
+  ], []);
 
   return (
     <MainLayout>
@@ -103,30 +122,13 @@ const AuthorPage: React.FC = () => {
           onPaginationChange={setPaginationModel}
           loading={loading}
           onEdit={handleEditAuthor}
-          onDelete={(row) => handleDeleteAuthor(row._id)}
-          columns={[
-            {
-              field: "name",
-              headerName: "Author Name",
-              flex: 1,
-            },
-            {
-              field: "bio",
-              headerName: "Bio",
-              flex: 2,
-            },
-            {
-              field: "birthDate",
-              headerName: "Birth Date",
-              flex: 1,
-              valueFormatter: (params) => new Date(params).toLocaleDateString(),
-            },
-          ]}
+          onDelete={useCallback((row: any) => handleDeleteAuthor(row._id), [handleDeleteAuthor])}
+          columns={columns}
         />
 
         <AuthorModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={useCallback(() => setIsModalOpen(false), [])}
           onSave={handleSaveAuthor}
           author={selectedAuthor}
           mode={modalMode}

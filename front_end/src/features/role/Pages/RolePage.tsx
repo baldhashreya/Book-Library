@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../../users/userService";
 import "./RoleModal.css";
@@ -28,6 +28,8 @@ const UserModal: React.FC<UserModalProps> = ({
     email: "",
     role: "",
     status: "active",
+    phone: 0,
+    address: "",
   });
   const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,7 +54,9 @@ const UserModal: React.FC<UserModalProps> = ({
           name: user.name,
           email: user.email,
           role: roleId,
-          status: user.status,
+          status: user.status as any,
+          phone: user.contactInfo?.phone || 0,
+          address: user.contactInfo?.address || "",
         });
       } else {
         setFormData({
@@ -60,12 +64,14 @@ const UserModal: React.FC<UserModalProps> = ({
           email: "",
           role: "",
           status: "active",
+          phone: 0,
+          address: "",
         });
       }
     }
   }, [isOpen, mode, user]);
 
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     try {
       const rolesData = await userService.getRolesForDropdown();
       console.log("Loaded roles:", rolesData);
@@ -79,9 +85,16 @@ const UserModal: React.FC<UserModalProps> = ({
       console.error("Error loading roles:", error);
       setRoles([]);
     }
-  };
+  }, [mode, formData.role]);
 
-  const handleChange = (
+  useEffect(() => {
+    if (isOpen) {
+      loadRoles();
+      // ... rest of logic
+    }
+  }, [isOpen, loadRoles]); // Add loadRoles here 
+
+  const handleChange = useCallback((
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
@@ -97,9 +110,9 @@ const UserModal: React.FC<UserModalProps> = ({
     }));
 
     if (error) setError("");
-  };
+  }, [mode, error]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -136,7 +149,7 @@ const UserModal: React.FC<UserModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, onSave, onClose]);
 
   // Get the current role label for display
   const getCurrentRoleLabel = () => {
@@ -146,13 +159,14 @@ const UserModal: React.FC<UserModalProps> = ({
 
       if ((user as any).roleName) {
         roleName = (user as any).roleName;
-      } else if (typeof user.role === "string") {
+      } else if (typeof user.role === "string" || user.role?._id) {
         // Find role name from roles dropdown
-        const roleOption = roles.find((r) => r.value === user.role);
-        roleName = roleOption ? roleOption.label : user.role;
+        const roleIdCheck = typeof user.role === "string" ?  user.role : user.role._id;
+        const roleOption = roles.find((r) => r.value === roleIdCheck);
+        roleName = roleOption ? roleOption.label : roleIdCheck;
       } else if (user.role && typeof user.role === "object") {
-        roleName =
-          (user.role as any).name || (user.role as any).label || "Unknown Role";
+        const userRoleObject = user.role as any;
+        roleName = userRoleObject.name || userRoleObject.label || "Unknown Role";
       }
 
       return roleName || "Unknown Role";

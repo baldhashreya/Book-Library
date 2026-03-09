@@ -13,22 +13,19 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
-  const stored = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = stored?.role?.name?.toLowerCase() || "";
-  const userName = user?.name || stored?.name || "User";
+  const role = user?.role?.name?.toLowerCase() || "";
+  const userName = user?.name || user?.userName || "User";
 
   const { menuItems, activeMenu } = useLayout(role);
 
-  const handleMenuClick = (id: string, path: string) => {
+  const handleMenuClick = (path: string) => {
     navigate(path);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     navigate("/login");
   };
 
@@ -40,7 +37,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar
         menuItems={menuItems}
         activeMenu={activeMenu}
-        onNavigate={handleMenuClick}
+        onNavigate={(path) => handleMenuClick(path)}
         onLogout={handleLogout}
       />
 

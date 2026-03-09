@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import CategoryModal from "../components/CategoryModal";
 import type { Category, CategoryFormData } from "../../../types/category";
@@ -24,11 +24,7 @@ const CategoryPage: React.FC = () => {
     pageSize: 5,
   });
 
-  useEffect(() => {
-    loadCategories();
-  }, [paginationModel]);
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
       const categoriesData = await categoryService.searchCategories({
@@ -43,22 +39,28 @@ const CategoryPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [paginationModel.page, paginationModel.pageSize]);
 
-  const handleAddCategory = () => {
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  const handleAddCategory = useCallback(() => {
     setModalMode("add");
     setSelectedCategory(null);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleEditCategory = (category: Category) => {
+  const handleEditCategory = useCallback((category: Category) => {
     setModalMode("edit");
     setSelectedCategory(category);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteCategory = async () => {
-    const category = categories.find((cat) => cat._id === selectedRow[0]);
+  const handleDeleteCategory = useCallback(async () => {
+    if (!selectedRow || selectedRow.length === 0) return;
+    const categoryId = selectedRow[0];
+    const category = categories.find((cat) => cat._id === categoryId);
     if (!category) {
       alert("Category not found.");
       return;
@@ -73,7 +75,7 @@ const CategoryPage: React.FC = () => {
 
     if (
       window.confirm(
-        `Are you sure you want to delete the category "${categoryName}"?`,
+        `Are you sure you want to delete the category "${category.name}"?`,
       )
     ) {
       try {
@@ -85,9 +87,9 @@ const CategoryPage: React.FC = () => {
         alert("Error deleting category. Please try again.");
       }
     }
-  };
+  }, [categories, selectedRow, loadCategories]);
 
-  const handleSaveCategory = async (categoryData: CategoryFormData) => {
+  const handleSaveCategory = useCallback(async (categoryData: CategoryFormData) => {
     try {
       if (modalMode === "add") {
         await categoryService.createCategory(categoryData);
@@ -102,9 +104,9 @@ const CategoryPage: React.FC = () => {
       console.error("Error saving category:", error);
       throw error;
     }
-  };
+  }, [modalMode, selectedCategory]);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = useCallback((status: string) => {
     const statusConfig = {
       ACTIVE: { class: "status-active", text: "Active" },
       IN_ACTIVE: { class: "status-inactive", text: "In active" },
@@ -115,7 +117,42 @@ const CategoryPage: React.FC = () => {
     return (
       <span className={`status-badge ${config.class}`}>{config.text}</span>
     );
-  };
+  }, []);
+
+  const columns = useMemo(() => [
+    {
+      field: "name",
+      headerName: "Category Name",
+      flex: 1,
+      valueGetter: (_value: any, row: any) => row.name || "",
+    },
+    {
+      field: "description",
+      headerName: "Description",
+      flex: 1,
+      valueGetter: (_value: any, row: any) => row.description || "",
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params: any) => getStatusBadge(params.value),
+    },
+    {
+      field: "bookCount",
+      headerName: "Books Count",
+      flex: 1,
+      renderCell: (params: any) => (
+        <span
+          className={`count-badge ${
+            params.value ? "has-books" : "no-books"
+          }`}
+        >
+          {params.value || 0}
+        </span>
+      ),
+    },
+  ], [getStatusBadge]);
 
   const filteredCategories = categories;
 
@@ -145,61 +182,18 @@ const CategoryPage: React.FC = () => {
               onPaginationChange={setPaginationModel}
               loading={loading}
               onEdit={handleEditCategory}
-              onDelete={(row) => {
+              onDelete={useCallback((row: any) => {
                 setSelectedRow([row._id]);
                 handleDeleteCategory();
-              }}
-              columns={[
-                {
-                  field: "name",
-                  headerName: "Category Name",
-                  flex: 1,
-                  valueGetter: (_value, row) => row.name || "",
-                },
-                {
-                  field: "description",
-                  headerName: "Description",
-                  flex: 1,
-                  valueGetter: (_value, row) => row.description || "",
-                },
-                {
-                  field: "status",
-                  headerName: "Status",
-                  flex: 1,
-                  renderCell: (params) =>
-                    // <span
-                    //   className={
-                    //     params.value === "ACTIVE" ?
-                    //       "status-badge status-active"
-                    //     : "status-badge status-inactive"
-                    //   }
-                    // >
-                    //   {params.value}
-                    // </span>
-                    getStatusBadge(params.value),
-                },
-                {
-                  field: "bookCount",
-                  headerName: "Books Count",
-                  flex: 1,
-                  renderCell: (params) => (
-                    <span
-                      className={`count-badge ${
-                        params.value ? "has-books" : "no-books"
-                      }`}
-                    >
-                      {params.value || 0}
-                    </span>
-                  ),
-                },
-              ]}
+              }, [handleDeleteCategory])}
+              columns={columns}
             />
           </div>
         }
 
         <CategoryModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={useCallback(() => setIsModalOpen(false), [])}
           onSave={handleSaveCategory}
           category={selectedCategory}
           mode={modalMode}

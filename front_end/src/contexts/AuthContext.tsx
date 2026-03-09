@@ -1,19 +1,14 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../features/login/authService";
 
-// Define User interface
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean }>;
   logout: () => void;
   loading: boolean;
+  setUserData: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,9 +20,10 @@ export const useAuth = () => {
     return {
       user: null,
       isAuthenticated: false,
-      login: async () => false,
+      login: async () => ({ success: false }),
       logout: () => {},
       loading: false,
+      setUserData: () => {},
     };
   }
   return context;
@@ -36,8 +32,26 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize state from local storage on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUserStr = localStorage.getItem("user");
+
+    if (storedToken && storedUserStr) {
+      try {
+        const storedUser = JSON.parse(storedUserStr);
+        setToken(storedToken);
+        setUser(storedUser);
+      } catch (e) {
+        console.error("Failed to parse stored user", e);
+      }
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
@@ -64,8 +78,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  };
+
+  const isAuthenticated = !!token && !!user;
+
   return (
-    <AuthContext.Provider value={{ user, token, login }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        login,
+        logout,
+        loading,
+        setUserData: setUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
