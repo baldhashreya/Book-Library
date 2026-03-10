@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Category, CategoryFormData } from "../../../types/category";
-import "./CategoryModal.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
+import FormAction from "../../../shared/components/FormAction";
 import ModalHeader from "../../../shared/components/ModalHeader";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import "./CategoryModal.css";
@@ -46,13 +45,11 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      setError("");
       try {
         await onSave(values as CategoryFormData);
         onClose();
-      } catch (error) {
-        console.error("Error saving category:", error);
-        setError("An error occurred while saving the category");
+      } catch (err) {
+        console.error("Error saving category:", err);
       } finally {
         setLoading(false);
       }
@@ -61,7 +58,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setError("");
       if (mode === "edit" && category) {
         formik.setValues({
           name: category.name,
@@ -94,7 +90,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
           onSubmit={formik.handleSubmit}
           className="category-form"
         >
-          {error && <div className="error-message">{error}</div>}
 
           <Grid container spacing={2}>
             <Grid size={{ xs: 12 }}>
@@ -182,24 +177,11 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             </div>
           )}
 
-          <div className="form-actions" style={{ marginTop: '24px' }}>
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              variant="contained"
-              type="submit"
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Category"
-                : "Update Category"
-              }
-              className="action-button"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={mode === "add" ? "Add Category" : "Update Category"}
+          />
         </form>
       </div>
     </div>

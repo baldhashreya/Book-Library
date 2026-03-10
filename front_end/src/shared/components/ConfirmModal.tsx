@@ -1,7 +1,6 @@
 import React from "react";
 import ModalHeader from "./ModalHeader";
-import CustomButton from "./Button/CustomButton";
-import CancelButton from "./Button/CancleButton";
+import FormAction from "./FormAction";
 import "./ConfirmModal.css";
 
 interface ConfirmModalProps {
@@ -30,20 +29,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <div className="confirm-modal-content">
         <ModalHeader title={title} onClose={onCancel} disabled={loading} />
         
-        <div className="confirm-modal-body">
-          <p className="confirm-modal-subtitle">{message}</p>
-        </div>
+        <form onSubmit={(e) => { e.preventDefault(); onConfirm(); }}>
+          <div className="confirm-modal-body">
+            <p className="confirm-modal-subtitle">{message}</p>
+          </div>
 
-        <div className="confirm-modal-actions">
-          <CancelButton onClick={onCancel} disabled={loading} />
-          <CustomButton
-            label={loading ? "Processing..." : confirmLabel}
-            onClick={onConfirm}
-            variant="contained"
-            className="confirm-action-btn"
-            disabled={loading}
+          <FormAction
+            loading={loading}
+            onClose={onCancel}
+            label={confirmLabel}
           />
-        </div>
+        </form>
       </div>
     </div>
   );

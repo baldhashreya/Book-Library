@@ -4,7 +4,7 @@ import type { User } from "../../../types/user";
 import type { Book } from "../../../types/book";
 import { TextField, MenuItem } from "@mui/material";
 import "./AssignBookModal.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
+import FormAction from "../../../shared/components/FormAction";
 import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface AssignBookModalProps {
@@ -112,22 +112,11 @@ const AssignBookModal: React.FC<AssignBookModalProps> = ({
           sx={{ marginBottom: "20px", ...customInputStyles }}
         />
 
-        <div className="modal-actions">
-          <CustomButton
-            variant="contained"
-            onClick={onClose}
-            label="Cancel"
-            className="cancel-btn"
-          />
-
-          <CustomButton
-            type="submit"
-            variant="contained"
+          <FormAction
+            loading={false}
+            onClose={onClose}
             label="Assign"
-            className="save-btn"
-            disabled={!selectedUser || !returnDate}
           />
-        </div>
         </form>
       </div>
     </div>

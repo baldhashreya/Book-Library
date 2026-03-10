@@ -6,14 +6,12 @@ import * as Yup from "yup";
 import { Grid } from "@mui/material";
 import { useFormik } from "formik";
 import ModalHeader from "../../../shared/components/ModalHeader";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancelButton";
+import FormAction from "../../../shared/components/FormAction";
 
 interface AuthorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (authorData: AuthorFormData) => void;
-  author?: Author | null;
   mode: "add" | "edit";
 }
 
@@ -27,7 +25,6 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  author,
   mode,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -133,24 +130,11 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              variant="contained"
-              type="submit"
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Author"
-                : "Update Author"
-              }
-              className="action-button"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={mode === "add" ? "Add Author" : "Update Author"}
+          />
         </form>
       </div>
     </div>

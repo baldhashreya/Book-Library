@@ -4,8 +4,7 @@ import * as Yup from "yup";
 import type { User, UserFormData } from "../../../types/user";
 import "./EditProfileModal.css";
 import "../../../shared/styles/model.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
+import FormAction from "../../../shared/components/FormAction";
 import Grid from "@mui/material/Grid";
 import ModalHeader from "../../../shared/components/ModalHeader";
 
@@ -34,7 +33,6 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   user,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const formik = useFormik({
     initialValues: {
@@ -48,13 +46,11 @@ const EditProfileModal: React.FC<UserModalProps> = ({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-      setError("");
       try {
         await onSave(values as UserFormData);
         onClose();
-      } catch (error) {
-        console.error("Error saving user:", error);
-        setError("An error occurred while saving the user");
+      } catch (err) {
+        console.error("Error saving user:", err);
       } finally {
         setLoading(false);
       }
@@ -63,7 +59,6 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setError("");
       formik.setValues({
         name: user.name,
         email: user.email,
@@ -76,23 +71,6 @@ const EditProfileModal: React.FC<UserModalProps> = ({
   }, [isOpen, user]);
 
   if (!isOpen) return null;
-
-  const formik = useFormik({
-    initialValues: {
-      name: user.name,
-      email: user.email,
-      status: user.status,
-      role: user.role.name,
-      phone:
-        user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
-      address:
-        user.contactInfo && user.contactInfo.address ?
-          user.contactInfo.address
-        : "",
-    },
-    validationSchema: editProfileSchema,
-    onSubmit: handleSubmit,
-  });
 
   return (
     <div className="modal-overlay">
@@ -206,16 +184,11 @@ const EditProfileModal: React.FC<UserModalProps> = ({
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton onClick={onClose} />
-            <CustomButton
-              variant="contained"
-              type="submit"
-              label="Update User"
-              className="action-button"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label="Update User"
+          />
         </form>
       </div>
     </div>

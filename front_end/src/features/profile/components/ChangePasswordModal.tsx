@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import "./ChangePasswordModal.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
+import FormAction from "../../../shared/components/FormAction";
 import ModalHeader from "../../../shared/components/ModalHeader";
 
 const validationSchema = Yup.object().shape({
@@ -92,19 +91,12 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
               <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.confirmPassword as string}</div>
             )}
           </div>
-        </form>
-
-        <div className="modal-actions">
-          <CustomButton
-            variant="contained"
-            type="submit"
-            onClick={formik.submitForm}
-            label={loading ? "Updating..." : "Update"}
-            className="update-button"
-            disabled={loading}
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label="Update"
           />
-          <CancelButton onClick={onClose} disabled={loading} />
-        </div>
+        </form>
       </div>
     </div>
   );
