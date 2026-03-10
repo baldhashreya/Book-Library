@@ -6,7 +6,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 interface SidebarProps {
   menuItems: any[];
   activeMenu: string;
-  onNavigate: (id: string, path: string) => void;
+  onNavigate: (path: string) => void;
   onLogout: () => void;
 }
 
@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           return (
             <div
               key={item.id}
-              onClick={() => onNavigate(item.id, item.path)}
+              onClick={() => onNavigate(item.path)}
               className={`menu-item ${
                 activeMenu === item.id ? "active" : ""
               }`}

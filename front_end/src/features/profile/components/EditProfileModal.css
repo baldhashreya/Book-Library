@@ -1,10 +1,10 @@
 /* Modal box */
 .modal-container {
-  background: #fff;
+  background: var(--bg-white);
   padding: 30px 35px;
   width: 300px;
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 30px var(--shadow-medium);
   animation: fadeIn 0.25s ease-out;
 }
 
@@ -13,7 +13,7 @@
   margin-bottom: 20px;
   font-size: 22px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 /* Form layout */
@@ -24,7 +24,7 @@
 
 .form-grid label {
   font-size: 14px;
-  color: #374151;
+  color: var(--text-secondary);
   margin-bottom: 4px;
   display: block;
 }
@@ -34,26 +34,26 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-main);
   font-size: 14px;
   transition: 0.2s;
 }
 
 .form-grid input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  border-color: var(--primary-main);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* Disabled field */
 .form-grid input:disabled {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--bg-disabled);
+  color: var(--text-muted);
 }
 
 .save-btn {
-  background: #2563eb;
-  color: white;
+  background: var(--primary-main);
+  color: var(--text-white);
   padding: 10px 22px;
   font-size: 15px;
   border: none;
@@ -63,7 +63,7 @@
 }
 
 .save-btn:hover {
-  background: #1e40af;
+  background: var(--primary-hover);
 }
 
 /* Fade animation */
@@ -72,12 +72,23 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.user-form {
-  padding: 25px;
+
+.action-button {
+  text-transform: none !important;
+  font-weight: 700 !important;
+  background-color: var(--primary-main) !important;
+  color: var(--text-white) !important;
+}
+
+.action-button:hover {
+  background-color: var(--primary-light) !important;
+  color: var(--primary-main) !important;
+  border: 1px solid var(--primary-border) !important;
 }

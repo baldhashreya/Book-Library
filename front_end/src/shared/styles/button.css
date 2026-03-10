@@ -1,6 +1,6 @@
 .btn {
   text-transform: none !important;
-  color: white !important;
+  color: var(--text-white) !important;
 }
 
 .btn:hover:not(:disabled) {
@@ -8,19 +8,19 @@
 }
 
 .add-selected-btn {
-  background-color: rgb(26, 26, 107) !important;
+  background-color: var(--midnight-blue) !important;
 }
 
 .add-selected-btn:hover:not(:disabled) {
-  color: rgb(26, 26, 107) !important;
+  color: var(--midnight-blue) !important;
 }
 
 .delete-selected-btn {
-  background-color: #d32f2f !important;
+  background-color: var(--danger-red) !important;
 }
 
 .delete-selected-btn:hover:not(:disabled) {
-  color: #d32f2f !important;
+  color: var(--danger-red) !important;
 }
 
 .btn:disabled {
@@ -29,24 +29,24 @@
 }
 
 .edit-selected-btn {
-  background: #b98a07 !important;
+  background: var(--warning-main) !important;
 }
 
 .edit-selected-btn:hover:not(:disabled) {
-  color: #ce9803f9 !important;
+  color: var(--warning-text) !important;
 }
 
 .edit-selected-btn:disabled {
-  background: #ffe8a1;
+  background: var(--warning-bg);
   cursor: not-allowed;
 }
 
 .assign-selected-btn {
-  background: #077f23 !important;
+  background: var(--success-main) !important;
 }
 
 .assign-selected-btn:hover:not(:disabled) {
-  color: #077f23 !important;
+  color: var(--success-main) !important;
 }
 
 .assign-selected-btn:disabled {

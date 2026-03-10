@@ -35,7 +35,7 @@ export const CategoriesModel = {
         .optional(),
       offset: Joi.number().optional(),
       limit: Joi.number().optional(),
-      order: Joi.array().items(Joi.string()).optional(),
+      order: Joi.array().items(Joi.array().items(Joi.string())).optional(),
     },
     query: {},
   },

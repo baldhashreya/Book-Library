@@ -46,12 +46,39 @@ export class CategoriesRepository {
       order = { name: -1 };
     }
     const count = await Categories.countDocuments(query);
-    const rows = await Categories.find(query)
-      .sort(order)
-      .skip(params.offset || 0)
-      .limit(params.limit || 10);
+    const rows = await Categories.aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "category",
+          as: "books",
+        },
+      },
+      {
+        $addFields: {
+          totalBookCount: { $size: "$books" },
+          availableBookCount: {
+            $size: {
+              $filter: {
+                input: "$books",
+                as: "book",
+                cond: { $eq: ["$$book.status", "AVAILABLE"] }
+              }
+            }
+          },
+        },
+      },
+      {
+        $project: { books: 0 },
+      },
+      { $sort: order },
+      { $skip: params.offset || 0 },
+      { $limit: params.limit || 10 },
+    ]);
       
-    return { count, rows};
+    return { count, rows };
   }
 
   public async getCategoryById(id: string): Promise<CategoriesModel | null> {

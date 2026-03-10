@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
-import "./RoleModal.css";
-import ModelHeader from "../../../shared/components/FormHeader";
-import FormAction from "../../../shared/components/FormAction";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import type { Role, RoleFormData, RolePermission } from "../../../types/role";
+import { roleService, availablePermissions } from "../roleService";
+import CancelButton from "../../../shared/components/Button/CancleButton";
+import CustomButton from "../../../shared/components/Button/CustomButton";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -11,6 +15,19 @@ interface RoleModalProps {
   mode: "add" | "edit";
 }
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string()
+    .required("Role name is required")
+    .max(50, "Role name must be at most 50 characters"),
+  permissions: Yup.array()
+    .of(Yup.string())
+    .min(1, "At least one permission is required")
+    .required("Permissions are required"),
+  description: Yup.string()
+    .required("Description is required")
+    .max(200, "Description must be at most 200 characters"),
+});
+
 const RoleModal: React.FC<RoleModalProps> = ({
   isOpen,
   onClose,
@@ -18,118 +35,98 @@ const RoleModal: React.FC<RoleModalProps> = ({
   role,
   mode,
 }) => {
-  const [formData, setFormData] = useState<RoleFormData>({
-    name: "",
-    permissions: [],
-    description: "",
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      permissions: [] as RolePermission[],
+      description: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values, { setFieldError }) => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const exists = await (roleService as any).getRoles(
+          { name: values.name.trim() as any },
+          mode === "edit" ? role?._id : undefined
+        );
+
+        if (exists) {
+          setFieldError("name", "A role with this name already exists");
+          setLoading(false);
+          return;
+        }
+
+        await onSave(values as RoleFormData);
+        onClose();
+      } catch (error) {
+        console.error("Error saving role:", error);
+        setError("An error occurred while saving the role");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   useEffect(() => {
     if (isOpen) {
       setError("");
       if (mode === "edit" && role) {
-        setFormData({
+        formik.setValues({
           name: role.name,
           permissions: [...role.permissions],
           description: role.description,
         });
       } else {
-        setFormData({
+        formik.setValues({
           name: "",
           permissions: [],
           description: "",
         });
+        formik.setTouched({});
+        formik.setErrors({});
       }
     }
   }, [isOpen, mode, role]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error) setError("");
-  };
 
   const handlePermissionChange = (
     permission: RolePermission,
     checked: boolean,
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      permissions:
-        checked ?
-          [...prev.permissions, permission]
-        : prev.permissions.filter((p) => p !== permission),
-    }));
+    formik.setFieldValue(
+      "permissions",
+      checked ?
+        [...formik.values.permissions, permission]
+      : formik.values.permissions.filter((p) => p !== permission),
+    );
   };
 
   const handleSelectAll = (checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      permissions: checked ? availablePermissions.map((p) => p.value) : [],
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      if (!formData.name.trim()) {
-        setError("Role name is required");
-        return;
-      }
-
-      if (formData.permissions.length === 0) {
-        setError("At least one permission is required");
-        return;
-      }
-
-      const exists = await roleService.getRoles(
-        { name: formData.name.trim() },
-        mode === "edit" ? role?.id : undefined,
-        // mode === 'edit' ? role?.id : undefined
-      );
-
-      if (exists) {
-        setError("A role with this name already exists");
-        return;
-      }
-
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving role:", error);
-      setError("An error occurred while saving the role");
-    } finally {
-      setLoading(false);
-    }
+    formik.setFieldValue(
+      "permissions",
+      checked ? availablePermissions.map((p) => p.value) : [],
+    );
   };
 
   if (!isOpen) return null;
 
   const allSelected =
-    formData.permissions.length === availablePermissions.length;
+    formik.values.permissions.length === availablePermissions.length;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content role-modal">
-        <ModelHeader
-          header={mode === "add" ? "Add New Role" : "Edit Role"}
+        <ModalHeader
+          title={mode === "add" ? "Add New Role" : "Edit Role"}
           onClose={onClose}
-          loading={loading}
         />
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={formik.handleSubmit}
           className="role-form"
         >
           {error && <div className="error-message">{error}</div>}
@@ -140,14 +137,18 @@ const RoleModal: React.FC<RoleModalProps> = ({
               type="text"
               id="name"
               name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={loading}
               placeholder="Enter role name"
               maxLength={50}
+              className={formik.touched.name && formik.errors.name ? "input-error" : ""}
             />
-            <div className="char-count">{formData.name.length}/50</div>
+            {formik.touched.name && formik.errors.name && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+            )}
+            <div className="char-count">{formik.values.name.length}/50</div>
           </div>
 
           <div className="form-group">
@@ -173,22 +174,31 @@ const RoleModal: React.FC<RoleModalProps> = ({
                   >
                     <input
                       type="checkbox"
-                      checked={formData.permissions.includes(permission.value)}
+                      name="permissions"
+                      value={permission.value}
+                      checked={formik.values.permissions.includes(permission.value)}
                       onChange={(e) =>
                         handlePermissionChange(
                           permission.value,
                           e.target.checked,
                         )
                       }
+                      onBlur={formik.handleBlur}
                       disabled={loading}
                     />
                     <span className="permission-label">{permission.label}</span>
                   </label>
                 ))}
               </div>
+              
+              {formik.touched.permissions && formik.errors.permissions && (
+                <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px', marginLeft: '4px' }}>
+                  {typeof formik.errors.permissions === 'string' ? formik.errors.permissions : "Invalid permissions"}
+                </div>
+              )}
 
               <div className="selected-count">
-                {formData.permissions.length} of {availablePermissions.length}{" "}
+                {formik.values.permissions.length} of {availablePermissions.length}{" "}
                 permissions selected
               </div>
             </div>
@@ -199,15 +209,19 @@ const RoleModal: React.FC<RoleModalProps> = ({
             <textarea
               id="description"
               name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               disabled={loading}
               rows={3}
               placeholder="Enter role description"
               maxLength={200}
+              className={formik.touched.description && formik.errors.description ? "input-error" : ""}
             />
-            <div className="char-count">{formData.description.length}/200</div>
+            {formik.touched.description && formik.errors.description && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.description}</div>
+            )}
+            <div className="char-count">{formik.values.description.length}/200</div>
           </div>
 
           <FormAction

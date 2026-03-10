@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
 import "./MainLayout.css";
 
 import Sidebar from "./Sidebar";
@@ -13,21 +12,24 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-
-  const stored = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = stored?.role?.name?.toLowerCase() || "";
-  const userName = user?.name || stored?.name || "User";
+  const storedUserStr = localStorage.getItem("user");
+  const user = storedUserStr ? JSON.parse(storedUserStr) : null;
+  
+  console.log("MainLayout - user:", user);
+  const role = user?.role?.name?.toLowerCase() || "";
+  const userName = user?.name || user?.userName || "User";
 
   const { menuItems, activeMenu } = useLayout(role);
-
-  const handleMenuClick = (id: string, path: string) => {
+  console.log("MainLayout - role:", role);
+  console.log("MainLayout - menuItems:", menuItems);
+  console.log("MainLayout - activeMenu:", activeMenu);
+  const handleMenuClick = (path: string) => {
     navigate(path);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("refresh_token");
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     navigate("/login");
   };
@@ -39,7 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Sidebar
         menuItems={menuItems.filter((item) => item.showInPage)}
         activeMenu={activeMenu}
-        onNavigate={handleMenuClick}
+        onNavigate={(path) => handleMenuClick(path)}
         onLogout={handleLogout}
       />
 

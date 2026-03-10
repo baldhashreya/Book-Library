@@ -1,38 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFormik } from "formik";
-import { Grid, IconButton, InputAdornment } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { toast } from "react-toastify";
-import { changePasswordSchema } from "./change-password-model.ts";
+import * as Yup from "yup";
 import "./ChangePasswordModal.css";
-import "../../../shared/styles/model.css";
-import ModelHeader from "../../../shared/components/FormHeader.tsx";
-import AppTextField from "../../../shared/components/AppTextField";
-import FormAction from "../../../shared/components/FormAction.tsx";
+import FormAction from "../../../shared/components/FormAction";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
-interface Props {
-  onClose: () => void;
-  onSave: (data: {
-    oldPassword: string;
-    newPassword: string;
-    confirmPassword: string;
-  }) => Promise<void>;
-}
+const validationSchema = Yup.object().shape({
+  oldPassword: Yup.string().required("Old password is required"),
+  newPassword: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("New password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('newPassword'), undefined], 'Passwords must match')
+    .required('Confirm Password is required'),
+});
 
-const ChangePasswordModal: React.FC<Props> = ({ onClose, onSave }) => {
+const ChangePasswordModal = ({ onClose, onSave }: any) => {
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState({
-    oldPassword: false,
-    newPassword: false,
-    confirmPassword: false,
-  });
-
-  const togglePassword = (field: keyof typeof showPassword) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
 
   const formik = useFormik({
     initialValues: {
@@ -40,127 +24,77 @@ const ChangePasswordModal: React.FC<Props> = ({ onClose, onSave }) => {
       newPassword: "",
       confirmPassword: "",
     },
-    validationSchema: changePasswordSchema,
-    onSubmit: async (values, actions) => {
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
       try {
-        setLoading(true);
-        await onSave(values);
-        actions.resetForm();
-        toast.success("Password updated successfully!");
+        await onSave(values.newPassword);
         onClose();
       } catch (err) {
+        console.error("Error setting password:", err);
+      } finally {
         setLoading(false);
-        console.error(err);
-        toast.error("Failed to update password");
       }
     },
   });
 
-  const fieldProps = (name: keyof typeof formik.values) => ({
-    name,
-    value: formik.values[name],
-    onChange: formik.handleChange,
-    onBlur: formik.handleBlur,
-    error: formik.touched[name] && Boolean(formik.errors[name]),
-    helperText: formik.touched[name] && formik.errors[name],
-  });
-
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <ModelHeader
-          header="Change Password"
-          onClose={onClose}
-        />
+      <div className="modal-container">
+        <ModalHeader title="Change Password" onClose={onClose} />
 
-        <form
-          className="user-form"
-          onSubmit={formik.handleSubmit}
-        >
-          <Grid
-            container
-            spacing={2}
-          >
-            {/* Old Password */}
-            <Grid size={12}>
-              <AppTextField
-                label="Old Password"
-                type={showPassword.oldPassword ? "text" : "password"}
-                placeholder="Enter old password"
-                {...fieldProps("oldPassword")}
-                fullWidth
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => togglePassword("oldPassword")}
-                        edge="end"
-                      >
-                        {showPassword.oldPassword ?
-                          <VisibilityOff />
-                        : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
+        <form className="form-grid" onSubmit={formik.handleSubmit}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>Old Password</label>
+            <input
+              type="password"
+              name="oldPassword"
+              value={formik.values.oldPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={loading}
+              className={formik.touched.oldPassword && formik.errors.oldPassword ? "input-error" : ""}
+            />
+            {formik.touched.oldPassword && formik.errors.oldPassword && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.oldPassword as string}</div>
+            )}
+          </div>
 
-            {/* New Password */}
-            <Grid size={12}>
-              <AppTextField
-                label="New Password"
-                type={showPassword.newPassword ? "text" : "password"}
-                placeholder="Enter new password"
-                {...fieldProps("newPassword")}
-                fullWidth
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => togglePassword("newPassword")}
-                        edge="end"
-                      >
-                        {showPassword.newPassword ?
-                          <VisibilityOff />
-                        : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>New Password</label>
+            <input
+              type="password"
+              name="newPassword"
+              value={formik.values.newPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={loading}
+              className={formik.touched.newPassword && formik.errors.newPassword ? "input-error" : ""}
+            />
+            {formik.touched.newPassword && formik.errors.newPassword && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.newPassword as string}</div>
+            )}
+          </div>
 
-            {/* Confirm Password */}
-            <Grid size={12}>
-              <AppTextField
-                label="Confirm Password"
-                type={showPassword.confirmPassword ? "text" : "password"}
-                placeholder="Confirm password"
-                {...fieldProps("confirmPassword")}
-                fullWidth
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => togglePassword("confirmPassword")}
-                        edge="end"
-                      >
-                        {showPassword.confirmPassword ?
-                          <VisibilityOff />
-                        : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-          </Grid>
-
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={loading}
+              className={formik.touched.confirmPassword && formik.errors.confirmPassword ? "input-error" : ""}
+            />
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.confirmPassword as string}</div>
+            )}
+          </div>
           <FormAction
             loading={loading}
             onClose={onClose}
-            label="Update Password"
+            label="Update"
           />
         </form>
       </div>

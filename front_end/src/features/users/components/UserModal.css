@@ -25,6 +25,17 @@
 .info-item strong {
   color: #333;
 }
+
+
+.modal-content-user {
+  background: white;
+  border-radius: 12px;
+  width: 45%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+}
+
 .error-message {
   background-color: rgba(255, 0, 0, 0.1);
   color: #8b0000;

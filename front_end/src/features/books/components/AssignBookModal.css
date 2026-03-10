@@ -1,56 +1,7 @@
-/* Full-screen dark transparent background */
-.assign-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
 
-/* Modal container */
-.assign-modal {
-  background: #ffffff;
-  width: 420px;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.25);
-  animation: fadeInScale 0.3s ease-out;
-}
 
-/* Title */
-.assign-modal h2 {
-  margin-bottom: 20px;
-  font-size: 20px;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* Label */
-.assign-modal label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
-
-/* Dropdown */
-.assign-modal select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  margin-bottom: 20px;
-}
-
-.assign-modal select:focus {
-  border-color: #007bff;
+.assign-book-form {
+  padding: 30px;
 }
 
 .cancel-btn {
@@ -66,7 +17,7 @@
 }
 
 .save-btn {
-  background: #4caf50 !important;
+  background: #3030d2f9 !important;
   color: white;
   text-transform: none !important;
 }
@@ -78,6 +29,10 @@
 
 .save-btn:hover {
   background: white !important;
-  color: #45a049;
-  border: 1px solid #45a049;
+  color: #3030d2f9 !important;
+  border: 1px solid #3030d2f9 !important;
+}
+
+.assign-book-model{
+  width: 450px !important;
 }

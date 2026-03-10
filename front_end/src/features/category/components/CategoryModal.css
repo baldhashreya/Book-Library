@@ -1,3 +1,7 @@
+.modal-content {
+  max-width: 500px !important;
+}
+
 .category-form {
   padding: 30px;
 }

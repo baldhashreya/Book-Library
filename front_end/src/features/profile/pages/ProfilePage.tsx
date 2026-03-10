@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import LockIcon from "@mui/icons-material/Lock";
 import MainLayout from "../../../shared/layouts/MainLayout";
-import { useAuth } from "../../../contexts/AuthContext";
 import "./ProfilePage.css";
 import EditProfileModal from "../components/EditProfileModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
@@ -15,34 +14,25 @@ import "../../../shared/styles/model.css";
 import { toast } from "react-toastify";
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
-  const [userData, setUserData] = useState<any>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const storedUserStr = localStorage.getItem("user");
+    if (storedUserStr) {
       try {
-        let currentUser = user;
-        if (!currentUser) {
-          const userStr = localStorage.getItem("user");
-          if (userStr) {
-            currentUser = JSON.parse(userStr);
-          }
-        }
-        setUserData(currentUser);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      } finally {
-        setLoading(false);
+        setUser(JSON.parse(storedUserStr));
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
       }
-    };
+    }
+    setLoading(false);
+  }, []);
 
-    fetchUser();
-  }, [user]);
-
-  const handleUpdateProfile = async (updatedData: UserFormData) => {
+  const handleUpdateProfile = useCallback(async (updatedData: UserFormData) => {
+    if (!user) return;
     try {
       await userService.updateUser(userData._id, updatedData);
       toast.success("Profile updated successfully!");
@@ -53,17 +43,17 @@ const ProfilePage: React.FC = () => {
       console.error("Error updating profile:", error);
       toast.error(error.message || "");
     }
-  };
+  }, [user]);
 
-  const handleUpdatePassword = async (password: string) => {
+  const handleUpdatePassword = useCallback(async (password: string) => {
+    if (!user) return;
     try {
-      const userModel = JSON.parse(localStorage.getItem("user"));
-      await authService.resetPassword(userModel.email, password);
-      setUserData(userModel);
+      await authService.resetPassword(user.email, password);
+      setUser({ ...user }); 
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating password:", error);
     }
-  };
+  }, [user]);
 
   if (loading) {
     return (
@@ -76,7 +66,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  if (!userData) {
+  if (!user) {
     return (
       <MainLayout>
         <div className="empty-state">
@@ -172,16 +162,16 @@ const ProfilePage: React.FC = () => {
       {isEditOpen && (
         <EditProfileModal
           isOpen={isEditOpen}
-          onClose={() => setIsEditOpen(false)}
-          user={userData}
+          onClose={useCallback(() => setIsEditOpen(false), [])}
+          user={user}
           onSave={(updatedData) => handleUpdateProfile(updatedData)}
         />
       )}
 
       {isPasswordOpen && (
         <ChangePasswordModal
-          onClose={() => setIsPasswordOpen(false)}
-          onSave={(data) => handleUpdatePassword(data)}
+          onClose={useCallback(() => setIsPasswordOpen(false), [])}
+          onSave={(data: string) => handleUpdatePassword(data)}
         />
       )}
     </MainLayout>

@@ -29,7 +29,7 @@ export const userService = {
     try {
       const result = await apiService.post("/users/search", params);
       console.log("userService.getUsers() result:", result);
-      return JSON.parse(JSON.stringify(result.data)) || [];
+      return JSON.parse(JSON.stringify(result.data.rows)) || [];
     } catch (error) {
       console.error("Error fetching users:", error);
       throw error;

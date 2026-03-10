@@ -74,7 +74,7 @@ export const BooksModel = {
     query: {},
     body: {
       userId: Joi.string().required(),
-      returnDate: Joi.date().required(),
+      returnDate: Joi.date().greater("now").required(),
     },
   },
 };

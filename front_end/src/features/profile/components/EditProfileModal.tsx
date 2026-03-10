@@ -1,24 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { User, UserFormData } from "../../../types/user";
 import "./EditProfileModal.css";
 import "../../../shared/styles/model.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancelButton";
-import Grid from "@mui/material/Grid";
-import ModelHeader from "../../../shared/components/FormHeader";
-import AppTextField from "../../../shared/components/AppTextField";
-import {
-  Phone,
-  Home,
-  Person,
-  SupervisorAccount,
-  Email,
-  FiberManualRecord,
-} from "@mui/icons-material";
-import { editProfileSchema } from "./edit-profile-validation";
-import { toast } from "react-toastify";
 import FormAction from "../../../shared/components/FormAction";
+import Grid from "@mui/material/Grid";
+import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface UserModalProps {
   isOpen: boolean;
@@ -26,6 +14,17 @@ interface UserModalProps {
   onSave: (userData: UserFormData) => void;
   user: User;
 }
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  role: Yup.string().required("Role is required"),
+  status: Yup.string().required("Status is required"),
+  phone: Yup.number().required("Phone is required"),
+  address: Yup.string().required("Address is required"),
+});
 
 const EditProfileModal: React.FC<UserModalProps> = ({
   isOpen,
@@ -35,50 +34,51 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving user:", error);
-      toast.error("An error occurred while saving the user");
-    } finally {
-      setLoading(false);
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      role: "",
+      status: "active" as "active" | "inactive",
+      phone: 0,
+      address: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        await onSave(values as UserFormData);
+        onClose();
+      } catch (err) {
+        console.error("Error saving user:", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      formik.setValues({
+        name: user.name,
+        email: user.email,
+        role: user.role._id,
+        status: user.status as any,
+        phone: user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
+        address: user.contactInfo && user.contactInfo.address ? user.contactInfo.address : "",
+      });
     }
-  };
+  }, [isOpen, user]);
 
   if (!isOpen) return null;
 
-  const formik = useFormik({
-    initialValues: {
-      name: user.name,
-      email: user.email,
-      status: user.status,
-      role: user.role.name,
-      phone:
-        user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
-      address:
-        user.contactInfo && user.contactInfo.address ?
-          user.contactInfo.address
-        : "",
-    },
-    validationSchema: editProfileSchema,
-    onSubmit: handleSubmit,
-  });
-
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <ModelHeader
-          header="Edit User"
-          onClose={onClose}
-          loading={loading}
-        />
+      <div className="modal-content-user">
+        <ModalHeader title="Edit User" onClose={onClose} disabled={loading} />
 
         <form
-          onSubmit={formik.onSubmit}
+          onSubmit={formik.handleSubmit}
           className="user-form"
         >
           <Grid
@@ -86,91 +86,101 @@ const EditProfileModal: React.FC<UserModalProps> = ({
             spacing={2}
           >
             <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Name"
-                name="name"
-                fullWidth
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                startIcon={<Person fontSize="small" />}
-                required
-                disabled={loading}
-                placeholder="Enter name"
-                onBlur={formik.handleBlur}
-                error={formik.touched.name && Boolean(formik.errors.name)}
-                helperText={formik.touched.name && formik.errors.name}
-              />
+              <div className="form-group">
+                <label htmlFor="name">Name*</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  placeholder="Enter Name"
+                  maxLength={30}
+                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
+                />
+                {formik.touched.name && formik.errors.name && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+                )}
+              </div>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Role"
-                name="role"
-                fullWidth
-                value={formik.values.role}
-                onChange={formik.handleChange}
-                startIcon={<SupervisorAccount fontSize="small" />}
-                required
-                disabled={true}
-                placeholder="Enter Role"
-              />
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  placeholder="Enter email address"
+                  className={formik.touched.email && formik.errors.email ? "input-error" : ""}
+                />
+                {formik.touched.email && formik.errors.email && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.email}</div>
+                )}
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="status">Status *</label>
+                <select
+                  id="status"
+                  name="status"
+                  value={formik.values.status}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  className={formik.touched.status && formik.errors.status ? "input-error" : ""}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                {formik.touched.status && formik.errors.status && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.status}</div>
+                )}
+              </div>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <div className="form-group">
+                <label htmlFor="phone">Phone *</label>
+                <input
+                  type="number"
+                  id="phone"
+                  name="phone"
+                  value={formik.values.phone}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  placeholder="Enter phone"
+                  className={formik.touched.phone && formik.errors.phone ? "input-error" : ""}
+                />
+                {formik.touched.phone && formik.errors.phone && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.phone}</div>
+                )}
+              </div>
             </Grid>
             <Grid size={12}>
-              <AppTextField
-                label="Email"
-                name="email"
-                fullWidth
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                startIcon={<Email fontSize="small" />}
-                required
-                disabled={true}
-                placeholder="Enter Email"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Phone"
-                name="phone"
-                fullWidth
-                value={formik.values.phone}
-                onChange={formik.handleChange}
-                startIcon={<Phone fontSize="small" />}
-                required
-                disabled={loading}
-                placeholder="Enter phone"
-                onBlur={formik.handleBlur}
-                error={formik.touched.phone && Boolean(formik.errors.phone)}
-                helperText={formik.touched.phone && formik.errors.phone}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Status"
-                name="status"
-                fullWidth
-                value={formik.values.status.toLocaleLowerCase()}
-                onChange={formik.handleChange}
-                startIcon={<FiberManualRecord fontSize="small" />}
-                required
-                disabled={true}
-                placeholder="Enter phone"
-              />
-            </Grid>
-            <Grid size={12}>
-              <AppTextField
-                label="Address"
-                name="address"
-                value={formik.values.address}
-                onChange={formik.handleChange}
-                startIcon={<Home fontSize="small" />}
-                required
-                fullWidth
-                disabled={loading}
-                placeholder="Enter address"
-                onBlur={formik.handleBlur}
-                error={formik.touched.address && Boolean(formik.errors.address)}
-                helperText={formik.touched.address && formik.errors.address}
-              />
+              <div className="form-group">
+                <label htmlFor="address">Address*</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formik.values.address}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  placeholder="Enter address"
+                  className={formik.touched.address && formik.errors.address ? "input-error" : ""}
+                />
+                {formik.touched.address && formik.errors.address && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.address}</div>
+                )}
+              </div>
             </Grid>
           </Grid>
 

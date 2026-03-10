@@ -2,66 +2,51 @@ import React, { useState } from "react";
 import type { Author, AuthorFormData } from "../../../types/author";
 import "./AuthorModal.css";
 import "../../../shared/styles/model.css";
-
+import * as Yup from "yup";
 import { Grid } from "@mui/material";
 import { useFormik } from "formik";
-import ModelHeader from "../../../shared/components/FormHeader";
-import AppTextField from "../../../shared/components/AppTextField";
-import { authorSchema } from "../author.model";
+import ModalHeader from "../../../shared/components/ModalHeader";
 import FormAction from "../../../shared/components/FormAction";
 
 interface AuthorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (authorData: AuthorFormData) => void;
-  author?: Author | null;
   mode: "add" | "edit";
 }
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Author Name is required"),
+  bio: Yup.string(),
+  birthDate: Yup.date().required("Birth Date is required"),
+});
 
 const AuthorModal: React.FC<AuthorModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  author,
   mode,
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const initialValues: AuthorFormData = {
-    name: mode === "edit" && author ? author.name : "",
-    bio: mode === "edit" && author ? author.bio : "",
-    birthDate:
-      mode === "edit" && author ?
-        author.birthDate
-      : new Date().toISOString().split("T")[0],
-  };
-
   const formik = useFormik({
-    initialValues,
-    validationSchema: authorSchema,
-    enableReinitialize: true,
-    onSubmit: async (values, actions) => {
+    initialValues: {
+      name: "",
+      bio: "",
+      birthDate: "" as any,
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
       try {
-        setLoading(true);
-        await onSave(values);
-        actions.resetForm();
+        await onSave(values as AuthorFormData);
         onClose();
       } catch (error) {
         console.error("Error saving author:", error);
       } finally {
         setLoading(false);
-        actions.setSubmitting(false);
       }
     },
-  });
-
-  const fieldProps = (name: keyof typeof formik.values) => ({
-    name,
-    value: formik.values[name],
-    onChange: formik.handleChange,
-    onBlur: formik.handleBlur,
-    error: formik.touched[name] && Boolean(formik.errors[name]),
-    helperText: formik.touched[name] && formik.errors[name],
   });
 
   if (!isOpen) return null;
@@ -69,10 +54,10 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <ModelHeader
-          header={mode === "add" ? "Add New Author" : "Edit Author"}
+        <ModalHeader
+          title={mode === "add" ? "Add New Author" : "Edit Author"}
           onClose={onClose}
-          loading={loading}
+          disabled={loading}
         />
 
         <form
@@ -85,45 +70,69 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
           >
             {/* Author Name */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Author Name"
-                required
-                placeholder="Enter author name"
-                {...fieldProps("name")}
-                disabled={loading}
-              />
+              <div className="form-group">
+                <label htmlFor="name">Author Name *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
+                />
+                {formik.touched.name && formik.errors.name && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
+                )}
+              </div>
             </Grid>
 
             {/* Birth Date */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <AppTextField
-                label="Birth Date"
-                type="date"
-                required
-                InputLabelProps={{ shrink: true }}
-                {...fieldProps("birthDate")}
-                disabled={loading}
-              />
+              <div className="form-group">
+                <label htmlFor="isbn">Birth Date *</label>
+                <input
+                  type="date"
+                  id="birthDate"
+                  name="birthDate"
+                  value={formik.values.birthDate as any}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  className={formik.touched.birthDate && formik.errors.birthDate ? "input-error" : ""}
+                />
+                {formik.touched.birthDate && formik.errors.birthDate && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.birthDate as string}</div>
+                )}
+              </div>
             </Grid>
 
             {/* Bio */}
             <Grid size={12}>
-              <AppTextField
-                label="Bio"
-                multiline
-                fullWidth
-                required
-                rows={4}
-                placeholder="Optional author bio"
-                {...fieldProps("bio")}
-                disabled={loading}
-              />
+              <div className="form-group">
+                <label htmlFor="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={formik.values.bio}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  rows={4}
+                  placeholder="Optional author bio"
+                  className={formik.touched.bio && formik.errors.bio ? "input-error" : ""}
+                />
+                {formik.touched.bio && formik.errors.bio && (
+                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.bio}</div>
+                )}
+              </div>
             </Grid>
           </Grid>
 
           <FormAction
-            onClose={onClose}
             loading={loading}
+            onClose={onClose}
             label={mode === "add" ? "Add Author" : "Update Author"}
           />
         </form>

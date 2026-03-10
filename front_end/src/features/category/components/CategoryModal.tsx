@@ -1,12 +1,11 @@
-import React, { useState } from "react";
-import type { Category, CategoryFormData } from "../../../types/category";
-import "./CategoryModal.css";
-import ModelHeader from "../../../shared/components/FormHeader";
-import AppTextField from "../../../shared/components/AppTextField";
-
+import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
+import * as Yup from "yup";
+import type { Category, CategoryFormData } from "../../../types/category";
 import FormAction from "../../../shared/components/FormAction";
-import { categorySchema } from "./category.model";
+import ModalHeader from "../../../shared/components/ModalHeader";
+import { Grid, TextField, MenuItem } from "@mui/material";
+import "./CategoryModal.css";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -15,6 +14,18 @@ interface CategoryModalProps {
   category?: Category | null;
   mode: "add" | "edit";
 }
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string()
+    .required("Category name is required")
+    .max(50, "Category name must be at most 50 characters"),
+  description: Yup.string()
+    .required("Category description is required")
+    .max(200, "Description must be at most 200 characters"),
+  status: Yup.string()
+    .oneOf(["ACTIVE", "IN_ACTIVE"])
+    .required("Category status is required"),
+});
 
 const CategoryModal: React.FC<CategoryModalProps> = ({
   isOpen,
@@ -25,112 +36,150 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const initialValues: CategoryFormData =
-    mode === "edit" && category ?
-      {
-        name: category.name,
-        description: category.description || "",
-        status: category.status || "ACTIVE",
-      }
-    : {
-        name: "",
-        description: "",
-        status: "ACTIVE",
-      };
-
   const formik = useFormik({
-    initialValues,
-    validationSchema: categorySchema,
-    enableReinitialize: true,
-    onSubmit: async (values, actions) => {
+    initialValues: {
+      name: "",
+      description: "",
+      status: "ACTIVE" as "ACTIVE" | "IN_ACTIVE",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
       try {
-        setLoading(true);
-        await onSave(values);
+        await onSave(values as CategoryFormData);
         onClose();
       } catch (err) {
-        console.error(err);
+        console.error("Error saving category:", err);
       } finally {
         setLoading(false);
-        actions.setSubmitting(false);
       }
     },
   });
 
-  const fieldProps = (name: keyof typeof formik.values) => ({
-    name,
-    value: formik.values[name],
-    onChange: formik.handleChange,
-    onBlur: formik.handleBlur,
-    error: formik.touched[name] && Boolean(formik.errors[name]),
-    helperText: formik.touched[name] && formik.errors[name],
-  });
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === "edit" && category) {
+        formik.setValues({
+          name: category.name,
+          description: category.description || "",
+          status: category.status as "ACTIVE" | "IN_ACTIVE" || "ACTIVE",
+        });
+      } else {
+        formik.setValues({
+          name: "",
+          description: "",
+          status: "ACTIVE",
+        });
+        formik.setTouched({});
+        formik.setErrors({});
+      }
+    }
+  }, [isOpen, mode, category]);
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <ModelHeader
-          header={mode === "add" ? "Add New Category" : "Edit Category"}
+        <ModalHeader
+          title={mode === "add" ? "Add New Category" : "Edit Category"}
           onClose={onClose}
-          loading={loading}
         />
 
         <form
           onSubmit={formik.handleSubmit}
           className="category-form"
         >
-          {/* Name */}
-          <AppTextField
-            label="Category Name"
-            placeholder="Enter category name"
-            {...fieldProps("name")}
-            inputProps={{ maxLength: 50 }}
-            error={formik.touched.name && Boolean(formik.errors.name)}
-            helperText={formik.touched.name && formik.errors.name}
-            disabled={loading}
-            fullWidth
-          />
-          <div className="char-count">{formik.values.name.length}/50</div>
 
-          {/* Status */}
-          <AppTextField
-            label="Status"
-            select
-            SelectProps={{ native: true }}
-            {...fieldProps("status")}
-          >
-            <option value="ACTIVE">Active</option>
-            <option value="IN_ACTIVE">Inactive</option>
-          </AppTextField>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                id="name"
+                name="name"
+                label="Category Name *"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={(formik.touched.name && formik.errors.name) || `${formik.values.name.length}/50`}
+                disabled={loading}
+                placeholder="Enter category name"
+                slotProps={{ htmlInput: { maxLength: 50 } }}
+                variant="outlined"
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                  "& .MuiOutlinedInput-root input": { padding: "10px 14px" },
+                }}
+              />
+            </Grid>
 
-          {/* Description */}
-          <AppTextField
-            label="Description"
-            multiline
-            rows={4}
-            placeholder="Optional category description"
-            {...fieldProps("description")}
-            inputProps={{ maxLength: 200 }}
-            error={formik.touched.description && Boolean(formik.errors.description)}
-            helperText={formik.touched.description && formik.errors.description}
-            disabled={loading}
-            fullWidth
-          />
-          <div className="char-count">
-            {formik.values.description.length}/200
-          </div>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                select
+                fullWidth
+                id="status"
+                name="status"
+                label="Status *"
+                value={formik.values.status}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.status && Boolean(formik.errors.status)}
+                helperText={formik.touched.status && formik.errors.status}
+                disabled={loading}
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                  "& .MuiSelect-select": { padding: "10px 14px !important" },
+                  "& .MuiInputLabel-outlined:not(.MuiInputLabel-shrink)": { transform: "translate(14px, 10px) scale(1)" },
+                }}
+              >
+                <MenuItem value="ACTIVE" sx={{ fontSize: "14px" }}>Active</MenuItem>
+                <MenuItem value="IN_ACTIVE" sx={{ fontSize: "14px" }}>Inactive</MenuItem>
+              </TextField>
+            </Grid>
 
-          {/* Book count info */}
-          {mode === "edit" && category?.bookCount !== undefined && (
-            <div className="book-count-info">
-              This category contains {category.bookCount} book(s)
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                id="description"
+                name="description"
+                label="Description"
+                value={formik.values.description}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.description && Boolean(formik.errors.description)}
+                helperText={(formik.touched.description && formik.errors.description) || `${formik.values.description?.length || 0}/200`}
+                disabled={loading}
+                placeholder="Optional category description"
+                slotProps={{ htmlInput: { maxLength: 200 } }}
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          {mode === "edit" && category?.totalBookCount !== undefined && (
+            <div className="book-count-info" style={{ marginTop: '16px' }}>
+              <span>
+                {category.totalBookCount === 0
+                  ? "No books added to this category yet."
+                  : category.availableBookCount === 0
+                  ? `This category contains ${category.totalBookCount} book(s), but none are currently available.`
+                  : `This category contains ${category.totalBookCount} book(s) (${category.availableBookCount} available).`
+                }
+              </span>
             </div>
           )}
 
           <FormAction
-            onClose={onClose}
             loading={loading}
+            onClose={onClose}
             label={mode === "add" ? "Add Category" : "Update Category"}
           />
         </form>

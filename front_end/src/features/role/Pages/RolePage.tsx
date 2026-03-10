@@ -1,33 +1,42 @@
-import React, { useState, useEffect } from "react";
-import MainLayout from "../../../shared/layouts/MainLayout";
-import AddIcon from "@mui/icons-material/Add";
+import React, { useState, useEffect, useCallback } from "react";
+import type { User, UserFormData } from "../../../types/user";
+import { userService } from "../../users/userService";
+import "./RoleModal.css";
+import CancelButton from "../../../shared/components/Button/CancleButton";
+import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
+import IconButtons from "../../../shared/components/Button/IconButtons";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import "../../../shared/styles/button.css";
-import "./RolePage.css";
-import DataTable from "../../../shared/components/DataTable";
-import { toast } from "react-toastify";
-import { roleService } from "../roleService";
-import type { Role, SearchParams } from "../../../types/role";
-import RoleModal from "../components/RoleModal";
+import { Grid } from "@mui/material";
 
-const RolePage: React.FC = () => {
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-  const [selectedRow, setSelectedRow] = useState<string[] | null>(null);
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 5,
+interface UserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (userData: UserFormData) => void;
+  user?: User | null;
+  mode: "add" | "edit";
+}
+
+const UserModal: React.FC<UserModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  user,
+  mode,
+}) => {
+  const [formData, setFormData] = useState<UserFormData>({
+    name: "",
+    email: "",
+    role: "",
+    status: "active",
+    phone: 0,
+    address: "",
   });
 
   useEffect(() => {
     loadRoles();
   }, [paginationModel]);
 
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     try {
       setLoading(true);
       const roleData = await roleService.searchRoles({
@@ -43,30 +52,63 @@ const RolePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mode, formData.role]);
 
-  const handleAddRole = () => {
-    setModalMode("add");
-    setSelectedRole(null);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      loadRoles();
+      // ... rest of logic
+    }
+  }, [isOpen, loadRoles]); // Add loadRoles here 
 
-  const handleEditRole = (role: Role) => {
-    setModalMode("edit");
-    setSelectedRole(role);
-    setIsModalOpen(true);
-  };
-  const handleDelete = async () => {
-    if (window.confirm(`Delete selected roles?`)) {
-      try {
-        await roleService.deleteRole(selectedRow[0]);
-        await loadRoles();
-      } catch (error) {
-        console.error("Bulk delete error:", error);
-        alert("Some deletions failed.");
+  const handleChange = useCallback((
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    // Don't allow role changes in edit mode
+    if (mode === "edit" && name === "role") {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (error) setError("");
+  }, [mode, error]);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Validate form
+      if (!formData.name.trim()) {
+        setError("Name is required");
+        return;
+      }
+
+      if (!formData.email.trim()) {
+        setError("Email is required");
+        return;
+      }
+
+      if (!formData.role) {
+        setError("Role is required");
+        return;
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError("Please enter a valid email address");
+        return;
       }
     }
-  };
+  }, [formData, onSave, onClose]);
 
   const handleSaveRole = async (data: Role & { _id?: string }) => {
     try {

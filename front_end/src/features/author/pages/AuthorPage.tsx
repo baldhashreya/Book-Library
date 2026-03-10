@@ -51,7 +51,7 @@ const AuthorPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel, sortModel, filters]);
+  }, [paginationModel.page, paginationModel.pageSize]);
 
   useEffect(() => {
     loadAuthors();
@@ -72,8 +72,12 @@ const AuthorPage: React.FC = () => {
   const handleDeleteAuthor = useCallback(async (authorId: string) => {
     if (!window.confirm("Are you sure you want to delete this author?")) return;
 
-    await authorService.deleteAuthor(authorId);
-    await loadAuthors();
+    try {
+      await authorService.deleteAuthor(authorId);
+      loadAuthors();
+    } catch (error) {
+      console.error("Error deleting author:", error);
+    }
   }, [loadAuthors]);
 
   const handleSaveAuthor = useCallback(async (authorData: AuthorFormData) => {
@@ -92,14 +96,21 @@ const AuthorPage: React.FC = () => {
   }, [modalMode, selectedAuthor, loadAuthors]);
 
   const columns = useMemo(() => [
-    { field: "name", headerName: "Author Name", flex: 1 },
-    { field: "bio", headerName: "Bio", flex: 2 },
+    {
+      field: "name",
+      headerName: "Author Name",
+      flex: 1,
+    },
+    {
+      field: "bio",
+      headerName: "Bio",
+      flex: 2,
+    },
     {
       field: "birthDate",
       headerName: "Birth Date",
       flex: 1,
-      valueFormatter: (params: string) =>
-        new Date(params).toLocaleDateString(),
+      valueFormatter: (params: any) => new Date(params).toLocaleDateString(),
     },
   ], []);
 
@@ -137,35 +148,14 @@ const AuthorPage: React.FC = () => {
           onPaginationChange={setPaginationModel}
           loading={loading}
           onEdit={handleEditAuthor}
-          onDelete={(row) => handleDeleteAuthor(row._id)}
-          onSortModelChange={(model) => {
-            if (model.length > 0) {
-              setSortModel({
-                field: model[0].field,
-                sort: model[0].sort as "asc" | "desc",
-              });
-            } else {
-              setSortModel(null);
-            }
-          }}
+          onDelete={useCallback((row: any) => handleDeleteAuthor(row._id), [handleDeleteAuthor])}
           columns={columns}
-        />
-
-        {/* Filter Drawer */}
-
-        <AuthorPageFilter
-          isFilterOpen={isFilterOpen}
-          setIsFilterOpen={setIsFilterOpen}
-          filters={filters}
-          setFilters={setFilters}
-          setPaginationModel={setPaginationModel}
-          loadAuthors={loadAuthors}
         />
 
         {/* Modal */}
         <AuthorModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={useCallback(() => setIsModalOpen(false), [])}
           onSave={handleSaveAuthor}
           author={selectedAuthor}
           mode={modalMode}

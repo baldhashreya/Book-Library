@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import "../../../shared/styles/common.css";
-import type { signupFormData } from "../../../types/auth";
 import { roleService } from "../../role/roleService";
 import type { Role } from "../../../types/role";
 import { authService } from "../authService";
@@ -16,15 +17,22 @@ import {
   PermContactCalendarOutlined,
 } from "@mui/icons-material";
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  email: Yup.string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password'), undefined], 'Passwords must match')
+    .required('Confirm Password is required'),
+  role: Yup.string().required("Role is required"),
+});
+
 const Signup: React.FC = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState<signupFormData>({
-    name: "",
-    email: "",
-    password: "",
-    role: "",
-  });
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,38 +51,35 @@ const Signup: React.FC = () => {
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    console.log(formData);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      delete formData.confirmPassword;
-      await authService.register(formData);
-      alert("Account created successfully!");
-      navigate("/login");
-    } catch (error) {
-      console.error("Error creating account:", error);
-      alert("Failed to create account!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const payload = {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          role: values.role
+        };
+        await authService.register(payload);
+        alert("Account created successfully!");
+        navigate("/login");
+      } catch (error) {
+        console.error("Error creating account:", error);
+        alert("Failed to create account!");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   return (
     <div className="login-container">
@@ -82,18 +87,21 @@ const Signup: React.FC = () => {
         <LoginPageHeader />
         <h2>Create your TatvaLib account</h2>
         <p className="login-subtitle">Start managing your library in minutes</p>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <Box sx={{ "& > :not(style)": { m: 1, width: "300px" } }}>
             <TextField
+              id="name"
               label="Name"
               name="name"
               variant="outlined"
               type="text"
               placeholder="Enter name"
-              required
               disabled={loading}
-              value={formData.name}
-              onChange={handleChange}
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              helperText={formik.touched.name && formik.errors.name}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -133,15 +141,18 @@ const Signup: React.FC = () => {
             />
 
             <TextField
+              id="email"
               label="Email"
               name="email"
               variant="outlined"
               type="email"
               placeholder="Enter email"
-              required
               disabled={loading}
-              value={formData.email}
-              onChange={handleChange}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -179,15 +190,67 @@ const Signup: React.FC = () => {
             />
 
             <TextField
+              id="password"
               label="Password"
               name="password"
               variant="outlined"
               type="password"
               placeholder="Enter password"
-              required
               disabled={loading}
-              value={formData.password}
-              onChange={handleChange}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlined sx={{ color: "gray", fontSize: "20px" }} />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                width: 320,
+                /* input text */
+                "& .MuiInputBase-input": {
+                  fontSize: "12px", //text size
+                  padding: "10px", //vertical + horizontal padding
+                  color: "#6b6b6b",
+                },
+                /* outlined container */
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "8px",
+                },
+                /* label */
+                "& .MuiInputLabel-root": {
+                  fontSize: "13px",
+                  color: "#9e9e9e",
+                  marginBottom: "6px",
+                },
+                /* focused label */
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#7a7a7a",
+                },
+                /* icon spacing */
+                "& .MuiInputAdornment-root": {
+                  marginRight: "6px",
+                },
+              }}
+            />
+
+            <TextField
+              id="confirmPassword"
+              label="Confirm Password"
+              name="confirmPassword"
+              variant="outlined"
+              type="password"
+              placeholder="Confirm password"
+              disabled={loading}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -226,14 +289,16 @@ const Signup: React.FC = () => {
 
             <TextField
               select
+              id="role"
               label="Role"
               variant="outlined"
-              type="email"
               name="role"
-              required
               disabled={loading}
-              value={formData.role}
-              onChange={handleChange}
+              value={formik.values.role}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.role && Boolean(formik.errors.role)}
+              helperText={formik.touched.role && formik.errors.role}
               displayEmpty={true}
               SelectProps={{
                 displayEmpty: true,

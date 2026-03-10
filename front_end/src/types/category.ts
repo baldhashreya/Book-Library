@@ -8,5 +8,12 @@ export interface CategoryFormData {
 
 export interface Category extends CategoryFormData {
   _id: string;
-  bookCount?: number;
+  totalBookCount?: number;
+  availableBookCount?: number;
+}
+
+export interface CategorySearchParams {
+  offset?: number;
+  limit?: number;
+  order?: any[];
 }

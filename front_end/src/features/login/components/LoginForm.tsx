@@ -7,7 +7,8 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { authService } from "../authService";
 import { toast } from "react-toastify";
 import {
@@ -25,49 +26,53 @@ interface props {
   setIsLoading: any;
   loading: boolean;
   setShowForgotPassword: any;
-  email?: string;
-  password?: string;
-  setEmail?: any;
-  setPassword?: any;
 }
+
+const validationSchema = Yup.object().shape({
+  email: Yup.string()
+    .email("Enter a valid email")
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
+});
+
 export function LoginForm({
   setIsLoading,
   loading,
   setShowForgotPassword,
-  setEmail,
-  setPassword,
-  email,
-  password,
 }: props) {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await authService.login({ email: email || '', password:password || ''});
-      if (response.data && response.data.access_token) {
-        localStorage.setItem("token", response.data.access_token);
-        localStorage.setItem("refresh_token", response.data.refresh_token);
-        const user = await authService.getCurrentUser();
-        localStorage.setItem("user", JSON.stringify(user || { email }));
-        await login(email || '', password || '');
-        toast.success(response.message);
-        navigate("/dashboard");
-      } else {
-        toast.error(
-          response.message || "Login failed. Please check credentials.",
-        );
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      try {
+        const response = await authService.login(values);
+        if (response.data && response.data.access_token) {
+          localStorage.setItem("token", response.data.access_token);
+          localStorage.setItem("refresh_token", response.data.refresh_token);
+          const user = await authService.getCurrentUser();
+          localStorage.setItem("user", JSON.stringify(user || { email: values.email }));
+          toast.success(response.message);
+          navigate("/dashboard");
+        } else {
+          toast.error(
+            response.message || "Login failed. Please check credentials.",
+          );
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Unable to connect to server.");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Unable to connect to server.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   const handleToggle = () => {
     setShowPassword((prev) => !prev);
@@ -78,17 +83,21 @@ export function LoginForm({
   };
   return (
     <div className="login-form">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <Box sx={{ "& > :not(style)": { m: 1, width: "260px" } }}>
           <TextField
-            label="email"
+            id="email"
+            name="email"
+            label="Email"
             variant="outlined"
             type="email"
             placeholder="Enter email"
-            required
             disabled={loading}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -125,13 +134,17 @@ export function LoginForm({
             }}
           />
           <TextField
-            label="password"
+            id="password"
+            name="password"
+            label="Password"
             variant="outlined"
             placeholder="Enter password"
             type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
             disabled={loading}
             InputProps={{
               startAdornment: (
@@ -185,8 +198,7 @@ export function LoginForm({
               component="button"
               variant="body1"
               onClick={handleForgotPassword}
-              color="#4F46E5"
-              sx={{ fontWeight: "500", fontSize: "13px" }}
+              sx={{ color: "var(--primary-main)", fontWeight: "500", fontSize: "13px" }}
             >
               Forgot Password?
             </Link>

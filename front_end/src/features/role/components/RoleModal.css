@@ -23,7 +23,7 @@
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  color: #007fff;
+  color: var(--primary-main);
   cursor: pointer;
 }
 
@@ -51,8 +51,8 @@
 }
 
 .permission-item:hover {
-  border-color: #007fff;
-  background-color: #f0f8ff;
+  border-color: var(--primary-main);
+  background-color: var(--primary-light);
 }
 
 .permission-item input {
@@ -102,4 +102,14 @@
   margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  .permissions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
 }
