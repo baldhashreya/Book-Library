@@ -45,22 +45,7 @@ const UserPage: React.FC = () => {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
-    try {
-      setLoading(true);
-      const usersData = await userService.getUsers({
-        offset: paginationModel.page,
-        limit: paginationModel.pageSize,
-      } as SearchParams);
-      setUsers(usersData.rows);
-      setTotalCount(usersData.count);
-    } catch (error) {
-      console.error("UserPage: Error loading users:", error);
-      setUsers([]);
-      setTotalCount(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleAddUser = useCallback(() => {
     setModalMode("add");

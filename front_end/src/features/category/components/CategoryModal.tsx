@@ -6,6 +6,7 @@ import "./CategoryModal.css";
 import CancelButton from "../../../shared/components/Button/CancleButton";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import { Grid, TextField, MenuItem } from "@mui/material";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -96,74 +97,93 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         >
           {error && <div className="error-message">{error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="name">Category Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formik.values.name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={loading}
-              placeholder="Enter category name"
-              maxLength={50}
-              className={formik.touched.name && formik.errors.name ? "input-error" : ""}
-            />
-            {formik.touched.name && formik.errors.name && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
-            )}
-            <div className="char-count">{formik.values.name.length}/50</div>
-          </div>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                id="name"
+                name="name"
+                label="Category Name *"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={(formik.touched.name && formik.errors.name) || `${formik.values.name.length}/50`}
+                disabled={loading}
+                placeholder="Enter category name"
+                slotProps={{ htmlInput: { maxLength: 50 } }}
+                variant="outlined"
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                  "& .MuiOutlinedInput-root input": { padding: "10px 14px" },
+                }}
+              />
+            </Grid>
 
-          <div className="form-group">
-            <label htmlFor="status">Status *</label>
-            <select
-              id="status"
-              name="status"
-              value={formik.values.status}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={loading}
-              className={formik.touched.status && formik.errors.status ? "input-error" : ""}
-            >
-              <option value="ACTIVE">Active</option>
-              <option value="IN_ACTIVE">Inactive</option>
-            </select>
-            {formik.touched.status && formik.errors.status && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.status}</div>
-            )}
-          </div>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                select
+                fullWidth
+                id="status"
+                name="status"
+                label="Status *"
+                value={formik.values.status}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.status && Boolean(formik.errors.status)}
+                helperText={formik.touched.status && formik.errors.status}
+                disabled={loading}
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                  "& .MuiSelect-select": { padding: "10px 14px !important" },
+                  "& .MuiInputLabel-outlined:not(.MuiInputLabel-shrink)": { transform: "translate(14px, 10px) scale(1)" },
+                }}
+              >
+                <MenuItem value="ACTIVE" sx={{ fontSize: "14px" }}>Active</MenuItem>
+                <MenuItem value="IN_ACTIVE" sx={{ fontSize: "14px" }}>Inactive</MenuItem>
+              </TextField>
+            </Grid>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formik.values.description}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              disabled={loading}
-              rows={4}
-              placeholder="Optional category description"
-              maxLength={200}
-              className={formik.touched.description && formik.errors.description ? "input-error" : ""}
-            />
-            {formik.touched.description && formik.errors.description && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.description}</div>
-            )}
-            <div className="char-count">
-              {formik.values.description?.length || 0}/200
-            </div>
-          </div>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                id="description"
+                name="description"
+                label="Description"
+                value={formik.values.description}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.description && Boolean(formik.errors.description)}
+                helperText={(formik.touched.description && formik.errors.description) || `${formik.values.description?.length || 0}/200`}
+                disabled={loading}
+                placeholder="Optional category description"
+                slotProps={{ htmlInput: { maxLength: 200 } }}
+                sx={{
+                  "& .MuiInputBase-root": { fontSize: "14px" },
+                  "& .MuiInputLabel-root": { fontSize: "14px" },
+                }}
+              />
+            </Grid>
+          </Grid>
 
-          {mode === "edit" && category?.bookCount !== undefined && (
-            <div className="book-count-info">
-              <span>This category contains {category.bookCount} book(s)</span>
+          {mode === "edit" && category?.totalBookCount !== undefined && (
+            <div className="book-count-info" style={{ marginTop: '16px' }}>
+              <span>
+                {category.totalBookCount === 0
+                  ? "No books added to this category yet."
+                  : category.availableBookCount === 0
+                  ? `This category contains ${category.totalBookCount} book(s), but none are currently available.`
+                  : `This category contains ${category.totalBookCount} book(s) (${category.availableBookCount} available).`
+                }
+              </span>
             </div>
           )}
 
-          <div className="form-actions">
+          <div className="form-actions" style={{ marginTop: '24px' }}>
             <CancelButton
               onClick={onClose}
               disabled={loading}

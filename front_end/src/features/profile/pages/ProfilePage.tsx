@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import MainLayout from "../../../shared/layouts/MainLayout";
-import { useAuth } from "../../../contexts/AuthContext";
 import "./ProfilePage.css";
 import EditProfileModal from "../components/EditProfileModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
@@ -14,17 +13,22 @@ import { Box } from "@mui/material";
 import CustomTypography from "../../../shared/components/CustomTypography";
 
 const ProfilePage: React.FC = () => {
-  const { user, loading: authLoading, setUserData } = useAuth();
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
   useEffect(() => {
-    // Rely on AuthContext's loading state rather than parsing localStorage
-    if (!authLoading) {
-      setLoading(false);
+    const storedUserStr = localStorage.getItem("user");
+    if (storedUserStr) {
+      try {
+        setUser(JSON.parse(storedUserStr));
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+      }
     }
-  }, [authLoading]);
+    setLoading(false);
+  }, []);
 
   const handleUpdateProfile = useCallback(async (updatedData: UserFormData) => {
     if (!user) return;
@@ -33,24 +37,23 @@ const ProfilePage: React.FC = () => {
       await userService.updateUser(user._id, updatedData);
       const response = await userService.getUserById(user._id);
       localStorage.setItem("user", JSON.stringify(response));
-      setUserData(response); // Update the AuthContext user
+      setUser(response);
     } catch (error) {
       console.error("Error updating profile:", error);
     }
-  }, [user, setUserData]);
+  }, [user]);
 
   const handleUpdatePassword = useCallback(async (password: string) => {
     if (!user) return;
     try {
       await authService.resetPassword(user.email, password);
-      // user instance doesn't actually need to be set to a new object unless response changed
-      setUserData({ ...user }); 
+      setUser({ ...user }); 
     } catch (error) {
       console.error("Error updating password:", error);
     }
-  }, [user, setUserData]);
+  }, [user]);
 
-  if (loading || authLoading) {
+  if (loading) {
     return (
       <MainLayout>
         <div className="loading-state">

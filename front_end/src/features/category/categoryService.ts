@@ -1,12 +1,11 @@
-import type { Category, CategoryFormData } from "../../types/category";
-import type { SearchParams } from "../../types/role";
+import type { Category, CategoryFormData, CategorySearchParams } from "../../types/category";
 import { apiService } from "../../services/api";
 
 export const categoryService = {
   // Get all categories
-  async searchCategories(SearchParams: SearchParams) {
+  async searchCategories(params: CategorySearchParams) {
     try {
-      const result = await apiService.post("/categories/search", SearchParams);
+      const result = await apiService.post("/categories/search", params);
       return result.data || [];
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -17,8 +16,8 @@ export const categoryService = {
   // Get category by ID
   async getCategoryById(id: string): Promise<Category | null> {
     try {
-      const data = await apiService.get(`/categories/${id}`);
-      return data.category || null;
+      const result = await apiService.get(`/categories/${id}`);
+      return result.data || null;
     } catch (error) {
       console.error("Error fetching category:", error);
       throw error;
@@ -29,7 +28,7 @@ export const categoryService = {
   async createCategory(categoryData: CategoryFormData): Promise<Category> {
     try {
       const data = await apiService.post("/categories", categoryData);
-      return data.category;
+      return data.data;
     } catch (error) {
       console.error("Error creating category:", error);
       throw error;
@@ -43,7 +42,7 @@ export const categoryService = {
   ): Promise<Category> {
     try {
       const data = await apiService.put(`/categories/${id}`, categoryData);
-      return data.category;
+      return data.data;
     } catch (error) {
       console.error("Error updating category:", error);
       throw error;

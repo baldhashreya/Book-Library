@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAuth } from "../../../contexts/AuthContext";
 import { authService } from "../authService";
 import { toast } from "react-toastify";
 import {
@@ -41,7 +40,6 @@ export function LoginForm({
   loading,
   setShowForgotPassword,
 }: props) {
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -60,7 +58,6 @@ export function LoginForm({
           localStorage.setItem("refresh_token", response.data.refresh_token);
           const user = await authService.getCurrentUser();
           localStorage.setItem("user", JSON.stringify(user || { email: values.email }));
-          await login(values.email, values.password);
           toast.success(response.message);
           navigate("/dashboard");
         } else {

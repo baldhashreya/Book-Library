@@ -14,7 +14,6 @@ const CategoryPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedRow, setSelectedRow] = useState<string[] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
@@ -23,13 +22,16 @@ const CategoryPage: React.FC = () => {
     page: 0,
     pageSize: 5,
   });
+  
+  const [sortModel, setSortModel] = useState<any[]>([]);
 
   const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
       const categoriesData = await categoryService.searchCategories({
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
+        order: sortModel.length > 0 ? [[`${sortModel[0].field}`, `${sortModel[0].sort}`]] : undefined
       });
 
       setCategories(categoriesData.rows);
@@ -39,7 +41,7 @@ const CategoryPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, sortModel]);
 
   useEffect(() => {
     loadCategories();
@@ -57,54 +59,58 @@ const CategoryPage: React.FC = () => {
     setIsModalOpen(true);
   }, []);
 
-  const handleDeleteCategory = useCallback(async () => {
-    if (!selectedRow || selectedRow.length === 0) return;
-    const categoryId = selectedRow[0];
-    const category = categories.find((cat) => cat._id === categoryId);
-    if (!category) {
-      alert("Category not found.");
-      return;
-    }
+  const handleDeleteCategory = useCallback(
+    async (categoryId: string) => {
+      const category = categories.find((cat) => cat._id === categoryId);
+      if (!category) {
+        alert("Category not found.");
+        return;
+      }
 
-    if (category?.bookCount && category.bookCount > 0) {
-      alert(
-        `Cannot delete category "${category.name}" because it contains ${category.bookCount} book(s). Please move or delete the books first.`,
-      );
-      return;
-    }
+      if (category?.totalBookCount && category.totalBookCount > 0) {
+        alert(
+          `Cannot delete category "${category.name}" because it contains ${category.totalBookCount} book(s). Please move or delete the books first.`,
+        );
+        return;
+      }
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete the category "${category.name}"?`,
-      )
-    ) {
+      if (
+        window.confirm(
+          `Are you sure you want to delete the category "${category.name}"?`,
+        )
+      ) {
+        try {
+          await categoryService.deleteCategory(categoryId);
+          loadCategories();
+          setIsModalOpen(false);
+        } catch (error) {
+          console.error("Error deleting category:", error);
+          alert("Error deleting category. Please try again.");
+        }
+      }
+    },
+    [loadCategories]
+  );
+
+  const handleSaveCategory = useCallback(
+    async (categoryData: CategoryFormData) => {
       try {
-        await categoryService.deleteCategory(categoryId);
-        loadCategories();
+        if (modalMode === "add") {
+          await categoryService.createCategory(categoryData);
+        } else if (modalMode === "edit" && selectedCategory) {
+          await categoryService.updateCategory(
+            selectedCategory._id,
+            categoryData,
+          );
+        }
         setIsModalOpen(false);
       } catch (error) {
-        console.error("Error deleting category:", error);
-        alert("Error deleting category. Please try again.");
+        console.error("Error saving category:", error);
+        throw error;
       }
-    }
-  }, [categories, selectedRow, loadCategories]);
-
-  const handleSaveCategory = useCallback(async (categoryData: CategoryFormData) => {
-    try {
-      if (modalMode === "add") {
-        await categoryService.createCategory(categoryData);
-      } else if (modalMode === "edit" && selectedCategory) {
-        await categoryService.updateCategory(
-          selectedCategory._id,
-          categoryData,
-        );
-      }
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error saving category:", error);
-      throw error;
-    }
-  }, [modalMode, selectedCategory]);
+    },
+    [modalMode, selectedCategory],
+  );
 
   const getStatusBadge = useCallback((status: string) => {
     const statusConfig = {
@@ -119,40 +125,53 @@ const CategoryPage: React.FC = () => {
     );
   }, []);
 
-  const columns = useMemo(() => [
-    {
-      field: "name",
-      headerName: "Category Name",
-      flex: 1,
-      valueGetter: (_value: any, row: any) => row.name || "",
-    },
-    {
-      field: "description",
-      headerName: "Description",
-      flex: 1,
-      valueGetter: (_value: any, row: any) => row.description || "",
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 1,
-      renderCell: (params: any) => getStatusBadge(params.value),
-    },
-    {
-      field: "bookCount",
-      headerName: "Books Count",
-      flex: 1,
-      renderCell: (params: any) => (
-        <span
-          className={`count-badge ${
-            params.value ? "has-books" : "no-books"
-          }`}
-        >
-          {params.value || 0}
-        </span>
-      ),
-    },
-  ], [getStatusBadge]);
+  const columns = useMemo(
+    () => [
+      {
+        field: "name",
+        headerName: "Category Name",
+        flex: 1,
+        valueGetter: (_value: any, row: any) => row.name || "",
+      },
+      {
+        field: "description",
+        headerName: "Description",
+        flex: 1,
+        valueGetter: (_value: any, row: any) => row.description || "",
+      },
+      {
+        field: "status",
+        headerName: "Status",
+        flex: 1,
+        renderCell: (params: any) => getStatusBadge(params.value),
+      },
+      {
+        field: "totalBookCount",
+        headerName: "Total Books",
+        flex: 1,
+        renderCell: (params: any) => (
+          <span
+            className={`count-badge ${params.value ? "has-books" : "no-books"}`}
+          >
+            {params.value || 0}
+          </span>
+        ),
+      },
+      {
+        field: "availableBookCount",
+        headerName: "Available Books",
+        flex: 1,
+        renderCell: (params: any) => (
+          <span
+            className={`count-badge ${params.value ? "has-books" : "no-books"}`}
+          >
+            {params.value || 0}
+          </span>
+        ),
+      },
+    ],
+    [getStatusBadge],
+  );
 
   const filteredCategories = categories;
 
@@ -182,11 +201,10 @@ const CategoryPage: React.FC = () => {
               onPaginationChange={setPaginationModel}
               loading={loading}
               onEdit={handleEditCategory}
-              onDelete={useCallback((row: any) => {
-                setSelectedRow([row._id]);
-                handleDeleteCategory();
-              }, [handleDeleteCategory])}
+              onDelete={(row: any) => handleDeleteCategory(row._id)}
               columns={columns}
+              sortModel={sortModel}
+              onSortModelChange={setSortModel}
             />
           </div>
         }

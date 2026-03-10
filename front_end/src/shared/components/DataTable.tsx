@@ -8,6 +8,8 @@ interface DataTableProps {
   columns: any[];
   paginationModel: { page: number; pageSize: number };
   onPaginationChange: (model: { page: number; pageSize: number }) => void;
+  sortModel?: any[][];
+  onSortModelChange?: (model: any) => void;
   rowCount: number;
   onEdit: (row: any) => void;
   onDelete: (row: any) => void;
@@ -22,6 +24,8 @@ export default function DataTable({
   columns,
   paginationModel,
   onPaginationChange,
+  sortModel,
+  onSortModelChange,
   rowCount,
   onEdit,
   onDelete,
@@ -35,7 +39,7 @@ export default function DataTable({
     type: "actions",
     headerName: "Actions",
     width: 120,
-    getActions: (params) => [
+    getActions: (params: any) => [
       <GridActionsCellItem
         icon={<EditIcon color="primary" />}
         label="Edit"
@@ -59,6 +63,9 @@ export default function DataTable({
         paginationMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationChange}
+        sortingMode={sortModel && onSortModelChange ? "server" : "client"}
+        sortModel={sortModel}
+        onSortModelChange={onSortModelChange}
         rowCount={rowCount}
         pageSizeOptions={[5, 10, 20]}
         loading={loading}

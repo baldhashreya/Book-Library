@@ -1,4 +1,7 @@
- /* .modal-content max-width in CategoryModal is 500px, so we let index.css default to 600px safely, or we can keep a max-width override here if desirable. But standardizing to 600px per the user wish */ 
+.modal-content {
+  max-width: 500px !important;
+}
+
 .category-form {
   padding: 30px;
 }
