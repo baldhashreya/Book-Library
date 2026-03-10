@@ -47,6 +47,7 @@ class ApiService {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             const errorData: any = error.response.data;
+            console.log("Error details:", errorData);
             throw new Error(errorData?.message || `Request failed with status ${error.response.status}`);
         } else if (error.request) {
             // The request was made but no response was received

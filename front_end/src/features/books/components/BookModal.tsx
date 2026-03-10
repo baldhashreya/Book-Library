@@ -45,6 +45,7 @@ const BookModal: React.FC<BookModalProps> = ({
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {

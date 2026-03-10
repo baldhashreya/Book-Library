@@ -1,40 +1,26 @@
 import React, { useState, useEffect, useCallback } from "react";
-import type { User, UserFormData } from "../../../types/user";
-import { userService } from "../../users/userService";
-import "./RoleModal.css";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import ClearRoundedIcon from "@mui/icons-material/ClearRounded";
-import IconButtons from "../../../shared/components/Button/IconButtons";
+import MainLayout from "../../../shared/layouts/MainLayout";
+import RoleModal from "../components/RoleModal";
+import type { Role, RoleFormData, RoleSearchParams } from "../../../types/role";
+import { roleService } from "../roleService";
+import AddIcon from "@mui/icons-material/Add";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import { Grid } from "@mui/material";
+import "../../../shared/styles/button.css";
+import DataTable from "../../../shared/components/DataTable";
+import { toast } from "react-toastify";
 
-interface UserModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (userData: UserFormData) => void;
-  user?: User | null;
-  mode: "add" | "edit";
-}
+const RolePage: React.FC = () => {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
-const UserModal: React.FC<UserModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  user,
-  mode,
-}) => {
-  const [formData, setFormData] = useState<UserFormData>({
-    name: "",
-    email: "",
-    role: "",
-    status: "active",
-    phone: 0,
-    address: "",
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 5,
   });
-
-  useEffect(() => {
-    loadRoles();
-  }, [paginationModel]);
 
   const loadRoles = useCallback(async () => {
     try {
@@ -42,88 +28,60 @@ const UserModal: React.FC<UserModalProps> = ({
       const roleData = await roleService.searchRoles({
         offset: paginationModel.page,
         limit: paginationModel.pageSize,
-      } as SearchParams);
-      setRoles(roleData.data.rows);
-      setTotalCount(roleData.data.count);
+      } as RoleSearchParams);
+      setRoles((roleData as any).data?.rows || (roleData as any).rows || []);
+      setTotalCount((roleData as any).data?.count || (roleData as any).count || 0);
     } catch (error) {
       console.error("RolePage: Error loading roles:", error);
       setRoles([]);
       setTotalCount(0);
+      toast.error("Error loading roles");
     } finally {
       setLoading(false);
     }
-  }, [mode, formData.role]);
+  }, [paginationModel.page, paginationModel.pageSize]);
 
   useEffect(() => {
-    if (isOpen) {
-      loadRoles();
-      // ... rest of logic
-    }
-  }, [isOpen, loadRoles]); // Add loadRoles here 
+    loadRoles();
+  }, [loadRoles]);
 
-  const handleChange = useCallback((
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = e.target;
+  const handleAddRole = useCallback(() => {
+    setModalMode("add");
+    setSelectedRole(null);
+    setIsModalOpen(true);
+  }, []);
 
-    // Don't allow role changes in edit mode
-    if (mode === "edit" && name === "role") {
-      return;
-    }
+  const handleEditRole = useCallback((role: Role) => {
+    setModalMode("edit");
+    setSelectedRole(role);
+    setIsModalOpen(true);
+  }, []);
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error) setError("");
-  }, [mode, error]);
-
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // Validate form
-      if (!formData.name.trim()) {
-        setError("Name is required");
-        return;
-      }
-
-      if (!formData.email.trim()) {
-        setError("Email is required");
-        return;
-      }
-
-      if (!formData.role) {
-        setError("Role is required");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError("Please enter a valid email address");
-        return;
-      }
-    }
-  }, [formData, onSave, onClose]);
-
-  const handleSaveRole = async (data: Role & { _id?: string }) => {
-    try {
-      if (modalMode === "edit" && selectedRole._id) {
-        const response = await roleService.updateRole(selectedRole._id, data);
+  const handleDelete = useCallback(async (roleId: string) => {
+    if (window.confirm(`Delete this role?`)) {
+      try {
+        await roleService.deleteRole(roleId);
+        toast.success("Role deleted successfully");
         await loadRoles();
-        setIsModalOpen(false);
-        toast.success(response.message || "Role updated successfully");
+      } catch (error: any) {
+        console.error("Delete error:", error);
+        toast.error(error.message || "Deletion failed.");
+      }
+    }
+  }, [loadRoles]);
+
+  const handleSaveRole = async (data: RoleFormData) => {
+    try {
+      if (modalMode === "edit" && selectedRole?._id) {
+        const response = await roleService.updateRole(selectedRole._id, data);
+        toast.success((response as any).message || "Role updated successfully");
       } else {
         const response = await roleService.createRole(data);
-        toast.success(response.message || "Role created successfully");
-        await loadRoles();
-        setIsModalOpen(false);
+        toast.success((response as any).message || "Role created successfully");
       }
-    } catch (err) {
+      setIsModalOpen(false);
+      await loadRoles();
+    } catch (err: any) {
       console.error("Save role error:", err);
       toast.error(err.message || "An error occurred while saving the role");
     }
@@ -147,7 +105,7 @@ const UserModal: React.FC<UserModalProps> = ({
         {loading ?
           <div className="loading-state">
             <div className="loading-spinner"></div>
-            <p>Loading users...</p>
+            <p>Loading roles...</p>
           </div>
         : <div className="roles-table-container">
             <DataTable
@@ -157,28 +115,21 @@ const UserModal: React.FC<UserModalProps> = ({
               onPaginationChange={setPaginationModel}
               loading={loading}
               onEdit={handleEditRole}
-              onDelete={(row) => {
-                setSelectedRow([row._id]);
-                handleDelete();
-              }}
+              onDelete={(row) => handleDelete(row._id)}
               columns={[
                 {
                   field: "name",
                   headerName: "Name",
                   flex: 1,
-                  valueGetter: (_value, row) => row.name || "N/A",
+                  valueGetter: (_value: any, row: any) => row.name || "N/A",
                 },
-
                 {
                   field: "description",
                   headerName: "Description",
                   flex: 1,
-                  valueGetter: (_value, row) => row.description || "N/A",
+                  valueGetter: (_value: any, row: any) => row.description || "N/A",
                 },
               ]}
-              checkboxSelection={true}
-              disableMultipleRowSelection={true}
-              onRowSelect={setSelectedRow}
             />
           </div>
         }

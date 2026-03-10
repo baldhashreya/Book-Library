@@ -36,13 +36,6 @@
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
 }
 
-.error-message {
-  background-color: rgba(255, 0, 0, 0.1);
-  color: #8b0000;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-weight: 500;
-  border: 1px solid rgba(255, 0, 0, 0.2);
+.user-form {
+  padding: 30px;
 }
