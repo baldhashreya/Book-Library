@@ -4,9 +4,7 @@ import * as Yup from "yup";
 import type { User, UserFormData } from "../../../types/user";
 import { userService } from "../userService";
 import "./UserModal.css";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import { Grid } from "@mui/material";
+import { Grid, TextField, MenuItem } from "@mui/material";
 import ModalHeader from "../../../shared/components/ModalHeader";
 
 interface UserModalProps {
@@ -107,6 +105,26 @@ const UserModal: React.FC<UserModalProps> = ({
 
   if (!isOpen) return null;
 
+  const customInputStyles = {
+    "& .MuiInputBase-root": {
+      fontSize: "14px", 
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "14px", 
+    },
+    "& .MuiOutlinedInput-root": {
+      "& input": {
+        padding: "10px 14px", 
+      },
+    },
+    "& .MuiSelect-select": {
+      padding: "10px 14px !important", 
+    },
+    "& .MuiInputLabel-outlined:not(.MuiInputLabel-shrink)": {
+      transform: "translate(14px, 10px) scale(1)", 
+    }
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content-user">
@@ -124,139 +142,116 @@ const UserModal: React.FC<UserModalProps> = ({
             spacing={2}
           >
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Name*</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  placeholder="Enter Name"
-                  maxLength={30}
-                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
-                />
-                {formik.touched.name && formik.errors.name && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                id="name"
+                name="name"
+                label="Name *"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                placeholder="Enter Name"
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={(formik.touched.name && formik.errors.name) || ""}
+                slotProps={{ htmlInput: { maxLength: 30 } }}
+                sx={customInputStyles}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="role">Role *</label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formik.values.role || ""}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  className={formik.touched.role && formik.errors.role ? "input-error" : ""}
-                >
-                  <option
-                    value=""
-                    disabled
-                    hidden
-                  >
-                    -- Select Role --
-                  </option>
-                  {roles.map((role) => (
-                    <option
-                      key={role.value}
-                      value={role.value}
-                    >
-                      {role.label}
-                    </option>
-                  ))}
-                </select>
-                {formik.touched.role && formik.errors.role && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.role}</div>
-                )}
-              </div>
+              <TextField
+                select
+                fullWidth
+                id="role"
+                name="role"
+                label="Role *"
+                value={formik.values.role || ""}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                error={formik.touched.role && Boolean(formik.errors.role)}
+                helperText={(formik.touched.role && formik.errors.role) || ""}
+                sx={customInputStyles}
+              >
+                <MenuItem value="" disabled sx={{ fontSize: "14px" }}>-- Select Role --</MenuItem>
+                {roles.map((role) => (
+                  <MenuItem key={role.value} value={role.value} sx={{ fontSize: "14px" }}>
+                    {role.label}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  placeholder="Enter email address"
-                  className={formik.touched.email && formik.errors.email ? "input-error" : ""}
-                />
-                {formik.touched.email && formik.errors.email && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.email}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                type="email"
+                id="email"
+                name="email"
+                label="Email *"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                placeholder="Enter email address"
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={(formik.touched.email && formik.errors.email) || ""}
+                sx={customInputStyles}
+              />
             </Grid>
 
             <Grid size={{ xs: 12, md: 4 }}>
               {mode === "edit" && user && (
-                <div className="form-group">
-                  <label htmlFor="status">Status *</label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formik.values.status}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    disabled={loading}
-                    className={formik.touched.status && formik.errors.status ? "input-error" : ""}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                  {formik.touched.status && formik.errors.status && (
-                    <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.status}</div>
-                  )}
-                </div>
+                <TextField
+                  select
+                  fullWidth
+                  id="status"
+                  name="status"
+                  label="Status *"
+                  value={formik.values.status}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  disabled={loading}
+                  error={formik.touched.status && Boolean(formik.errors.status)}
+                  helperText={(formik.touched.status && formik.errors.status) || ""}
+                >
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="inactive">Inactive</MenuItem>
+                </TextField>
               )}
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <div className="form-group">
-                <label htmlFor="phone">Phone *</label>
-                <input
-                  type="number"
-                  id="phone"
-                  name="phone"
-                  value={formik.values.phone}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  placeholder="Enter phone"
-                  className={formik.touched.phone && formik.errors.phone ? "input-error" : ""}
-                />
-                {formik.touched.phone && formik.errors.phone && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.phone}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                type="number"
+                id="phone"
+                name="phone"
+                label="Phone *"
+                value={formik.values.phone}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                placeholder="Enter phone"
+                error={formik.touched.phone && Boolean(formik.errors.phone)}
+                helperText={(formik.touched.phone && formik.errors.phone) || ""}
+              />
             </Grid>
 
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="address">Address*</label>
-                <input
-                  type="text"
-                  id="address"
-                  name="address"
-                  value={formik.values.address}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  placeholder="Enter address"
-                  className={formik.touched.address && formik.errors.address ? "input-error" : ""}
-                />
-                {formik.touched.address && formik.errors.address && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.address}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                id="address"
+                name="address"
+                label="Address *"
+                value={formik.values.address}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                placeholder="Enter address"
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={(formik.touched.address && formik.errors.address) || ""}
+                sx={customInputStyles}
+              />
             </Grid>
           </Grid>
 

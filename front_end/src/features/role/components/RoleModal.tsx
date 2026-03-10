@@ -3,9 +3,9 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Role, RoleFormData, RolePermission } from "../../../types/role";
 import { roleService, availablePermissions } from "../roleService";
-import CancelButton from "../../../shared/components/Button/CancleButton";
-import CustomButton from "../../../shared/components/Button/CustomButton";
+import FormAction from "../../../shared/components/FormAction";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import { TextField } from "@mui/material";
 
 interface RoleModalProps {
   isOpen: boolean;
@@ -131,24 +131,21 @@ const RoleModal: React.FC<RoleModalProps> = ({
         >
           {error && <div className="error-message">{error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="name">Role Name *</label>
-            <input
-              type="text"
+          <div className="form-group" style={{ marginBottom: "2rem" }}>
+            <TextField
+              fullWidth
               id="name"
               name="name"
+              label="Role Name *"
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={loading}
               placeholder="Enter role name"
-              maxLength={50}
-              className={formik.touched.name && formik.errors.name ? "input-error" : ""}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              helperText={(formik.touched.name && formik.errors.name) || `${formik.values.name.length}/50`}
+              slotProps={{ htmlInput: { maxLength: 50 }, formHelperText: { sx: { display: 'flex', justifyContent: 'space-between' } } }}
             />
-            {formik.touched.name && formik.errors.name && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
-            )}
-            <div className="char-count">{formik.values.name.length}/50</div>
           </div>
 
           <div className="form-group">
@@ -204,24 +201,23 @@ const RoleModal: React.FC<RoleModalProps> = ({
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Description *</label>
-            <textarea
+          <div className="form-group" style={{ marginTop: "2rem" }}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
               id="description"
               name="description"
+              label="Description *"
               value={formik.values.description}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={loading}
-              rows={3}
               placeholder="Enter role description"
-              maxLength={200}
-              className={formik.touched.description && formik.errors.description ? "input-error" : ""}
+              error={formik.touched.description && Boolean(formik.errors.description)}
+              helperText={(formik.touched.description && formik.errors.description) || `${formik.values.description.length}/200`}
+              slotProps={{ htmlInput: { maxLength: 200 }, formHelperText: { sx: { display: 'flex', justifyContent: 'space-between' } } }}
             />
-            {formik.touched.description && formik.errors.description && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.description}</div>
-            )}
-            <div className="char-count">{formik.values.description.length}/200</div>
           </div>
 
           <FormAction

@@ -194,6 +194,14 @@ const BookPage: React.FC = () => {
           <div className="header-right">
             <CustomButton 
               variant="outlined"
+              onClick={() => setIsFilterOpen(true)}
+              label="Filter"
+              className="filter-button"
+              disabled={loading}
+              startIcon={<FilterListIcon />}
+            />
+            <CustomButton 
+              variant="outlined"
               onClick={handleAddBook}
               label="Add Book"
               className="add-button"
@@ -212,16 +220,6 @@ const BookPage: React.FC = () => {
               disabled={!selectedRow || selectedRow.length === 0}
               startIcon={<AssignmentIcon />}
             />
-
-            <CustomButton 
-              variant="outlined"
-              onClick={() => setIsFilterOpen(true)}
-              label="Filter"
-              className="filter-button"
-              disabled={loading}
-              startIcon={<FilterListIcon />}
-            />
-            
           </div>
         </div>
       <div className="main-page">
@@ -239,7 +237,7 @@ const BookPage: React.FC = () => {
                 columns={columns}
                 checkboxSelection={true}
                 disableMultipleRowSelection={true}
-                onRowSelect={handleRowSelection}
+                onRowSelect={setSelectedRow}
               />
 
         <BookModal

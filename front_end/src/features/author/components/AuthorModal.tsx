@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import type { Author, AuthorFormData } from "../../../types/author";
+import type { AuthorFormData } from "../../../types/author";
 import "./AuthorModal.css";
 import "../../../shared/styles/model.css";
 import * as Yup from "yup";
-import { Grid } from "@mui/material";
+import { Grid, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import ModalHeader from "../../../shared/components/ModalHeader";
 import FormAction from "../../../shared/components/FormAction";
@@ -70,63 +70,55 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
           >
             {/* Author Name */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Author Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  className={formik.touched.name && formik.errors.name ? "input-error" : ""}
-                />
-                {formik.touched.name && formik.errors.name && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.name}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                id="name"
+                name="name"
+                label="Author Name *"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={(formik.touched.name && formik.errors.name) || ""}
+              />
             </Grid>
 
             {/* Birth Date */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="isbn">Birth Date *</label>
-                <input
-                  type="date"
-                  id="birthDate"
-                  name="birthDate"
-                  value={formik.values.birthDate as any}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  className={formik.touched.birthDate && formik.errors.birthDate ? "input-error" : ""}
-                />
-                {formik.touched.birthDate && formik.errors.birthDate && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.birthDate as string}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                type="date"
+                id="birthDate"
+                name="birthDate"
+                label="Birth Date *"
+                value={formik.values.birthDate as any}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                slotProps={{ inputLabel: { shrink: true } }}
+                error={formik.touched.birthDate && Boolean(formik.errors.birthDate)}
+                helperText={(formik.touched.birthDate && formik.errors.birthDate) ? (formik.errors.birthDate as string) : ""}
+              />
             </Grid>
 
             {/* Bio */}
             <Grid size={12}>
-              <div className="form-group">
-                <label htmlFor="bio">Bio</label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formik.values.bio}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={loading}
-                  rows={4}
-                  placeholder="Optional author bio"
-                  className={formik.touched.bio && formik.errors.bio ? "input-error" : ""}
-                />
-                {formik.touched.bio && formik.errors.bio && (
-                  <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.bio}</div>
-                )}
-              </div>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                id="bio"
+                name="bio"
+                label="Bio"
+                value={formik.values.bio}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                disabled={loading}
+                placeholder="Optional author bio"
+                error={formik.touched.bio && Boolean(formik.errors.bio)}
+                helperText={(formik.touched.bio && formik.errors.bio) || ""}
+              />
             </Grid>
           </Grid>
 

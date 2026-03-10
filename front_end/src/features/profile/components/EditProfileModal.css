@@ -29,27 +29,6 @@
   display: block;
 }
 
-/* Better input fields */
-.form-grid input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border-main);
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.form-grid input:focus {
-  outline: none;
-  border-color: var(--primary-main);
-  box-shadow: 0 0 0 2px var(--focus-ring);
-}
-
-/* Disabled field */
-.form-grid input:disabled {
-  background: var(--bg-disabled);
-  color: var(--text-muted);
-}
 
 .save-btn {
   background: var(--primary-main);

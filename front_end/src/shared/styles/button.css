@@ -43,6 +43,7 @@
 
 .assign-selected-btn {
   background: var(--success-main) !important;
+  height: 40px !important;
 }
 
 .assign-selected-btn:hover:not(:disabled) {
@@ -70,10 +71,10 @@
 .add-button {
   text-transform: none !important;
   font-weight: 700 !important;
-  border: 1.3px solid !important;
-  margin-top: 5px !important;
+  border: 1px solid #4F46E5 !important;
   background-color: #4F46E5 !important;
   color: #FFFFFF !important;
+  height: 40px !important;
 }
 
 .add-button:hover {
@@ -83,23 +84,23 @@
 }
 
 .add-button .MuiButton-startIcon {
-  margin-right: 2px; 
+  margin-right: 2px;
 }
 
 .filter-button {
   text-transform: none !important;
   font-weight: 700 !important;
-  border: 1.3px solid !important;
-  margin-top: 5px !important;
+  border: 1px solid gray !important;
   color: gray !important;
+  height: 40px !important;
 }
 
 .filter-button:hover {
-  background-color: #EEF2FF !important;
   color: white !important;
   background-color: gray !important;
+  border: 1px solid gray !important;
 }
 
 .filter-button .MuiButton-startIcon {
-  margin-right: 2px; 
+  margin-right: 2px;
 }

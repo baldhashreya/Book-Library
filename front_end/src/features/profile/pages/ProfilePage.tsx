@@ -19,6 +19,9 @@ const ProfilePage: React.FC = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
+  const handleCloseEdit = useCallback(() => setIsEditOpen(false), []);
+  const handleClosePassword = useCallback(() => setIsPasswordOpen(false), []);
+
   useEffect(() => {
     const storedUserStr = localStorage.getItem("user");
     if (storedUserStr) {
@@ -34,12 +37,12 @@ const ProfilePage: React.FC = () => {
   const handleUpdateProfile = useCallback(async (updatedData: UserFormData) => {
     if (!user) return;
     try {
-      await userService.updateUser(userData._id, updatedData);
+      await userService.updateUser(user._id, updatedData);
       toast.success("Profile updated successfully!");
-      const response = await userService.getUserById(userData._id);
+      const response = await userService.getUserById(user._id);
       localStorage.setItem("user", JSON.stringify(response.data));
-      setUserData(response);
-    } catch (error) {
+      setUser(response.data);
+    } catch (error: any) {
       console.error("Error updating profile:", error);
       toast.error(error.message || "");
     }
@@ -86,8 +89,8 @@ const ProfilePage: React.FC = () => {
             {/* Header */}
             <div className="profile-header">
               <div className="avatar">
-                {userData.profile_icon ?
-                  <img src={userData.profile_icon} />
+                {user.profile_icon ?
+                  <img src={user.profile_icon} />
                 : <AccountCircleIcon
                     sx={{
                       height: "100%",
@@ -102,37 +105,36 @@ const ProfilePage: React.FC = () => {
               <div>
                 <div className="user-details">
                   <div className="user-info">
-                    <h3>{userData.userName || userData.name}</h3>
-                    <span className="role">{userData.role?.name}</span>
+                    <h3>{user.userName || user.name}</h3>
+                    <span className="role">{user.role?.name}</span>
                   </div>
 
                   <div
                     className={`status-badge ${
-                      userData.status === "active" ? "active" : "inactive"
+                      user.status === "active" ? "active" : "inactive"
                     }`}
                   >
-                    {userData.status === "active" ? "Active" : "Inactive"}
+                    {user.status === "active" ? "Active" : "Inactive"}
                   </div>
                 </div>
                 <div className="personal_details">
                   <div>
                     <label>Email</label>
-                    <p>{userData.email}</p>
+                    <p>{user.email}</p>
                   </div>
 
                   <div>
                     <label>Phone</label>
-                    <p>{userData.contactInfo?.phone || "N/A"}</p>
+                    <p>{user.contactInfo?.phone || "N/A"}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Info Grid */}
             <div className="info-grid">
               <div>
                 <label>Address</label>
-                <p>{userData.contactInfo?.address || "N/A"}</p>
+                <p>{user.contactInfo?.address || "N/A"}</p>
               </div>
             </div>
 
@@ -162,7 +164,7 @@ const ProfilePage: React.FC = () => {
       {isEditOpen && (
         <EditProfileModal
           isOpen={isEditOpen}
-          onClose={useCallback(() => setIsEditOpen(false), [])}
+          onClose={handleCloseEdit}
           user={user}
           onSave={(updatedData) => handleUpdateProfile(updatedData)}
         />
@@ -170,7 +172,7 @@ const ProfilePage: React.FC = () => {
 
       {isPasswordOpen && (
         <ChangePasswordModal
-          onClose={useCallback(() => setIsPasswordOpen(false), [])}
+          onClose={handleClosePassword}
           onSave={(data: string) => handleUpdatePassword(data)}
         />
       )}

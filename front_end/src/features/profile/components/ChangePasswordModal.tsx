@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import "./ChangePasswordModal.css";
 import FormAction from "../../../shared/components/FormAction";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import { TextField } from "@mui/material";
 
 const validationSchema = Yup.object().shape({
   oldPassword: Yup.string().required("Old password is required"),
@@ -44,52 +45,52 @@ const ChangePasswordModal = ({ onClose, onSave }: any) => {
         <ModalHeader title="Change Password" onClose={onClose} />
 
         <form className="form-grid" onSubmit={formik.handleSubmit}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label>Old Password</label>
-            <input
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+            <TextField
+              fullWidth
               type="password"
+              id="oldPassword"
               name="oldPassword"
+              label="Old Password *"
               value={formik.values.oldPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={loading}
-              className={formik.touched.oldPassword && formik.errors.oldPassword ? "input-error" : ""}
+              error={formik.touched.oldPassword && Boolean(formik.errors.oldPassword)}
+              helperText={(formik.touched.oldPassword && formik.errors.oldPassword) || ""}
             />
-            {formik.touched.oldPassword && formik.errors.oldPassword && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.oldPassword as string}</div>
-            )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label>New Password</label>
-            <input
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+            <TextField
+              fullWidth
               type="password"
+              id="newPassword"
               name="newPassword"
+              label="New Password *"
               value={formik.values.newPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={loading}
-              className={formik.touched.newPassword && formik.errors.newPassword ? "input-error" : ""}
+              error={formik.touched.newPassword && Boolean(formik.errors.newPassword)}
+              helperText={(formik.touched.newPassword && formik.errors.newPassword) || ""}
             />
-            {formik.touched.newPassword && formik.errors.newPassword && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.newPassword as string}</div>
-            )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label>Confirm Password</label>
-            <input
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '16px' }}>
+            <TextField
+              fullWidth
               type="password"
+              id="confirmPassword"
               name="confirmPassword"
+              label="Confirm Password *"
               value={formik.values.confirmPassword}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={loading}
-              className={formik.touched.confirmPassword && formik.errors.confirmPassword ? "input-error" : ""}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={(formik.touched.confirmPassword && formik.errors.confirmPassword) || ""}
             />
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <div className="error-text" style={{ color: 'red', fontSize: '12px', marginTop: '4px' }}>{formik.errors.confirmPassword as string}</div>
-            )}
           </div>
           <FormAction
             loading={loading}
