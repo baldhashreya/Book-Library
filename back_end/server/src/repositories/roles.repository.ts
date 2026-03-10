@@ -1,4 +1,4 @@
-import  { RoleModel, Roles } from "common";
+import { RoleModel, Roles } from "common";
 import { RolesSearchParams } from "../interface/common.interface";
 
 export class RolesRepository {
@@ -8,7 +8,7 @@ export class RolesRepository {
 
   public async updateRoleById(
     param: RoleModel,
-    id: string
+    id: string,
   ): Promise<RoleModel | null> {
     return Roles.findByIdAndUpdate({ _id: id }, { ...param });
   }
@@ -17,7 +17,9 @@ export class RolesRepository {
     return Roles.findByIdAndDelete({ _id: id });
   }
 
-  public async searchRoles(params: RolesSearchParams): Promise<RoleModel[]> {
+  public async searchRoles(
+    params: RolesSearchParams,
+  ): Promise<{ rows: RoleModel[]; count: number }> {
     let query = {};
     if (params.name) {
       query = { ...query, name: { $regex: params.name, $options: "i" } };
@@ -40,10 +42,12 @@ export class RolesRepository {
     } else {
       order = { createdAt: -1 };
     }
-    return Roles.find(query)
+    const count = await Roles.countDocuments(query);
+    const rows = await Roles.find(query)
       .sort(order)
       .skip(params.offset || 0)
       .limit(params.limit || 10);
+    return { count, rows };
   }
 
   public async getRoleByName(name: string, id?: String): Promise<number> {

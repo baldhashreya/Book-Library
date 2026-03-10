@@ -1,21 +1,8 @@
 /* Main variables are defined in index.css */
-
-
 .layout {
   display: flex;
   height: 100vh;
   font-family: "Inter", sans-serif;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 250px;
-  background: rgba(255, 255, 255, 0.411);
-  backdrop-filter: blur(1px);
-  border-right: 1px solid rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
 }
 
 .logo {
@@ -27,7 +14,6 @@
   gap: 10px;
   margin-bottom: 30px;
 }
-
 
 .menu-item {
   display: flex;
@@ -71,12 +57,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(1px);
 }
 
 /* Topbar */
 .topbar {
   height: 70px;
-  background: rgba(255, 255, 255, 0.226);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -325,9 +311,6 @@
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-  }
 
   .sidebar-header {
     padding: 20px 10px;
@@ -344,11 +327,6 @@
     font-size: 20px;
   }
 
-  .logout-btn {
-    justify-content: center;
-    padding: 15px;
-  }
-
   .top-header {
     padding: 0 15px;
   }
@@ -356,20 +334,11 @@
   .content-area {
     padding: 15px;
   }
-
-  .action-btn {
-    justify-content: center;
-  }
 }
 
 @media (max-width: 480px) {
   .main-layout {
     flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
   }
 
   .sidebar-nav {

@@ -3,10 +3,10 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Category, CategoryFormData } from "../../../types/category";
 import "./CategoryModal.css";
-import CancelButton from "../../../shared/components/Button/CancleButton";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import ModalHeader from "../../../shared/components/ModalHeader";
 import { Grid, TextField, MenuItem } from "@mui/material";
+import "./CategoryModal.css";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -36,7 +36,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   mode,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const formik = useFormik({
     initialValues: {

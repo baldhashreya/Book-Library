@@ -224,24 +224,16 @@ const RoleModal: React.FC<RoleModalProps> = ({
             <div className="char-count">{formik.values.description.length}/200</div>
           </div>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              onClick={() => {}}
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Role"
-                : "Update Role"
-              }
-              type="submit"
-              variant="contained"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={
+              loading ? "Saving..."
+              : mode === "add" ?
+                "Add Role"
+              : "Update Role"
+            }
+          />
         </form>
       </div>
     </div>

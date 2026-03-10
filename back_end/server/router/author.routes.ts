@@ -1,8 +1,3 @@
-// - GET /api/authors
-// - POST /api/authors
-// - GET /api/authors/:id
-// - PATCH /api/authors/:id
-// - DELETE /api/authors/:id
 import { Router } from "express";
 import { celebrate } from "celebrate";
 import { AuthorController } from "../src/controllers/author.controller";
@@ -11,7 +6,7 @@ import { AuthorRepository } from "../src/repositories/author.repository";
 import { AuthorModel } from "../src/models/author.model";
 
 const { Create, Update, Get, Search } = AuthorModel;
-const   router = Router();
+const router = Router();
 const authorRepository = new AuthorRepository();
 const authorService = new AuthorService(authorRepository);
 const authorController = new AuthorController(authorService);

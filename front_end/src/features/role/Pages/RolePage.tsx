@@ -31,59 +31,26 @@ const UserModal: React.FC<UserModalProps> = ({
     phone: 0,
     address: "",
   });
-  const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (isOpen) {
-      loadRoles();
-      setError("");
-      if (mode === "edit" && user) {
-        console.log("Setting form data for edit mode:", user);
-
-        // Extract role ID from user object - handle different data structures
-        let roleId = "";
-        if (typeof user.role === "string") {
-          roleId = user.role;
-        } else if (user.role && typeof user.role === "object") {
-          roleId = (user.role as any).id || (user.role as any).value || "";
-        }
-
-        setFormData({
-          name: user.name,
-          email: user.email,
-          role: roleId,
-          status: user.status as any,
-          phone: user.contactInfo?.phone || 0,
-          address: user.contactInfo?.address || "",
-        });
-      } else {
-        setFormData({
-          name: "",
-          email: "",
-          role: "",
-          status: "active",
-          phone: 0,
-          address: "",
-        });
-      }
-    }
-  }, [isOpen, mode, user]);
+    loadRoles();
+  }, [paginationModel]);
 
   const loadRoles = useCallback(async () => {
     try {
-      const rolesData = await userService.getRolesForDropdown();
-      console.log("Loaded roles:", rolesData);
-      setRoles(rolesData);
-
-      // Set default role if adding new user and roles are available
-      if (mode === "add" && rolesData.length > 0 && !formData.role) {
-        setFormData((prev) => ({ ...prev, role: rolesData[0].value }));
-      }
+      setLoading(true);
+      const roleData = await roleService.searchRoles({
+        offset: paginationModel.page,
+        limit: paginationModel.pageSize,
+      } as SearchParams);
+      setRoles(roleData.data.rows);
+      setTotalCount(roleData.data.count);
     } catch (error) {
-      console.error("Error loading roles:", error);
+      console.error("RolePage: Error loading roles:", error);
       setRoles([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
     }
   }, [mode, formData.role]);
 
@@ -140,200 +107,92 @@ const UserModal: React.FC<UserModalProps> = ({
         setError("Please enter a valid email address");
         return;
       }
-
-      await onSave(formData);
-      onClose();
-    } catch (error) {
-      console.error("Error saving user:", error);
-      setError("An error occurred while saving the user");
-    } finally {
-      setLoading(false);
     }
   }, [formData, onSave, onClose]);
 
-  // Get the current role label for display
-  const getCurrentRoleLabel = () => {
-    if (mode === "edit" && user) {
-      // Try different ways to get role name
-      let roleName = "";
-
-      if ((user as any).roleName) {
-        roleName = (user as any).roleName;
-      } else if (typeof user.role === "string" || user.role?._id) {
-        // Find role name from roles dropdown
-        const roleIdCheck = typeof user.role === "string" ?  user.role : user.role._id;
-        const roleOption = roles.find((r) => r.value === roleIdCheck);
-        roleName = roleOption ? roleOption.label : roleIdCheck;
-      } else if (user.role && typeof user.role === "object") {
-        const userRoleObject = user.role as any;
-        roleName = userRoleObject.name || userRoleObject.label || "Unknown Role";
+  const handleSaveRole = async (data: Role & { _id?: string }) => {
+    try {
+      if (modalMode === "edit" && selectedRole._id) {
+        const response = await roleService.updateRole(selectedRole._id, data);
+        await loadRoles();
+        setIsModalOpen(false);
+        toast.success(response.message || "Role updated successfully");
+      } else {
+        const response = await roleService.createRole(data);
+        toast.success(response.message || "Role created successfully");
+        await loadRoles();
+        setIsModalOpen(false);
       }
-
-      return roleName || "Unknown Role";
+    } catch (err) {
+      console.error("Save role error:", err);
+      toast.error(err.message || "An error occurred while saving the role");
     }
-    return "";
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>{mode === "add" ? "Add New User" : "Edit User"}</h2>
-          <IconButtons
-            ariaLabel="Close"
-            onClick={onClose}
-            label={<ClearRoundedIcon />}
-          />
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="user-form"
-        >
-          {error && <div className="error-message">{error}</div>}
-          <Grid
-            container
-            spacing={2}
-          >
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="name">Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter Name"
-                  maxLength={30}
-                />
-                <div className="char-count">{formData.name.length}/30</div>
-              </div>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                  placeholder="Enter email address"
-                />
-              </div>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="role">Role *</label>
-
-                {
-                  mode === "edit" ?
-                    // Display role as read-only in edit mode
-                    <div className="read-only-field">
-                      <input
-                        type="text"
-                        value={getCurrentRoleLabel()}
-                        disabled
-                        className="read-only-input"
-                        placeholder="Loading role..."
-                      />
-                      <input
-                        type="hidden"
-                        name="role"
-                        value={formData.role}
-                      />
-                    </div>
-                    // Editable dropdown in add mode
-                  : <select
-                      id="role"
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      required
-                      disabled={loading || roles.length === 0}
-                    >
-                      <option value="">Select Role</option>
-                      {roles.map((role) => (
-                        <option
-                          key={role.value}
-                          value={role.value}
-                        >
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
-
-                }
-                {mode === "add" && roles.length === 0 && (
-                  <div className="field-help">Loading roles...</div>
-                )}
-              </div>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <div className="form-group">
-                <label htmlFor="status">Status *</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </Grid>
-          </Grid>
-
-          {mode === "edit" && user && (
-            <div className="user-info">
-              <div className="info-item">
-                <strong>Created:</strong>{" "}
-                {user.createdAt ?
-                  new Date(user.createdAt).toLocaleDateString()
-                : "N/A"}
-              </div>
-              {user.lastLogin && (
-                <div className="info-item">
-                  <strong>Last Login:</strong>{" "}
-                  {new Date(user.lastLogin).toLocaleString()}
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
+    <MainLayout>
+      <div className="user-page">
+        <div className="page-header">
+          <div className="toolbar">
             <CustomButton
               variant="contained"
-              onClick={() => {}}
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add User"
-                : "Update User"
-              }
-              // className="action-button"
-              type="submit"
-              disabled={loading}
+              onClick={handleAddRole}
+              label="Add Role"
+              className="add-selected-btn btn"
+              startIcon={<AddIcon />}
             />
           </div>
-        </form>
+        </div>
+
+        {loading ?
+          <div className="loading-state">
+            <div className="loading-spinner"></div>
+            <p>Loading users...</p>
+          </div>
+        : <div className="roles-table-container">
+            <DataTable
+              rows={roles}
+              rowCount={totalCount}
+              paginationModel={paginationModel}
+              onPaginationChange={setPaginationModel}
+              loading={loading}
+              onEdit={handleEditRole}
+              onDelete={(row) => {
+                setSelectedRow([row._id]);
+                handleDelete();
+              }}
+              columns={[
+                {
+                  field: "name",
+                  headerName: "Name",
+                  flex: 1,
+                  valueGetter: (_value, row) => row.name || "N/A",
+                },
+
+                {
+                  field: "description",
+                  headerName: "Description",
+                  flex: 1,
+                  valueGetter: (_value, row) => row.description || "N/A",
+                },
+              ]}
+              checkboxSelection={true}
+              disableMultipleRowSelection={true}
+              onRowSelect={setSelectedRow}
+            />
+          </div>
+        }
+
+        <RoleModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveRole}
+          role={selectedRole}
+          mode={modalMode}
+        />
       </div>
-    </div>
+    </MainLayout>
   );
 };
 
-export default UserModal;
+export default RolePage;

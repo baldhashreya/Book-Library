@@ -5,14 +5,24 @@ import { authorService } from "../authorService";
 import type { SearchParams } from "../../../types/role";
 import AuthorModal from "../components/AuthorModal";
 import AddIcon from "@mui/icons-material/Add";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import DataTable from "../../../shared/components/DataTable";
 import "./AuthorPage.css";
-import IconButtons from "../../../shared/components/Button/IconButtons";
+import AuthorPageFilter from "../components/AuthorPageFilter";
+import CustomButton from "../../../shared/components/Button/CustomButton";
 
 const AuthorPage: React.FC = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const [sortModel, setSortModel] = useState<{
+    field: string;
+    sort: "asc" | "desc";
+  } | null>(null);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
@@ -28,8 +38,10 @@ const AuthorPage: React.FC = () => {
       setLoading(true);
 
       const res = await authorService.searchAuthors({
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
+        order: sortModel ? [[sortModel.field, sortModel.sort]] : [],
+        ...filters,
       } as SearchParams);
 
       setAuthors(res.rows);
@@ -72,15 +84,14 @@ const AuthorPage: React.FC = () => {
     try {
       if (modalMode === "add") {
         await authorService.createAuthor(authorData);
-      } else if (modalMode === "edit" && selectedAuthor) {
+      } else if (selectedAuthor) {
         await authorService.updateAuthor(selectedAuthor._id, authorData);
       }
 
       setIsModalOpen(false);
-      loadAuthors();
+      await loadAuthors();
     } catch (error) {
       console.error("Error saving author:", error);
-      throw error;
     }
   }, [modalMode, selectedAuthor, loadAuthors]);
 
@@ -105,16 +116,31 @@ const AuthorPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="book-page">
         <div className="page-header">
-          <IconButtons
-            onClick={handleAddAuthor}
-            label={<AddIcon />}
-            ariaLabel="Add New Author"
-            className="add-author-btn"
-          />
-        </div>
+          <div className="header-right">
+            <CustomButton 
+              variant="outlined"
+              onClick={handleAddAuthor}
+              label="Add Authors"
+              className="add-button"
+              disabled={loading}
+              startIcon={<AddIcon />}
+            />
 
+            <CustomButton 
+              variant="outlined"
+              onClick={() => setIsFilterOpen(true)}
+              label="Filter"
+              className="filter-button"
+              disabled={loading}
+              startIcon={<FilterListIcon />}
+            />
+            
+          </div>
+        </div>
+      <div className="main-page">
+
+        {/* Data Table */}
         <DataTable
           rows={authors}
           rowCount={totalCount}
@@ -126,6 +152,7 @@ const AuthorPage: React.FC = () => {
           columns={columns}
         />
 
+        {/* Modal */}
         <AuthorModal
           isOpen={isModalOpen}
           onClose={useCallback(() => setIsModalOpen(false), [])}

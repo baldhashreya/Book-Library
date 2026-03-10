@@ -21,7 +21,7 @@ export interface UserFormData {
   name: string;
   email: string;
   role: string;
-  status?: "active" | "inactive";
+  status: "active" | "inactive";
   phone: number;
   address: string;
 }

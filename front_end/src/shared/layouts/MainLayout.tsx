@@ -33,14 +33,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     localStorage.removeItem("user");
     navigate("/login");
   };
-
   const title =
-    menuItems.find((item) => item.id === activeMenu)?.label || "Dashboard";
+    menuItems.find((item) => (item.id === activeMenu))?.label || "Dashboard";
 
   return (
     <div className="layout">
       <Sidebar
-        menuItems={menuItems}
+        menuItems={menuItems.filter((item) => item.showInPage)}
         activeMenu={activeMenu}
         onNavigate={(path) => handleMenuClick(path)}
         onLogout={handleLogout}

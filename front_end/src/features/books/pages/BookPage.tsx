@@ -11,6 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import DataTable from "../../../shared/components/DataTable";
 import ConfirmModal from "../../../shared/components/ConfirmModal";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import BookPageFilter from "../components/BookPageFilter";
 
 const BookPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -24,6 +26,8 @@ const BookPage: React.FC = () => {
   const [assignBook, setAssignBook] = useState<Book | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+   const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [filters, setFilters] = useState({});
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 5,
@@ -34,7 +38,8 @@ const BookPage: React.FC = () => {
       setLoading(true);
       const booksData = await bookService.searchBooks({
         limit: paginationModel.pageSize,
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
+        ...filters,
       });
       setBooks(booksData.rows);
       setTotalCount(booksData.count);
@@ -183,18 +188,16 @@ const BookPage: React.FC = () => {
     },
   ], [getStatusBadge]);
 
-  const filteredBooks = books;
-
   return (
     <MainLayout>
-      <div className="book-page">
-        <div className="page-header">
-          <div className="toolbar">
-            <CustomButton
-              className="add-selected-btn btn"
+      <div className="page-header">
+          <div className="header-right">
+            <CustomButton 
+              variant="outlined"
               onClick={handleAddBook}
-              label="Add New Book"
-              variant="contained"
+              label="Add Book"
+              className="add-button"
+              disabled={loading}
               startIcon={<AddIcon />}
             />
             <CustomButton
@@ -209,24 +212,22 @@ const BookPage: React.FC = () => {
               disabled={!selectedRow || selectedRow.length === 0}
               startIcon={<AssignmentIcon />}
             />
+
+            <CustomButton 
+              variant="outlined"
+              onClick={() => setIsFilterOpen(true)}
+              label="Filter"
+              className="filter-button"
+              disabled={loading}
+              startIcon={<FilterListIcon />}
+            />
+            
           </div>
         </div>
+      <div className="main-page">
 
-        {loading ?
-          <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p>Loading books...</p>
-          </div>
-        : <div className="books-table-container">
-            {filteredBooks.length === 0 ?
-              <div className="empty-state">
-                <h3>No books found</h3>
-                <p>
-                  Your library is empty. Add your first book to get started.
-                </p>
-              </div>
-            : <DataTable
-                rows={filteredBooks}
+        <DataTable
+                rows={books}
                 rowCount={totalCount}
                 paginationModel={paginationModel}
                 onPaginationChange={setPaginationModel}
@@ -238,11 +239,8 @@ const BookPage: React.FC = () => {
                 columns={columns}
                 checkboxSelection={true}
                 disableMultipleRowSelection={true}
-                onRowSelect={setSelectedRow}
+                onRowSelect={handleRowSelection}
               />
-            }
-          </div>
-        }
 
         <BookModal
           isOpen={isModalOpen}
@@ -266,6 +264,14 @@ const BookPage: React.FC = () => {
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
         />
+        <BookPageFilter
+                  isFilterOpen={isFilterOpen}
+                  setIsFilterOpen={setIsFilterOpen}
+                  filters={filters}
+                  setFilters={setFilters}
+                  setPaginationModel={setPaginationModel}
+                  loadBooks={loadBooks}
+                />
       </div>
     </MainLayout>
   );

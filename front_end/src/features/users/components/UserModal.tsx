@@ -37,7 +37,6 @@ const UserModal: React.FC<UserModalProps> = ({
 }) => {
   const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const formik = useFormik({
     initialValues: {
@@ -120,7 +119,6 @@ const UserModal: React.FC<UserModalProps> = ({
           onSubmit={formik.handleSubmit}
           className="user-form"
         >
-          {error && <div className="error-message">{error}</div>}
           <Grid
             container
             spacing={2}
@@ -145,6 +143,7 @@ const UserModal: React.FC<UserModalProps> = ({
                 )}
               </div>
             </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
                 <label htmlFor="role">Role *</label>
@@ -197,6 +196,7 @@ const UserModal: React.FC<UserModalProps> = ({
                 )}
               </div>
             </Grid>
+
             <Grid size={{ xs: 12, md: 4 }}>
               {mode === "edit" && user && (
                 <div className="form-group">
@@ -238,6 +238,7 @@ const UserModal: React.FC<UserModalProps> = ({
                 )}
               </div>
             </Grid>
+
             <Grid size={12}>
               <div className="form-group">
                 <label htmlFor="address">Address*</label>
@@ -259,23 +260,16 @@ const UserModal: React.FC<UserModalProps> = ({
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CancelButton
-              onClick={onClose}
-              disabled={loading}
-            />
-            <CustomButton
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add User"
-                : "Update User"
-              }
-              variant="contained"
-              disabled={loading}
-              type="submit"
-            />
-          </div>
+          <FormAction
+            loading={loading}
+            onClose={onClose}
+            label={
+              loading ? "Saving..."
+              : mode === "add" ?
+                "Add User"
+              : "Update User"
+            }
+          />
         </form>
       </div>
     </div>

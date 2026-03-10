@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { User, UserFormData } from "../../../types/user";
 import "./EditProfileModal.css";
+import "../../../shared/styles/model.css";
 import CustomButton from "../../../shared/components/Button/CustomButton";
 import CancelButton from "../../../shared/components/Button/CancleButton";
 import Grid from "@mui/material/Grid";
@@ -76,6 +77,23 @@ const EditProfileModal: React.FC<UserModalProps> = ({
 
   if (!isOpen) return null;
 
+  const formik = useFormik({
+    initialValues: {
+      name: user.name,
+      email: user.email,
+      status: user.status,
+      role: user.role.name,
+      phone:
+        user.contactInfo && user.contactInfo.phone ? user.contactInfo.phone : 0,
+      address:
+        user.contactInfo && user.contactInfo.address ?
+          user.contactInfo.address
+        : "",
+    },
+    validationSchema: editProfileSchema,
+    onSubmit: handleSubmit,
+  });
+
   return (
     <div className="modal-overlay">
       <div className="modal-content-user">
@@ -85,8 +103,6 @@ const EditProfileModal: React.FC<UserModalProps> = ({
           onSubmit={formik.handleSubmit}
           className="user-form"
         >
-          {error && <div className="error-message">{error}</div>}
-
           <Grid
             container
             spacing={2}
@@ -111,7 +127,6 @@ const EditProfileModal: React.FC<UserModalProps> = ({
                 )}
               </div>
             </Grid>
-
             <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
                 <label htmlFor="email">Email *</label>

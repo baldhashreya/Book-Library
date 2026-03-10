@@ -1,5 +1,4 @@
 import type {
-  Role,
   RoleFormData,
   RolePermission,
   RoleSearchParams,
@@ -25,7 +24,7 @@ export const roleService = {
   async searchRoles(params: RoleSearchParams) {
     try {
       const result = await apiService.post("/roles/search", params);
-      return result.data || [];
+      return result;
     } catch (error) {
       console.error("Error searching roles:", error);
       throw error;
@@ -33,10 +32,10 @@ export const roleService = {
   },
 
   // Get role by ID
-  async getRoleById(id: string): Promise<Role | null> {
+  async getRoleById(id: string){
     try {
       const data = await apiService.get(`/roles/${id}`);
-      return data.role || null;
+      return data;
     } catch (error) {
       console.error("Error fetching role:", error);
       throw error;
@@ -44,10 +43,10 @@ export const roleService = {
   },
 
   // Create new role
-  async createRole(roleData: RoleFormData): Promise<Role> {
+  async createRole(roleData: RoleFormData){
     try {
       const data = await apiService.post("/roles", roleData);
-      return data.role;
+      return data;
     } catch (error) {
       console.error("Error creating role:", error);
       throw error;
@@ -55,10 +54,10 @@ export const roleService = {
   },
 
   // Update role
-  async updateRole(id: string, roleData: RoleFormData): Promise<Role> {
+  async updateRole(id: string, roleData: RoleFormData){
     try {
       const data = await apiService.put(`/roles/${id}`, roleData);
-      return data.role;
+      return data;
     } catch (error) {
       console.error("Error updating role:", error);
       throw error;

@@ -4,15 +4,6 @@
   padding: 30px;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
-}
-
 .cancel-btn {
   background: #f44336 !important;
   color: #fff !important;

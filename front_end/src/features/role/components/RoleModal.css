@@ -73,52 +73,8 @@
   border-top: 1px solid #e0e0e0;
 }
 
-
 .role-form {
   padding: 30px;
-}
-
-.form-group {
-  margin-bottom: 25px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #333;
-  font-size: 14px;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-  background-color: white;
-  font-family: inherit;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-main);
-  box-shadow: 0 0 0 3px var(--focus-ring);
-}
-
-.form-group input:disabled,
-.form-group textarea:disabled {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  cursor: not-allowed;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
 }
 
 .char-count {

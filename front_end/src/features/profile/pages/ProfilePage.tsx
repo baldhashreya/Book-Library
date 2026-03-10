@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import LockIcon from "@mui/icons-material/Lock";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import "./ProfilePage.css";
 import EditProfileModal from "../components/EditProfileModal";
@@ -7,10 +8,10 @@ import ChangePasswordModal from "../components/ChangePasswordModal";
 import { userService } from "../../users/userService";
 import type { UserFormData } from "../../../types/user";
 import { authService } from "../../login/authService";
-import LockIcon from "@mui/icons-material/Lock";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CustomButton from "../../../shared/components/Button/CustomButton";
-import { Box } from "@mui/material";
-import CustomTypography from "../../../shared/components/CustomTypography";
+import "../../../shared/styles/model.css";
+import { toast } from "react-toastify";
 
 const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<any | null>(null);
@@ -33,13 +34,14 @@ const ProfilePage: React.FC = () => {
   const handleUpdateProfile = useCallback(async (updatedData: UserFormData) => {
     if (!user) return;
     try {
-      console.log(updatedData);
-      await userService.updateUser(user._id, updatedData);
-      const response = await userService.getUserById(user._id);
-      localStorage.setItem("user", JSON.stringify(response));
-      setUser(response);
+      await userService.updateUser(userData._id, updatedData);
+      toast.success("Profile updated successfully!");
+      const response = await userService.getUserById(userData._id);
+      localStorage.setItem("user", JSON.stringify(response.data));
+      setUserData(response);
     } catch (error) {
       console.error("Error updating profile:", error);
+      toast.error(error.message || "");
     }
   }, [user]);
 
@@ -77,96 +79,65 @@ const ProfilePage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="profile-content">
-        <div className="profile-card">
-          <Box className="detail-section">
-            <h3>Account Information</h3>
-            <Box className="detail-grid">
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Name"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className="value"
-                  label={user.userName || user.name}
-                />
-              </Box>
+      <div className="profile-page">
+        <div className="outer-card">
+          <h2 className="title">My Profile</h2>
+          <div className="inner-card">
+            {/* Header */}
+            <div className="profile-header">
+              <div className="avatar">
+                {userData.profile_icon ?
+                  <img src={userData.profile_icon} />
+                : <AccountCircleIcon
+                    sx={{
+                      height: "100%",
+                      width: "100%",
+                      color: "#dbeafe",
+                      p: 0,
+                      m: 0,
+                    }}
+                  />
+                }
+              </div>
+              <div>
+                <div className="user-details">
+                  <div className="user-info">
+                    <h3>{userData.userName || userData.name}</h3>
+                    <span className="role">{userData.role?.name}</span>
+                  </div>
 
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Email"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className="value"
-                  label={user.email || "N/A"}
-                />
-              </Box>
+                  <div
+                    className={`status-badge ${
+                      userData.status === "active" ? "active" : "inactive"
+                    }`}
+                  >
+                    {userData.status === "active" ? "Active" : "Inactive"}
+                  </div>
+                </div>
+                <div className="personal_details">
+                  <div>
+                    <label>Email</label>
+                    <p>{userData.email}</p>
+                  </div>
 
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Role"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className="value"
-                  label={user.role?.name || "N/A"}
-                />
-              </Box>
+                  <div>
+                    <label>Phone</label>
+                    <p>{userData.contactInfo?.phone || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Status"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className={`value status-indicator ${
-                    user.status === "active" ? "active" : "in-active"
-                  }`}
-                  label={user.status === "active" ? "Active" : "Inactive"}
-                />
-              </Box>
+            {/* Info Grid */}
+            <div className="info-grid">
+              <div>
+                <label>Address</label>
+                <p>{userData.contactInfo?.address || "N/A"}</p>
+              </div>
+            </div>
 
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Phone"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className="value"
-                  label={user.contactInfo?.phone || "N/A"}
-                />
-              </Box>
-
-              <Box className="detail-item">
-                <CustomTypography
-                  variant="body1"
-                  className="label"
-                  label="Address"
-                />
-                <CustomTypography
-                  variant="body2"
-                  className="value"
-                  label={user.contactInfo?.address || "N/A"}
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <Box className="detail-section">
-            <h3>Quick Actions</h3>
-            <div className="action-buttons">
+            {/* Buttons */}
+            <div className="profile-actions">
               <CustomButton
                 variant="contained"
                 onClick={() => setIsEditOpen(true)}
@@ -184,7 +155,7 @@ const ProfilePage: React.FC = () => {
                 startIcon={<LockIcon />}
               />
             </div>
-          </Box>
+          </div>
         </div>
       </div>
 

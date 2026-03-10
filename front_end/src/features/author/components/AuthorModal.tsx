@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import React, { useState } from "react";
 import type { Author, AuthorFormData } from "../../../types/author";
 import "./AuthorModal.css";
-import CustomButton from "../../../shared/components/Button/CustomButton";
-import CancelButton from "../../../shared/components/Button/CancleButton";
+import "../../../shared/styles/model.css";
+import * as Yup from "yup";
 import { Grid } from "@mui/material";
+import { useFormik } from "formik";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import CustomButton from "../../../shared/components/Button/CustomButton";
+import CancelButton from "../../../shared/components/Button/CancelButton";
 
 interface AuthorModalProps {
   isOpen: boolean;
@@ -51,26 +52,6 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
     },
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      if (mode === "edit" && author) {
-        formik.setValues({
-          name: author.name,
-          bio: author.bio || "",
-          birthDate: author.birthDate,
-        });
-      } else {
-        formik.setValues({
-          name: "",
-          bio: "",
-          birthDate: "",
-        });
-        formik.setTouched({});
-        formik.setErrors({});
-      }
-    }
-  }, [isOpen, mode, author]);
-
   if (!isOpen) return null;
 
   return (
@@ -90,6 +71,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
             container
             spacing={2}
           >
+            {/* Author Name */}
             <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
                 <label htmlFor="name">Author Name *</label>
@@ -108,6 +90,8 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
                 )}
               </div>
             </Grid>
+
+            {/* Birth Date */}
             <Grid size={{ xs: 12, md: 6 }}>
               <div className="form-group">
                 <label htmlFor="isbn">Birth Date *</label>
@@ -126,6 +110,8 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
                 )}
               </div>
             </Grid>
+
+            {/* Bio */}
             <Grid size={12}>
               <div className="form-group">
                 <label htmlFor="bio">Bio</label>

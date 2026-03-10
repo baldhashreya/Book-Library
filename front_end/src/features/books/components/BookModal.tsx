@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Book, BookFormData } from "../../../types/book";
-import "./BookModal.css";
 import type { SearchParams } from "../../../types/role";
-import { categoryService } from "../../category/categoryService";
 import type { Category } from "../../../types/category";
-import { authorService } from "../../author/authorService";
 import type { Author } from "../../../types/author";
-import CustomButton from "../../../shared/components/Button/CustomButton";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import "./BookModal.css";
+import "../../../shared/styles/model.css";
+import { categoryService } from "../../category/categoryService";
+import { authorService } from "../../author/authorService";
+import FormAction from "../../../shared/components/FormAction";
 
 interface BookModalProps {
   isOpen: boolean;
@@ -44,7 +45,6 @@ const BookModal: React.FC<BookModalProps> = ({
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -105,30 +105,22 @@ const BookModal: React.FC<BookModalProps> = ({
         formik.setErrors({});
       }
     }
-  }, [isOpen, mode, book]);
+  }, [isOpen]);
 
   const loadCategories = async () => {
-    try {
-      const cats = await categoryService.searchCategories({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setCategories(cats.rows);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
+    const cats = await categoryService.searchCategories({
+      limit: 100,
+      offset: 0,
+    } as SearchParams);
+    setCategories(cats.rows);
   };
 
   const loadAuthors = async () => {
-    try {
-      const authorData = await authorService.searchAuthors({
-        limit: 100,
-        offset: 0,
-      } as SearchParams);
-      setAuthors(authorData.rows);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    }
+    const auth = await authorService.searchAuthors({
+      limit: 100,
+      offset: 0,
+    } as SearchParams);
+    setAuthors(auth.rows);
   };
 
   const customInputStyles = {
@@ -169,6 +161,7 @@ const BookModal: React.FC<BookModalProps> = ({
             container
             spacing={2}
           >
+            {/* Title */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
@@ -185,6 +178,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 sx={customInputStyles}
               />
             </Grid>
+
+            {/* Author */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
@@ -210,6 +205,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 ))}
               </TextField>
             </Grid>
+
+            {/* Category */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
@@ -235,6 +232,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 ))}
               </TextField>
             </Grid>
+
+            {/* Status */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
@@ -256,6 +255,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 <MenuItem value="LOST" sx={{ fontSize: "14px" }}>Lost</MenuItem>
               </TextField>
             </Grid>
+
+            {/* ISBN */}
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
@@ -272,6 +273,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 sx={customInputStyles}
               />
             </Grid>
+
+            {/* Published Year */}
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
@@ -290,6 +293,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 sx={customInputStyles}
               />
             </Grid>
+
+            {/* Quantity */}
             <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
@@ -307,6 +312,8 @@ const BookModal: React.FC<BookModalProps> = ({
                 sx={customInputStyles}
               />
             </Grid>
+
+            {/* Description */}
             <Grid size={12}>
               <TextField
                 fullWidth
@@ -334,27 +341,11 @@ const BookModal: React.FC<BookModalProps> = ({
             </Grid>
           </Grid>
 
-          <div className="form-actions">
-            <CustomButton
-              variant="contained"
-              onClick={onClose}
-              label="Cancel"
-              className="cancel-btn"
-              disabled={loading}
-            />
-            <CustomButton
-              variant="contained"
-              type="submit"
-              label={
-                loading ? "Saving..."
-                : mode === "add" ?
-                  "Add Book"
-                : "Update Book"
-              }
-              className="save-btn"
-              disabled={loading}
-            />
-          </div>
+          <FormAction
+            onClose={onClose}
+            loading={loading}
+            label={mode === "add" ? "Add Book" : "Update Book"}
+          />
         </form>
       </div>
     </div>

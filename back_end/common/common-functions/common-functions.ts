@@ -39,6 +39,8 @@ export function getMessageByCode(messageKey: string): string {
       return messages.UsersMessages.UsersFetched;
     case UsersOperations.CREATE:
       return messages.UsersMessages.create;
+    case UsersOperations.GET:
+      return messages.UsersMessages.get;
 
     case AuthOperations.LOGIN:
       return messages.AuthorizationsMessages.LoginSuccess;
