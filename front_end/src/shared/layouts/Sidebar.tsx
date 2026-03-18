@@ -10,12 +10,13 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar: React.FC<SidebarProps> = React.memo(({
   menuItems,
   activeMenu,
   onNavigate,
   onLogout,
 }) => {
+  console.log("Sidebar Render");
   return (
     <aside className="sidebar">
       <div className="logo">
@@ -47,6 +48,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
     </aside>
   );
-};
+});
 
 export default Sidebar;

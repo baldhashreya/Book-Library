@@ -4,7 +4,8 @@ import { addLog } from "../common-functions/logger";
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/book-library");
+    const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/book-library";
+    await mongoose.connect(mongoURI);
     addLog(LogLevel.info, "MongoDB Connected");
   } catch (error) {
     addLog(LogLevel.error, "MongoDB Connection Failed", error as Error);

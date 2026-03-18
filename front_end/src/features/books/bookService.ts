@@ -7,7 +7,7 @@ export const bookService = {
   async searchBooks(params: SearchParams) {
     try {
       const result = await apiService.post("/books/search", params);
-      return result.data || [];
+      return result.data || {};
     } catch (error) {
       console.error("Error fetching books:", error);
       throw error;

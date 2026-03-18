@@ -36,5 +36,5 @@ export interface UsersSearchParams extends SearchParams {
 export interface SearchParams {
   offset?: number;
   limit?: number;
-  order?: string[];
+  order?: string[][];
 }

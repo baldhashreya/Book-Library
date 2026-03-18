@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Drawer,
   IconButton,
@@ -13,8 +14,7 @@ interface AuthorPageFilterProps {
   setIsFilterOpen: (open: boolean) => void;
   filters: any;
   setFilters: (filters: any) => void;
-  setPaginationModel: (model: { page: number; pageSize: number }) => void;
-  loadAuthors: () => void;
+  setPaginationModel: (model: any) => void;
 }
 
 export default function AuthorPageFilter({
@@ -23,8 +23,29 @@ export default function AuthorPageFilter({
   filters,
   setFilters,
   setPaginationModel,
-  loadAuthors,
 }: AuthorPageFilterProps) {
+  const [internalFilters, setInternalFilters] = useState(filters);
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      setInternalFilters(filters);
+    }
+  }, [isFilterOpen, filters]);
+
+  const handleApply = () => {
+    setFilters(internalFilters);
+    setPaginationModel((p: any) => ({ ...p, page: 0 }));
+    setIsFilterOpen(false);
+  };
+
+  const handleClear = () => {
+    const cleared = {};
+    setInternalFilters(cleared);
+    setFilters(cleared);
+    setPaginationModel((p: any) => ({ ...p, page: 0 }));
+    setIsFilterOpen(false);
+  };
+
   return (
     <Drawer
       anchor="left"
@@ -60,9 +81,9 @@ export default function AuthorPageFilter({
           <AppTextField
             label="Author Name"
             placeholder="Enter author name"
-            value={filters.name || ""}
+            value={internalFilters.name || ""}
             onChange={(e) =>
-              setFilters({ ...filters, name: e.target.value })
+              setInternalFilters({ ...internalFilters, name: e.target.value })
             }
             fullWidth
           />
@@ -70,9 +91,9 @@ export default function AuthorPageFilter({
 
           < AppTextField 
             label="Bio"
-            value={filters.bio || ""}
+            value={internalFilters.bio || ""}
             onChange={(e) =>
-              setFilters({ ...filters, bio: e.target.value })
+              setInternalFilters({ ...internalFilters, bio: e.target.value })
             }
             fullWidth
           />
@@ -81,10 +102,10 @@ export default function AuthorPageFilter({
             label="Birth Date From"
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={filters.start_birth_date || ""}
+            value={internalFilters.start_birth_date || ""}
             onChange={(e) =>
-              setFilters({
-                ...filters,
+              setInternalFilters({
+                ...internalFilters,
                 start_birth_date: e.target.value,
               })
             }
@@ -94,10 +115,10 @@ export default function AuthorPageFilter({
             label="Birth Date To"
             type="date"
             InputLabelProps={{ shrink: true }}
-            value={filters.end_birth_date || ""}
+            value={internalFilters.end_birth_date || ""}
             onChange={(e) =>
-              setFilters({
-                ...filters,
+              setInternalFilters({
+                ...internalFilters,
                 end_birth_date: e.target.value,
               })
             }
@@ -110,10 +131,7 @@ export default function AuthorPageFilter({
         >
           <CustomButton 
             variant="outlined"
-            onClick={() => {
-              setPaginationModel((p) => ({ ...p, page: 0 }));
-              setIsFilterOpen(false);
-            }}
+            onClick={handleApply}
             label="Apply Filters"
             fullWidth
             className="apply-filters-button"
@@ -121,11 +139,7 @@ export default function AuthorPageFilter({
 
           <CustomButton 
             variant="outlined"
-            onClick={() => {
-              setFilters({});
-              setPaginationModel((p) => ({ ...p, page: 0 }));
-              setIsFilterOpen(false);
-            }}
+            onClick={handleClear}
             label="Clear"
             fullWidth
             className="clear-filters-button"

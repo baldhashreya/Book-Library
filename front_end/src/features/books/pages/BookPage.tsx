@@ -33,14 +33,18 @@ const BookPage: React.FC = () => {
     pageSize: 5,
   });
 
+  const [sortModel, setSortModel] = useState<any[]>([]);
+
   const loadBooks = useCallback(async () => {
     try {
       setLoading(true);
       const booksData = await bookService.searchBooks({
         limit: paginationModel.pageSize,
         offset: paginationModel.page * paginationModel.pageSize,
+        order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
         ...filters,
       });
+      console.log("Fata:::::::::::::::", booksData.rows);
       setBooks(booksData.rows);
       setTotalCount(booksData.count);
     } catch (error) {
@@ -48,7 +52,7 @@ const BookPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, filters, sortModel]);
 
   useEffect(() => {
     loadBooks();
@@ -229,6 +233,8 @@ const BookPage: React.FC = () => {
                 rowCount={totalCount}
                 paginationModel={paginationModel}
                 onPaginationChange={setPaginationModel}
+                sortModel={sortModel}
+                onSortModelChange={setSortModel}
                 loading={loading}
                 onEdit={handleEditBook}
                 onDelete={useCallback((row: any) => {
@@ -268,7 +274,6 @@ const BookPage: React.FC = () => {
                   filters={filters}
                   setFilters={setFilters}
                   setPaginationModel={setPaginationModel}
-                  loadBooks={loadBooks}
                 />
       </div>
     </MainLayout>

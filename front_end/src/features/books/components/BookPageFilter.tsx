@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Drawer,
   IconButton,
@@ -13,8 +14,7 @@ interface BookPageFilterProps {
   setIsFilterOpen: (open: boolean) => void;
   filters: any;
   setFilters: (filters: any) => void;
-  setPaginationModel: (model: { page: number; pageSize: number }) => void;
-  loadBooks: () => void;
+  setPaginationModel: (model: any) => void;
 }
 
 export default function BookPageFilter({
@@ -23,8 +23,29 @@ export default function BookPageFilter({
   filters,
   setFilters,
   setPaginationModel,
-  loadBooks,
 }: BookPageFilterProps) {
+  const [internalFilters, setInternalFilters] = useState(filters);
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      setInternalFilters(filters);
+    }
+  }, [isFilterOpen, filters]);
+
+  const handleApply = () => {
+    setFilters(internalFilters);
+    setPaginationModel((p: any) => ({ ...p, page: 0 }));
+    setIsFilterOpen(false);
+  };
+
+  const handleClear = () => {
+    const cleared = {};
+    setInternalFilters(cleared);
+    setFilters(cleared);
+    setPaginationModel((p: any) => ({ ...p, page: 0 }));
+    setIsFilterOpen(false);
+  };
+
   return (
     <Drawer
       anchor="left"
@@ -59,9 +80,9 @@ export default function BookPageFilter({
             <AppTextField
             label="Book Name"
             placeholder="Enter book name"
-            value={filters.title || ""}
+            value={internalFilters.title || ""}
             onChange={(e) =>
-              setFilters({ ...filters, title: e.target.value })
+              setInternalFilters({ ...internalFilters, title: e.target.value })
             }
             fullWidth
           />
@@ -69,9 +90,9 @@ export default function BookPageFilter({
           <AppTextField
             label="Author Name"
             placeholder="Enter author name"
-            value={filters.author || ""}
+            value={internalFilters.author || ""}
             onChange={(e) =>
-              setFilters({ ...filters, author: e.target.value })
+              setInternalFilters({ ...internalFilters, author: e.target.value })
             }
             fullWidth
           />
@@ -82,10 +103,7 @@ export default function BookPageFilter({
         >
           <CustomButton 
             variant="outlined"
-            onClick={() => {
-              setPaginationModel((p) => ({ ...p, page: 0 }));
-              setIsFilterOpen(false);
-            }}
+            onClick={handleApply}
             label="Apply Filters"
             fullWidth
             className="apply-filters-button"
@@ -93,11 +111,7 @@ export default function BookPageFilter({
 
           <CustomButton 
             variant="outlined"
-            onClick={() => {
-              setFilters({});
-              setPaginationModel((p) => ({ ...p, page: 0 }));
-              setIsFilterOpen(false);
-            }}
+            onClick={handleClear}
             label="Clear"
             fullWidth
             className="clear-filters-button"

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainLayout.css";
 
@@ -11,37 +11,50 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  console.log("MainLayout Render");
   const navigate = useNavigate();
-  const storedUserStr = localStorage.getItem("user");
-  const user = storedUserStr ? JSON.parse(storedUserStr) : null;
   
-  console.log("MainLayout - user:", user);
-  const role = user?.role?.name?.toLowerCase() || "";
-  const userName = user?.name || user?.userName || "User";
+  const user = useMemo(() => {
+    const storedUserStr = localStorage.getItem("user");
+    return storedUserStr ? JSON.parse(storedUserStr) : null;
+  }, []);
+
+  const role = useMemo(() => user?.role?.name?.toLowerCase() || "", [user]);
+  const userName = useMemo(() => user?.name || user?.userName || "User", [user]);
 
   const { menuItems, activeMenu } = useLayout(role);
-  console.log("MainLayout - role:", role);
-  console.log("MainLayout - menuItems:", menuItems);
-  console.log("MainLayout - activeMenu:", activeMenu);
-  const handleMenuClick = (path: string) => {
-    navigate(path);
-  };
 
-  const handleLogout = () => {
+  const handleMenuClick = useCallback((path: string) => {
+    navigate(path);
+  }, [navigate]);
+
+  const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
     navigate("/login");
-  };
-  const title =
-    menuItems.find((item) => (item.id === activeMenu))?.label || "Dashboard";
+  }, [navigate]);
+
+  const handleProfile = useCallback(() => {
+    navigate("/about-me");
+  }, [navigate]);
+
+  const title = useMemo(() => 
+    menuItems.find((item) => (item.id === activeMenu))?.label || "Dashboard",
+    [menuItems, activeMenu]
+  );
+
+  const filteredMenuItems = useMemo(() => 
+    menuItems.filter((item) => item.showInPage),
+    [menuItems]
+  );
 
   return (
     <div className="layout">
       <Sidebar
-        menuItems={menuItems.filter((item) => item.showInPage)}
+        menuItems={filteredMenuItems}
         activeMenu={activeMenu}
-        onNavigate={(path) => handleMenuClick(path)}
+        onNavigate={handleMenuClick}
         onLogout={handleLogout}
       />
 
@@ -49,7 +62,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <Topbar
           title={title}
           userName={userName}
-          onProfile={() => navigate("/about-me")}
+          onProfile={handleProfile}
         />
 
         <main className="content">{children}</main>
