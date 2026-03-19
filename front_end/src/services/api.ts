@@ -18,15 +18,9 @@ class ApiService {
       (config) => {
         const token = localStorage.getItem('token');
         if (token) {
-           // We're preserving the original behavior here where sometimes it's Bearer and sometimes it's just the token.
-           // You may want to standardize this on the backend later.
+          // If the token doesn't already start with Bearer and looks like a JWT (contains dots), 
+          // we could add it, but for now we follow the existing pattern of just passing the token.
           config.headers.Authorization = token; 
-        }
-        
-        // For the upload/patch endpoints, it seems they specifically looked for 'authToken' previously
-        // Check if there is an auth token in localStorage if token wasn't found
-        if(!token && localStorage.getItem('authToken')) {
-            config.headers.Authorization = `Bearer ${localStorage.getItem('authToken')}`;
         }
         return config;
       },

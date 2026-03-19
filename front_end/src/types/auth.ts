@@ -18,7 +18,9 @@ export interface AuthState {
 
 export interface LoginResponse {
   message?: string;
-  data: any;
+  data?: any;
+  success?: boolean;
+  user?: User;
 }
 
 export interface AuthContextType {
@@ -27,6 +29,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
+  refreshUser?: () => Promise<boolean>;
 }
 
 export interface signupFormData {
