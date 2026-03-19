@@ -6,7 +6,7 @@ export const authService = {
     try {
        const response: any = await apiService.post("/auth/login", credentials);
        console.log(response);
-      if (!response.data) {
+      if (!response || !response.data) {
         throw new Error("Login failed");
       }
       console.log("Login response:", response);
@@ -31,18 +31,18 @@ export const authService = {
     role: string;
   }): Promise<LoginResponse> {
     try {
-      const data: any = await apiService.post("/auth/signup", userData);
+      const response: any = await apiService.post("/auth/signup", userData);
 
-      if (data && data.success && data.user ) {
+      if (response && response.data) {
         return {
           success: true,
-          user: data.data,
-          message: data.message || "Registration successful!",
+          user: response.data,
+          message: response.message || "Registration successful!",
         };
       } else {
         return {
           success: false,
-          message: data?.message || "Registration failed.",
+          message: response?.message || "Registration failed.",
         };
       }
     } catch (error) {
@@ -59,7 +59,7 @@ export const authService = {
 
   // Logout
   async logout(): Promise<void> {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem("token");
 
     try {
       if (token) {
@@ -68,9 +68,10 @@ export const authService = {
     } catch (error) {
       console.error("Logout API error:", error);
     } finally {
-      localStorage.removeItem("authToken");
+      localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("authToken"); // Remove legacy key if any
     }
   },
 
@@ -142,9 +143,8 @@ export const authService = {
     }
   },
 
-  // Check authentication status
   isAuthenticated(): boolean {
-    return !!localStorage.getItem("authToken");
+    return !!localStorage.getItem("token");
   },
 
   // Get stored user

@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { expect, Locator, Page } from "@playwright/test";
 
 export class LoginPage {
   private page: Page;
@@ -10,22 +10,41 @@ export class LoginPage {
     await this.page.goto("http://localhost:5173/login");
   }
 
-  async fillLoginForm(email: string, password: string) {
-    await this.page.getByPlaceholder("Email").fill(email);
-    await this.page.getByPlaceholder("Password").fill(password);
+  async fillForm(emailPaceholder:string,   passwordPaceholder:string,email: string, password: string) {
+    await this.page.getByPlaceholder(emailPaceholder).fill(email);
+    await this.page.getByPlaceholder(passwordPaceholder).fill(password);
   }
 
-  async clickLoginButton() {
-    await this.page.getByRole("button", { name: "Sign In" }).click();
+  async clickButton(buttonText:string) {
+    await this.page.getByRole("button", { name: buttonText }).click();
   }
+
 
   getToastMessage(): Locator {
     return this.page.getByRole("alert");
   }
 
+  getEmailValidationMessage(message: string = "Email is required"): Locator {
+    return this.page.locator(`text=${message}`);
+  }
+
+  getPasswordValidationMessage(): Locator {
+    return this.page.locator("text=Password is required");
+  }
+
+
   async login(email: string, password: string) {
     await this.gotoLoginPage();
-    await this.fillLoginForm(email, password);
-    await this.clickLoginButton();
+    await this.fillForm("Enter email", "Enter password", email, password);
+    await this.clickButton("Sign In");
+  }
+
+  async forgotPassword(email: string, password: string) {
+    await this.gotoLoginPage();
+    await this.clickButton("Forgot Password?");
+    // Wait for the transition to the ForgotPassword component
+    await expect(this.page.getByRole("heading", { name: "Reset Password" })).toBeVisible();
+    await this.fillForm("Enter email", "Enter new password", email, password);
+    await this.clickButton("Update Password");
   }
 }
