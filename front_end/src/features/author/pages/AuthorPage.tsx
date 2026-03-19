@@ -16,10 +16,7 @@ const AuthorPage: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const [sortModel, setSortModel] = useState<{
-    field: string;
-    sort: "asc" | "desc";
-  } | null>(null);
+  const [sortModel, setSortModel] = useState<any[]>([]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState({});
@@ -40,7 +37,7 @@ const AuthorPage: React.FC = () => {
       const res = await authorService.searchAuthors({
         offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
-        order: sortModel ? [[sortModel.field, sortModel.sort]] : [],
+        order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
         ...filters,
       } as SearchParams);
 
@@ -51,7 +48,7 @@ const AuthorPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, sortModel, filters]);
 
   useEffect(() => {
     loadAuthors();
@@ -146,6 +143,8 @@ const AuthorPage: React.FC = () => {
           rowCount={totalCount}
           paginationModel={paginationModel}
           onPaginationChange={setPaginationModel}
+          sortModel={sortModel}
+          onSortModelChange={setSortModel}
           loading={loading}
           onEdit={handleEditAuthor}
           onDelete={useCallback((row: any) => handleDeleteAuthor(row._id), [handleDeleteAuthor])}
@@ -159,6 +158,14 @@ const AuthorPage: React.FC = () => {
           onSave={handleSaveAuthor}
           author={selectedAuthor}
           mode={modalMode}
+        />
+
+        <AuthorPageFilter
+          isFilterOpen={isFilterOpen}
+          setIsFilterOpen={setIsFilterOpen}
+          filters={filters}
+          setFilters={setFilters}
+          setPaginationModel={setPaginationModel}
         />
       </div>
     </MainLayout>

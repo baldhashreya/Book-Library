@@ -22,12 +22,15 @@ const RolePage: React.FC = () => {
     pageSize: 5,
   });
 
+  const [sortModel, setSortModel] = useState<any[]>([]);
+
   const loadRoles = useCallback(async () => {
     try {
       setLoading(true);
       const roleData = await roleService.searchRoles({
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
+        order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
       } as RoleSearchParams);
       setRoles((roleData as any).data?.rows || (roleData as any).rows || []);
       setTotalCount((roleData as any).data?.count || (roleData as any).count || 0);
@@ -39,7 +42,7 @@ const RolePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, sortModel]);
 
   useEffect(() => {
     loadRoles();
@@ -113,6 +116,8 @@ const RolePage: React.FC = () => {
               rowCount={totalCount}
               paginationModel={paginationModel}
               onPaginationChange={setPaginationModel}
+              sortModel={sortModel}
+              onSortModelChange={setSortModel}
               loading={loading}
               onEdit={handleEditRole}
               onDelete={(row) => handleDelete(row._id)}

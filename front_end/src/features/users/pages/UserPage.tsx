@@ -25,12 +25,15 @@ const UserPage: React.FC = () => {
     pageSize: 5,
   });
 
+  const [sortModel, setSortModel] = useState<any[]>([]);
+
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const usersData = await userService.getUsers({
-        offset: paginationModel.page,
+        offset: paginationModel.page * paginationModel.pageSize,
         limit: paginationModel.pageSize,
+        order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
       } as SearchParams);
       setUsers(usersData.rows);
       setTotalCount(usersData.count);
@@ -41,7 +44,7 @@ const UserPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, sortModel]);
 
   useEffect(() => {
     loadUsers();
@@ -93,7 +96,7 @@ const UserPage: React.FC = () => {
         await loadUsers();
         setIsModalOpen(false);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save user error:", err);
       toast.error(err.message || "An error occurred while saving the user");
     }
@@ -172,6 +175,8 @@ const UserPage: React.FC = () => {
               rowCount={totalCount}
               paginationModel={paginationModel}
               onPaginationChange={setPaginationModel}
+              sortModel={sortModel}
+              onSortModelChange={setSortModel}
               loading={loading}
               onEdit={handleEditUser}
               onDelete={(row) => {

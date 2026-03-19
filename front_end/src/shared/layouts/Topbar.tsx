@@ -7,11 +7,12 @@ interface TopbarProps {
   onProfile: () => void;
 }
 
-const Topbar: React.FC<TopbarProps> = ({
+const Topbar: React.FC<TopbarProps> = React.memo(({
   title,
   userName,
   onProfile,
 }) => {
+  console.log("Topbar Render");
   return (
     <header className="topbar">
       <h1 className="page-title">{title}</h1>
@@ -22,6 +23,6 @@ const Topbar: React.FC<TopbarProps> = ({
       </button>
     </header>
   );
-};
+});
 
 export default Topbar;

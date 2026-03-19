@@ -1,7 +1,9 @@
+require('dotenv').config({ path: '../server/.env' });
+
 const config = {
   mongodb: {
-    url: "mongodb://127.0.0.1:27017",
-    databaseName: "book-library",
+    url: process.env.MONGODB_URL || "mongodb://127.0.0.1:27017",
+    databaseName: process.env.DB_NAME || "book-library",
 
     options: {
       // useNewUrlParser: true,

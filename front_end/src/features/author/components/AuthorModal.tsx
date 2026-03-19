@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import type { AuthorFormData } from "../../../types/author";
+import React, { useEffect, useState } from "react";
+import type { Author, AuthorFormData } from "../../../types/author";
 import "./AuthorModal.css";
 import "../../../shared/styles/model.css";
 import * as Yup from "yup";
@@ -13,6 +13,7 @@ interface AuthorModalProps {
   onClose: () => void;
   onSave: (authorData: AuthorFormData) => void;
   mode: "add" | "edit";
+  author: Author | null;
 }
 
 const validationSchema = Yup.object().shape({
@@ -26,6 +27,7 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
   onClose,
   onSave,
   mode,
+  author,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -48,6 +50,20 @@ const AuthorModal: React.FC<AuthorModalProps> = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === "edit" && author) {
+        formik.setValues({
+          name: author.name,
+          bio: author.bio || "",
+          birthDate: author.birthDate ? new Date(author.birthDate).toISOString().split('T')[0] : "",
+        });
+      } else {
+        formik.resetForm();
+      }
+    }
+  }, [isOpen, author, mode]);
 
   if (!isOpen) return null;
 
