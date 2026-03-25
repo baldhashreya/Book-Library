@@ -96,7 +96,7 @@ export class BooksService {
       }
 
       const CurrentUserModel = UsersModel.find((e) => {
-        return e._id === currentUser;
+        return e._id?.toString() === currentUser;
       });
 
       // determine role name whether role is a populated object or a raw id/string

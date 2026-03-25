@@ -9,72 +9,72 @@ export class AuthorController {
 
   public searchAuthors = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     const authors = await this.authorService.searchAuthors(req.body);
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       authors,
-      AuthorOperations.SEARCH
+      AuthorOperations.SEARCH,
     );
   };
 
   public getAuthorById = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     const author = await this.authorService.getAuthorById(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       author,
-      AuthorOperations.SEARCH
+      AuthorOperations.SEARCH,
     );
   };
   public createAuthor = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     const newAuthor = await this.authorService.createAuthor(req.body);
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       newAuthor,
-      AuthorOperations.CREATE
+      AuthorOperations.CREATE,
     );
   };
 
   public updateAuthor = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     const updatedAuthor = await this.authorService.updateAuthor(
       req.params.id as string,
-      req.body
+      req.body,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       updatedAuthor,
-      AuthorOperations.UPDATED
+      AuthorOperations.UPDATED,
     );
   };
 
   public deleteAuthor = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     const deletedAuthor = await this.authorService.deleteAuthor(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       deletedAuthor,
-      AuthorOperations.DELETED
+      AuthorOperations.DELETED,
     );
   };
 }

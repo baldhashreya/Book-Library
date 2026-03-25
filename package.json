@@ -1,0 +1,10 @@
+{
+  "name": "book-library-root",
+  "private": true,
+  "workspaces": [
+    "front_end",
+    "back_end/common",
+    "back_end/server",
+    "Test_cases"
+  ]
+}

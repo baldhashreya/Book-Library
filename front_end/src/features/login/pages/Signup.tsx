@@ -44,8 +44,7 @@ const Signup: React.FC = () => {
   const loadRoles = async () => {
     try {
       const result = await roleService.searchRoles({ limit: 100, offset: 0 });
-      console.log("result", result);
-      setRoles(result);
+      setRoles(result.data.rows);
     } catch (error) {
       console.error("Error loading roles:", error);
     }
