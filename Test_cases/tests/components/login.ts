@@ -57,8 +57,9 @@ export class LoginPage {
     await this.commonActions.navigateTo("/login");
     await this.clickButton("SignUp");
     await expect(this.page).toHaveURL("/signup");
-    await expect(this.page.getByRole("heading", { name: "TatvaLib", exact: true })).toBeVisible();
+    await expect(this.page.getByRole("heading", { name: "Create your TatvaLib account", exact: true })).toBeVisible();
     await this.clickButton("Sign In");
+    await expect(this.page.getByRole("heading", { name: "Welcome Back To TatvaLib", exact: true })).toBeVisible();
     await expect(this.page).toHaveURL("/login");
   }
 }

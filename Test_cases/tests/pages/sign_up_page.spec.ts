@@ -39,7 +39,7 @@ test.describe("Signup Page Data-Driven Testing", () => {
 
       if (data.expectedResult === "success") {
         const toast = signUpPage.getToastMessage();
-        await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
+        await expect(toast).toBeVisible();
         await page.waitForURL("**/login");
         expect(page.url()).toContain("/login");
       } else {

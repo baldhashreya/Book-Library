@@ -2,7 +2,7 @@ import test, { expect } from "@playwright/test";
 import { LoginPage } from "../components/login";
 import * as fs from "fs";
 import * as path from "path";
-import { LOGIN_URL, DASHBOARD_URL, TOAST_TIMEOUT } from "../utils/constants";
+import { LOGIN_URL, TOAST_TIMEOUT } from "../utils/constants";
 
 const VALID_EMAIL = process.env.VALID_EMAIL || "";
 const VALID_PASSWORD = process.env.VALID_PASSWORD || "";

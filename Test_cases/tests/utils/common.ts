@@ -15,12 +15,16 @@ export class CommonActions {
     await this.page.getByRole("button", { name: buttonText }).click();
   }
 
-  async fillForm(Placeholder:string,value: string) {
+  async fillForm(Placeholder: string, value: string) {
     await this.page.getByPlaceholder(Placeholder).fill(value);
   }
 
-  async selectDropdown(Placeholder:string,value: string) {
-    await this.page.getByRole("combobox", { name: Placeholder }).selectOption(value);
+  async selectDropdown(Placeholder: string, value: string) {
+    if (!value) {
+      return;
+    }
+    await this.page.getByLabel(Placeholder).click();
+    await this.page.getByRole("option", { name: value }).click();
   }
 
   getToastMessage(): Locator {
