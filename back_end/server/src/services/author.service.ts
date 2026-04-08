@@ -9,7 +9,7 @@ export class AuthorService {
   }
 
   public async searchAuthors(
-    param: AuthorsSearchParams
+    param: AuthorsSearchParams,
   ): Promise<{ count: number; rows: AuthorModel[] }> {
     return this.authorRepository.searchAuthors(param);
   }
@@ -20,7 +20,7 @@ export class AuthorService {
 
   public async createAuthor(authorData: AuthorModel): Promise<AuthorModel> {
     const existingAuthor = await this.authorRepository.getAuthorByName(
-      authorData.name
+      authorData.name,
     );
     if (existingAuthor > 0) {
       const err = new Error();
@@ -32,7 +32,7 @@ export class AuthorService {
 
   public async updateAuthor(
     id: string,
-    authorData: AuthorModel
+    authorData: AuthorModel,
   ): Promise<UpdateResult> {
     const existingAuthor = await this.authorRepository.getAuthorById(id);
     if (!existingAuthor) {
@@ -42,7 +42,7 @@ export class AuthorService {
     }
     const existingAuthorName = await this.authorRepository.getAuthorByName(
       authorData.name,
-      id
+      id,
     );
     if (existingAuthorName && existingAuthorName > 0) {
       const err = new Error();

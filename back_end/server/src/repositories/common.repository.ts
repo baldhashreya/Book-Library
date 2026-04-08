@@ -11,7 +11,7 @@ export class CommonRepository {
 
   public async updateUser(
     param: UsersModel,
-    id: string
+    id: string,
   ): Promise<UpdateResult> {
     return Users.updateOne({ _id: id }, { ...param });
   }

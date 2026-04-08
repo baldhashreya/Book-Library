@@ -6,6 +6,7 @@ import { userService } from "../userService";
 import "./UserModal.css";
 import { Grid, TextField, MenuItem } from "@mui/material";
 import ModalHeader from "../../../shared/components/ModalHeader";
+import FormAction from "../../../shared/components/FormAction";
 
 interface UserModalProps {
   isOpen: boolean;

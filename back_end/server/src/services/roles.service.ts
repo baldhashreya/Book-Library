@@ -6,7 +6,7 @@ import { RolesRepository } from "../repositories/roles.repository";
 export class RolesServices {
   constructor(
     private readonly rolesRepository: RolesRepository,
-    private readonly commonRepository: CommonRepository
+    private readonly commonRepository: CommonRepository,
   ) {
     this.rolesRepository = rolesRepository;
     this.commonRepository = commonRepository;
@@ -26,11 +26,11 @@ export class RolesServices {
 
   public async updateRoleById(
     params: RoleModel,
-    id: string
+    id: string,
   ): Promise<RoleModel | null> {
     const existingRole = await this.rolesRepository.getRoleByName(
       params.name,
-      id
+      id,
     );
 
     if (existingRole) {
@@ -57,7 +57,9 @@ export class RolesServices {
     return roleDeleted;
   }
 
-  public async searchRoles(params: RolesSearchParams): Promise<{ rows: RoleModel[]; count: number }> {
+  public async searchRoles(
+    params: RolesSearchParams,
+  ): Promise<{ rows: RoleModel[]; count: number }> {
     return this.rolesRepository.searchRoles(params);
   }
 

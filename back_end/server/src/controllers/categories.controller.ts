@@ -5,7 +5,7 @@ import {
   HttpStatusCode,
   LogLevel,
   baseController,
-  addLog
+  addLog,
 } from "common";
 
 export class CategoriesController {
@@ -20,32 +20,32 @@ export class CategoriesController {
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.CREATE
+      CategoriesOperations.CREATE,
     );
   };
   public updateCategory = async (req: Request, res: Response) => {
     addLog(LogLevel.info, "Update Category Request Body:", req.body);
     const result = await this.categoriesService.updateCategory(
       req.params.id as string,
-      req.body
+      req.body,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.UPDATED
+      CategoriesOperations.UPDATED,
     );
   };
   public deleteCategory = async (req: Request, res: Response) => {
     addLog(LogLevel.info, "Delete Category Request Body:", req.body);
     const result = await this.categoriesService.deleteCategory(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.DELETED
+      CategoriesOperations.DELETED,
     );
   };
   public searchCategory = async (req: Request, res: Response) => {
@@ -55,20 +55,20 @@ export class CategoriesController {
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.SEARCH
+      CategoriesOperations.SEARCH,
     );
   };
 
   public getCategoryById = async (req: Request, res: Response) => {
     addLog(LogLevel.info, "Get Category By ID Request Params:", req.params);
     const result = await this.categoriesService.getCategoryById(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.SEARCH
+      CategoriesOperations.SEARCH,
     );
   };
 
@@ -79,7 +79,7 @@ export class CategoriesController {
       res,
       HttpStatusCode.Ok,
       result,
-      CategoriesOperations.CREATE
+      CategoriesOperations.CREATE,
     );
   };
 }

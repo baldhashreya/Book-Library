@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { HttpStatusCode, LogLevel,baseController, addLog } from "common";
+import { HttpStatusCode, LogLevel, baseController, addLog } from "common";
 import { ProfileService } from "../services/profile.service";
 
 export class ProfileController {

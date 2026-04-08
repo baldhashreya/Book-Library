@@ -9,10 +9,10 @@ export class AuthorizationController {
 
   public loginUser = async (req: Request, res: Response): Promise<Response> => {
     addLog(LogLevel.info, "login User", req.body);
-    let result = '';
+    let result = "";
     try {
-       result = await this.authorizationServices.loginUser(req.body);
-       console.log('Result:::::::::::::::', result);
+      result = await this.authorizationServices.loginUser(req.body);
+      console.log("Result:::::::::::::::", result);
     } catch (err) {
       console.log(err);
     }

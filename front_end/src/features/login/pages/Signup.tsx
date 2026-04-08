@@ -16,6 +16,7 @@ import {
   LockOutlined,
   PermContactCalendarOutlined,
 } from "@mui/icons-material";
+import { toast } from "react-toastify";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -44,8 +45,7 @@ const Signup: React.FC = () => {
   const loadRoles = async () => {
     try {
       const result = await roleService.searchRoles({ limit: 100, offset: 0 });
-      console.log("result", result);
-      setRoles(result);
+      setRoles(result.data.rows);
     } catch (error) {
       console.error("Error loading roles:", error);
     }
@@ -69,12 +69,12 @@ const Signup: React.FC = () => {
           password: values.password,
           role: values.role
         };
-        await authService.register(payload);
-        alert("Account created successfully!");
+        const response = await authService.register(payload);
+        toast.success(response.message);
         navigate("/login");
       } catch (error) {
         console.error("Error creating account:", error);
-        alert("Failed to create account!");
+        toast.error("Failed to create account!");
       } finally {
         setLoading(false);
       }

@@ -64,9 +64,9 @@ export class CategoriesRepository {
               $filter: {
                 input: "$books",
                 as: "book",
-                cond: { $eq: ["$$book.status", "AVAILABLE"] }
-              }
-            }
+                cond: { $eq: ["$$book.status", "AVAILABLE"] },
+              },
+            },
           },
         },
       },
@@ -77,7 +77,7 @@ export class CategoriesRepository {
       { $skip: params.offset || 0 },
       { $limit: params.limit || 10 },
     ]);
-      
+
     return { count, rows };
   }
 

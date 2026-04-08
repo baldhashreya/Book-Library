@@ -82,7 +82,7 @@ export class AuthorizationServices {
         { refreshToken: refresh_token, lastLogin: new Date() } as UsersModel,
         existingUser._id as unknown as string,
       );
-      
+
       return { access_token, refresh_token };
     } catch (err) {
       console.log(err);

@@ -8,7 +8,7 @@ export class UsersControllers {
   }
   public createUser = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "create User", req.body);
     const result = await this.usersServices.createUser(req.body);
@@ -17,7 +17,7 @@ export class UsersControllers {
 
   public createUsers = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "create Users", req.body);
     const result = await this.usersServices.createUsers();
@@ -25,24 +25,24 @@ export class UsersControllers {
       res,
       200,
       result,
-      UsersOperations.USERS_CREATED
+      UsersOperations.USERS_CREATED,
     );
   };
 
   public updateUsers = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "update User", req.body);
     const result = await this.usersServices.updateUser(
       req.body,
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
   };
   public deleteUser = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "delete User", req.body);
     const result = await this.usersServices.deleteUser(req.params.id as string);
@@ -51,7 +51,7 @@ export class UsersControllers {
 
   public searchUsers = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "search User", req.body);
     const result = await this.usersServices.searchUsers(req.body);
@@ -60,22 +60,22 @@ export class UsersControllers {
 
   public getUserById = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "get User", req.body);
     const result = await this.usersServices.getUserById(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(res, 200, result, UsersOperations.GET);
   };
 
   public updateUserStatus = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<Response> => {
     addLog(LogLevel.info, "update User Status", req.body);
     const result = await this.usersServices.updateUserStatus(
-      req.params.id as string
+      req.params.id as string,
     );
     return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
   };

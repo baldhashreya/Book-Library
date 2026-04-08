@@ -4,8 +4,8 @@ import { apiService } from "../../services/api";
 export const authService = {
   async login(credentials: LoginFormData): Promise<LoginResponse> {
     try {
-       const response: any = await apiService.post("/auth/login", credentials);
-       console.log(response);
+      const response: any = await apiService.post("/auth/login", credentials);
+      console.log(response);
       if (!response || !response.data) {
         throw new Error("Login failed");
       }
@@ -16,9 +16,9 @@ export const authService = {
       return {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to connect to server. Please try again.",
+          error instanceof Error ?
+            error.message
+          : "Unable to connect to server. Please try again.",
       };
     }
   },
@@ -50,9 +50,9 @@ export const authService = {
       return {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Unable to connect to server. Please try again.",
+          error instanceof Error ?
+            error.message
+          : "Unable to connect to server. Please try again.",
       };
     }
   },
@@ -96,10 +96,12 @@ export const authService = {
 
   // Forgot password
   async forgotPassword(
-    email: string
+    email: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const data: any = await apiService.post("/auth/forgot-password", { email });
+      const data: any = await apiService.post("/auth/forgot-password", {
+        email,
+      });
       return {
         success: data?.success || true,
         message:
@@ -111,9 +113,9 @@ export const authService = {
       return {
         success: false,
         message:
-          error instanceof Error
-            ? error.message
-            : "Failed to send reset email.",
+          error instanceof Error ?
+            error.message
+          : "Failed to send reset email.",
       };
     }
   },
@@ -121,14 +123,14 @@ export const authService = {
   // Reset password
   async resetPassword(
     email: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<{ success: boolean; message: string }> {
-    console.log("email:::::::::::",email);
     try {
       const data: any = await apiService.post("/auth/reset-password", {
         email,
         password: newPassword,
       });
+      console.log(data);
       return {
         success: data?.success || true,
         message: data?.message || "Password reset successfully.",

@@ -2,12 +2,10 @@ import test, { expect } from "@playwright/test";
 import { LoginPage } from "../components/login";
 import * as fs from "fs";
 import * as path from "path";
+import { LOGIN_URL, TOAST_TIMEOUT } from "../utils/constants";
 
-const VALID_EMAIL = "shreya.baldha123@tatvasoft.com";
-const VALID_PASSWORD = "Shreya!123";
-const DASHBOARD_URL = "http://localhost:5173/dashboard";
-const LOGIN_URL = "http://localhost:5173/login";
-const TOAST_TIMEOUT = 5_000;
+const VALID_EMAIL = process.env.VALID_EMAIL || "";
+const VALID_PASSWORD = process.env.VALID_PASSWORD || "";
 
 const loadCSV = (filePath: string) => {
   const data = fs.readFileSync(filePath, "utf-8");
@@ -37,7 +35,7 @@ test.describe("Login Page", () => {
       await loginPage.login(data.email, data.password);
 
       // Simple heuristic for success/failure based on the CSV data
-      if (data.email === VALID_EMAIL && data.password === VALID_PASSWORD) {
+      if (data.expectedResult === "success") {
         const toast = loginPage.getToastMessage();
         await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
       } else {
@@ -94,7 +92,15 @@ test.describe("Forgot Password", () => {
             loginPage.getEmailValidationMessage("Enter a valid email"),
           ).toBeVisible();
         } else if (!data.password) {
-          await expect(loginPage.getPasswordValidationMessage()).toBeVisible();
+          await expect(
+            loginPage.getPasswordValidationMessage("New password is required"),
+          ).toBeVisible();
+        } else if (data.password && data.password.length < 6) {
+          await expect(
+            loginPage.getPasswordValidationMessage(
+              "Password must be at least 6 characters",
+            ),
+          ).toBeVisible();
         } else {
           const toast = loginPage.getToastMessage();
           await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
@@ -104,13 +110,16 @@ test.describe("Forgot Password", () => {
   }
 });
 
-test.describe("Redirect Login to Fargot Password and Fargot Passwor to Login", () => {
-  test("Redirect Login to Fargot Password and Fargot Passwor to Login", async ({ page }) => {
+test.describe("Redirect Login to Forgot Password and Forgot Password to Login", () => {
+  test("Redirect Login to Forgot Password and Forgot Password to Login", async ({ page }) => {
     const loginPage = new LoginPage(page);
-    await loginPage.gotoLoginPage();
-    await loginPage.clickButton("Forgot Password?");
-    await expect(page.getByRole("heading", { name: "Reset Password" })).toBeVisible();
-    await loginPage.clickButton("Back to Login");
-    await expect(page).toHaveURL(LOGIN_URL);
+    await loginPage.redirectForgotPasswordToLogin();
+  })
+})
+
+test.describe("Redirect Login to Sign up and Sign up to Login", () => {
+  test("Redirect Login to Sign up and Sign up to Login", async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.redirectSignUpToLogin();
   })
 })
