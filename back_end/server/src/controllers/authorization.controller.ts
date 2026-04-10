@@ -9,13 +9,7 @@ export class AuthorizationController {
 
   public loginUser = async (req: Request, res: Response): Promise<Response> => {
     addLog(LogLevel.info, "login User", req.body);
-    let result = "";
-    try {
-      result = await this.authorizationServices.loginUser(req.body);
-      console.log("Result:::::::::::::::", result);
-    } catch (err) {
-      console.log(err);
-    }
+    const result = await this.authorizationServices.loginUser(req.body);
     return baseController.getResult(res, 200, result, AuthOperations.LOGIN);
   };
 

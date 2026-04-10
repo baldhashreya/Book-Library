@@ -1,0 +1,85 @@
+import pytest
+import json
+import os
+import requests
+from tests.common import load_csv_data
+from tests.schemas.login_schema import LoginRequest
+from pydantic import ValidationError
+
+@pytest.fixture(scope="session")
+def config():
+    env = os.getenv("PYTEST_ENV", "local")
+    config_path = os.path.join(os.path.dirname(__file__), "config", f"{env}.json")
+    
+    if not os.path.exists(config_path):
+        pytest.fail(f"Config file not found: {config_path}")
+        
+    with open(config_path) as f:
+        return json.load(f)
+
+@pytest.fixture(scope="session")
+def base_url(config):
+    return config.get("base_url")
+
+@pytest.fixture(scope="session")
+def login_data():
+    path = os.path.join(os.path.dirname(__file__), "..", "data", "login.json")
+    with open(path) as f:
+        return json.load(f)
+
+@pytest.fixture(scope="session")
+def signup_data():
+    path = os.path.join(os.path.dirname(__file__), "..", "data", "signup.json")
+    with open(path) as f:
+        return json.load(f)
+
+
+@pytest.fixture(scope="session")
+def perform_login():
+    def _login(base_url, login_data):
+        payload = login_data
+        try:
+            model_instance = LoginRequest(**login_data)
+            payload = model_instance.model_dump()
+            print(f"\n[VALIDATION] Success. Data parsed using Pydantic.")
+        except ValidationError as e:
+            print(f"\n[VALIDATION] Warning: {e}")
+
+        return requests.post(f"{base_url}/auth/login", json=payload)
+        
+    return _login
+
+@pytest.fixture(scope="session")
+def auth_token(base_url, login_data, signup_data, perform_login):
+    # Use the shared helper fixture
+    response = perform_login(base_url, login_data)
+    
+    if response.status_code == 200:
+        return response.json().get("data", {}).get("access_token")
+    
+    # If login fails, try to signup first and then login again
+    requests.post(f"{base_url}/auth/signup", json=signup_data)
+    
+    # Try login again using the shared helper
+    response = perform_login(base_url, login_data)
+    if response.status_code == 200:
+        return response.json().get("data", {}).get("access_token")
+
+    return None
+
+
+
+@pytest.fixture(scope="session")
+def headers(auth_token):
+    if auth_token:
+        return {
+            "Authorization": auth_token,
+            "Content-Type": "application/json",
+        }
+    # Fallback: no auth (tests expecting 401 will still pass)
+    return {"Content-Type": "application/json"}
+
+
+@pytest.fixture(scope="session")
+def logout_csv():
+    return load_csv_data("logout_test_data.csv")
