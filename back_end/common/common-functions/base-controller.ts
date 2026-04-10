@@ -5,6 +5,7 @@ import { getMessageByCode } from "../common-functions/common-functions";
 import { AuthOperations, HttpStatusCode, LogLevel } from "./enum";
 import { Users } from "../database/models/users";
 import { addLog } from "./logger";
+import { messages } from "./en";
 export class ErrorResult {
   constructor(message: string, errorCode?: string, data?: unknown) {
     this.message = message;
@@ -67,11 +68,11 @@ export const authorizationUser = async (
     );
   }
   const user = await Users.findById({ _id: userId });
-  if (!user) {
+  if (!user || !user.refreshToken) {
     return baseController.getErrorResult(
       res,
-      HttpStatusCode.BadRequest,
-      getMessageByCode(AuthOperations.INVALID_CRED)
+      HttpStatusCode.Unauthorized,
+      messages.unauthorized
     );
   }
   (req as any).userId = userId;

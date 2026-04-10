@@ -3,6 +3,7 @@ export const messages = {
   badRequest: "Bad request",
   unauthorized: "Unauthorized access",
   forbidden: "Forbidden access",
+  ValidationError: "Validation Error",
   AuthorizationsMessages: {
     LoginSuccess: "Login successful",
     InvalidCredentials: "Invalid username or password",

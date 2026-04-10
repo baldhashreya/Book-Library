@@ -90,6 +90,13 @@ export class AuthorizationServices {
   }
 
   public async logOutUser(id: string): Promise<UpdateResult> {
+    const mongoose = require("mongoose");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      const err = new Error();
+      err.name = ErrorType.ValidationError;
+      return Promise.reject(err);
+    }
+
     const existingUser = await this.commonRepository.getUserById(id);
     if (!existingUser) {
       const err = new Error();

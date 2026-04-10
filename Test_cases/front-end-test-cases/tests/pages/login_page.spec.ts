@@ -23,7 +23,7 @@ const loadCSV = (filePath: string) => {
 
 test.describe("Login Page", () => {
   let loginPage: LoginPage;
-  const testData = loadCSV(path.join(__dirname, "../../data/login.csv"));
+  const testData = loadCSV(path.join(__dirname, "../../../data/login.csv"));
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
@@ -63,7 +63,7 @@ test.describe("Login Page", () => {
 
 test.describe("Forgot Password", () => {
   const testData = loadCSV(
-    path.join(__dirname, "../../data/forgot_password.csv"),
+    path.join(__dirname, "../../../data/forgot_password.csv"),
   );
   let loginPage: LoginPage;
   test.beforeEach(async ({ page }) => {

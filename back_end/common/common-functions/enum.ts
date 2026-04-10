@@ -88,7 +88,8 @@ export enum ErrorType {
   BookNotFound = "BookNotFound",
   AuthorNotFound = "AuthorNotFound",
   NotAbleAssignBook = "NotAbleAssignBook",
-  BookIsOutOfStock = "BookIsOutOfStock"
+  BookIsOutOfStock = "BookIsOutOfStock",
+  ValidationError = "ValidationError"
 }
 
 export enum AuthOperations {

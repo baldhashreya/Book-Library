@@ -21,8 +21,15 @@ const authorizationController = new AuthorizationController(
 const { login, logout, signup, refreshToken, resetPassword } =
   AuthorizationModel;
 
+import { authorizationUser } from "common";
+
 router.post("/login", celebrate(login), authorizationController.loginUser);
-router.get("/logout/:id", celebrate(logout), authorizationController.logoutUser);
+router.get(
+  "/logout/:id",
+  authorizationUser,
+  celebrate(logout),
+  authorizationController.logoutUser
+);
 router.post("/signup", celebrate(signup), authorizationController.signUpUser);
 router.patch(
   "/refresh-token",

@@ -89,9 +89,9 @@ export function getMessageByCode(messageKey: string): string {
 
 export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
   const Error_name: string =
-    error.name === ErrorType.SequelizeDatabaseError
-      ? error.message
-      : error.name;
+    error.name === ErrorType.SequelizeDatabaseError ?
+      error.message
+    : error.name;
 
   let statusCode: number = HttpStatusCode.InternalServerError;
   let errorKey: string = ErrorType.InternalServerError;
@@ -118,7 +118,7 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       errorKey = messages.RoleMessages.RoleIsUnique;
       break;
     case ErrorType.UserNotFound:
-      statusCode = HttpStatusCode.NotFound;
+      statusCode = HttpStatusCode.BadRequest;
       errorKey = messages.UsersMessages.UserNotFound;
       break;
     case ErrorType.UserIsUnique:
@@ -128,6 +128,7 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
     case ErrorType.UserIsInactive:
       statusCode = HttpStatusCode.Forbidden;
       errorKey = messages.UsersMessages.UserIsInactive;
+      break;
 
     case ErrorType.InvalidCredentials:
       statusCode = HttpStatusCode.Unauthorized;
@@ -158,6 +159,10 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       statusCode = HttpStatusCode.ConflictError;
       errorKey = messages.BooksMessages.BookIsOutOfStock;
       break;
+    case ErrorType.ValidationError:
+      statusCode = HttpStatusCode.BadRequest;
+      errorKey = messages.ValidationError;
+      break;
 
     default:
       statusCode = HttpStatusCode.InternalServerError;
@@ -171,7 +176,7 @@ export const errorHandler = async (
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<Response | void> => {
   if (res.headersSent) {
     return next(err);
@@ -183,7 +188,7 @@ export const errorHandler = async (
     res,
     errorResult.statusCode,
     errorResult.errorKey,
-    errorResult.errorCode
+    errorResult.errorCode,
   );
 };
 
@@ -208,7 +213,7 @@ export async function hashPassword(password: string): Promise<string> {
 
 export async function verifyPassword(
   hash: string,
-  plainPassword: string
+  plainPassword: string,
 ): Promise<boolean> {
   try {
     return await argon2.verify(hash, plainPassword);
