@@ -27,7 +27,7 @@ export class AuthorizationServices {
     );
     if (existingUser) {
       const err = new Error();
-      err.name = ErrorType.InvalidCredentials;
+      err.name = ErrorType.UserIsUnique;
       return Promise.reject(err);
     }
     params.password = await hashPassword(params.password || "");

@@ -14,13 +14,13 @@ export const AuthorizationModel = {
     body: {},
     query: {},
   },
-  signup: {
+    signup: {
     params: {},
     body: {
-      name: Joi.string().required(),
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-      role: Joi.string().required(),
+      name: Joi.string().min(1).trim().required(),
+      email: Joi.string().email().min(1).trim().required(),
+      password: Joi.string().min(1).trim().required(),
+      role: Joi.string().min(1).trim().required(),
     },
     query: {},
   },

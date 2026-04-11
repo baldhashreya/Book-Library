@@ -54,27 +54,47 @@ export const authorizationUser = async (
   next: NextFunction
 ) => {
   addLog(LogLevel.info, "authorizationUser", req.headers.authorization);
-  const verifiedUser = jwt.verify(
-    req.headers.authorization as string,
-    process.env.ACCESS_TOKEN || ""
-  );
-  addLog(LogLevel.info, "verifiedUser", verifiedUser);
-  const userId = verifiedUser && (verifiedUser as any)._id;
-  if (!userId) {
-    return baseController.getErrorResult(
-      res,
-      HttpStatusCode.BadRequest,
-      getMessageByCode(AuthOperations.INVALID_CRED)
+  try {
+    const token = req.headers.authorization;
+    if (!token) {
+       return baseController.getErrorResult(
+        res,
+        HttpStatusCode.Unauthorized,
+        messages.unauthorized
+      );
+    }
+
+    const verifiedUser = jwt.verify(
+      token as string,
+      process.env.ACCESS_TOKEN || ""
     );
-  }
-  const user = await Users.findById({ _id: userId });
-  if (!user || !user.refreshToken) {
+    addLog(LogLevel.info, "verifiedUser", verifiedUser);
+    
+    const userId = verifiedUser && (verifiedUser as any)._id;
+    if (!userId) {
+      return baseController.getErrorResult(
+        res,
+        HttpStatusCode.Unauthorized,
+        messages.unauthorized
+      );
+    }
+    
+    const user = await Users.findById({ _id: userId });
+    if (!user || !user.refreshToken) {
+      return baseController.getErrorResult(
+        res,
+        HttpStatusCode.Unauthorized,
+        messages.unauthorized
+      );
+    }
+    (req as any).userId = userId;
+    next();
+  } catch (error) {
+    addLog(LogLevel.error, "Authorization Error", error);
     return baseController.getErrorResult(
       res,
       HttpStatusCode.Unauthorized,
       messages.unauthorized
     );
   }
-  (req as any).userId = userId;
-  next();
 };
