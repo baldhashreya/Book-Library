@@ -2,11 +2,11 @@ import pytest
 import time
 from pydantic import ValidationError
 
-from .common import load_csv_data, make_request
-from .schemas.signup_schema import SignupSuccessResponse, SignupErrorResponse, SignupRequest
+from tests.common import load_csv_data, make_request
+from tests.schemas.signup_schema import SignupSuccessResponse, SignupErrorResponse, SignupRequest
 
 # Load test data from the centralized CSV file (Data-Driven Testing)
-signup_scenarios = load_csv_data("sign_up.csv")
+signup_scenarios = load_csv_data("auth/sign_up.csv")
 
 class TestSignup:
     """

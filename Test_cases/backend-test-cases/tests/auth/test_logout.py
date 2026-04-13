@@ -2,11 +2,11 @@ import pytest
 import requests as _requests
 from pydantic import ValidationError
 
-from .common import load_csv_data, make_request
-from .schemas.logout_schema import LogoutResponse, LogoutErrorResponse
+from tests.common import load_csv_data, make_request
+from tests.schemas.logout_schema import LogoutResponse, LogoutErrorResponse
 
 # Load scenarios from centralized CSV
-logout_scenarios = load_csv_data("logout_test_data.csv")
+logout_scenarios = load_csv_data("auth/logout_test_data.csv")
 
 
 class TestLogout:

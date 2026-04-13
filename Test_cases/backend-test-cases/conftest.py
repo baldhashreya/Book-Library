@@ -88,4 +88,4 @@ def headers(auth_token):
 
 @pytest.fixture(scope="session")
 def logout_csv():
-    return load_csv_data("logout_test_data.csv")
+    return load_csv_data("auth/logout_test_data.csv")

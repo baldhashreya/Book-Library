@@ -22,7 +22,7 @@ const loadCSV = (filePath: string) => {
 test.describe("Reset Password Page UI", () => {
   let resetPasswordPage: ResetPasswordPage;
   // Make sure the path matches where the CSV lives (e.g. data folder in the root of Test_cases)
-  const testData = loadCSV(path.join(__dirname, "../../../data/reset_password.csv"));
+  const testData = loadCSV(path.join(__dirname, "../../../data/auth/reset_password.csv"));
 
   test.beforeEach(async ({ page }) => {
     resetPasswordPage = new ResetPasswordPage(page);

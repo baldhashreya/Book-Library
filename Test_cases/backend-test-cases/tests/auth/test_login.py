@@ -1,7 +1,7 @@
 import pytest
-from .common import load_csv_data
+from tests.common import load_csv_data
 
-login_scenarios = load_csv_data("login.csv")
+login_scenarios = load_csv_data("auth/login.csv")
 
 class TestLogin:
     @pytest.mark.parametrize("data", login_scenarios)

@@ -20,7 +20,7 @@ const loadCSV = (filePath: string) => {
 
 test.describe("Signup Page Data-Driven Testing", () => {
   let signUpPage: SignUp;
-  const testData = loadCSV(path.join(__dirname, "../../../data/sign_up.csv"));
+  const testData = loadCSV(path.join(__dirname, "../../../data/auth/sign_up.csv"));
 
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:5173/signup");

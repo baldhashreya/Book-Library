@@ -2,15 +2,15 @@ import pytest
 import requests as _requests
 from pydantic import ValidationError
 
-from .common import load_csv_data, make_request
-from .schemas.reset_password_schema import (
+from tests.common import load_csv_data, make_request
+from tests.schemas.reset_password_schema import (
     ResetPasswordSuccessResponse, 
     ResetPasswordErrorResponse, 
     ResetPasswordRequest
 )
 
 # Load scenarios from centralized CSV
-reset_scenarios = load_csv_data("reset_password.csv")
+reset_scenarios = load_csv_data("auth/reset_password.csv")
 
 class TestResetPassword:
     """
