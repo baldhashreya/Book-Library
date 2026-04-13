@@ -27,7 +27,7 @@ export class AuthorizationServices {
     );
     if (existingUser) {
       const err = new Error();
-      err.name = ErrorType.InvalidCredentials;
+      err.name = ErrorType.UserIsUnique;
       return Promise.reject(err);
     }
     params.password = await hashPassword(params.password || "");
@@ -62,7 +62,7 @@ export class AuthorizationServices {
       console.log(passwordVerified);
       if (!passwordVerified) {
         const err = new Error();
-        err.name = ErrorType.UserIsInactive;
+        err.name = ErrorType.InvalidCredentials;
         return Promise.reject(err);
       }
 
@@ -111,28 +111,42 @@ export class AuthorizationServices {
 
   public async refreshToken(
     token: string,
-    id: string,
+    id?: string,
   ): Promise<{ refresh_token: string; access_token: string }> {
-    const existingUser = await this.commonRepository.getUserById(id);
-    if (!existingUser) {
+    try {
+      const verifiedUser = jwt.verify(token, process.env.REFRESH_TOKEN || "") as any;
+      const userId = verifiedUser._id;
+      const existingUser = await this.commonRepository.getUserById(userId);
+
+      if (!existingUser || existingUser.status !== UserStatusEnum.ACTIVE || existingUser.refreshToken !== token) {
+        const err = new Error();
+        err.name = ErrorType.InvalidCredentials;
+        return Promise.reject(err);
+      }
+
+      const access_token = jwt.sign(
+        { _id: existingUser._id, email: existingUser.email },
+        process.env.ACCESS_TOKEN || "",
+        { expiresIn: "5m" },
+      );
+
+      const refresh_token = jwt.sign(
+        { _id: existingUser._id, email: existingUser.email },
+        process.env.REFRESH_TOKEN || "",
+        { expiresIn: "30m" },
+      );
+
+      await this.commonRepository.updateUser(
+        { refreshToken: refresh_token } as UsersModel,
+        existingUser._id as unknown as string,
+      );
+
+      return { access_token, refresh_token };
+    } catch (error) {
       const err = new Error();
-      err.name = ErrorType.UserNotFound;
+      err.name = ErrorType.InvalidCredentials;
       return Promise.reject(err);
     }
-
-    const access_token = jwt.sign(
-      { _id: existingUser._id, email: existingUser.email },
-      process.env.ACCESS_TOKEN || "",
-      { expiresIn: "5m" },
-    );
-
-    const refresh_token = jwt.sign(
-      { _id: existingUser._id, email: existingUser.email },
-      process.env.REFRESH_TOKEN || "",
-      { expiresIn: "30m" },
-    );
-
-    return { access_token, refresh_token };
   }
 
   public async resetPassword(
