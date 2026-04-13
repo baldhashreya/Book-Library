@@ -32,6 +32,6 @@ export class CommonActions {
   }
 
   getValidationMessage(message: string): Locator {
-    return this.page.locator(`text=${message}`);
+    return this.page.getByText(message, { exact: true }).first();
   }
 }

@@ -6,8 +6,8 @@ import * as path from "path";
 
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 
-const VALID_EMAIL = process.env.VALID_EMAIL || "shreya.baldha123@tatvasoft.com";
-const VALID_PASSWORD = process.env.VALID_PASSWORD || "Shreya!123";
+const VALID_EMAIL = process.env.VALID_EMAIL || "john.doe@example.com";
+const VALID_PASSWORD = process.env.VALID_PASSWORD || "Password!123";
 
 test.describe("About Me Page", () => {
     let loginPage: LoginPage;

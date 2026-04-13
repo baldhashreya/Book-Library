@@ -70,8 +70,13 @@ const Signup: React.FC = () => {
           role: values.role
         };
         const response = await authService.register(payload);
-        toast.success(response.message);
-        navigate("/login");
+        
+        if (response.success) {
+          toast.success(response.message);
+          navigate("/login");
+        } else {
+          toast.error(response.message || "Failed to create account!");
+        }
       } catch (error) {
         console.error("Error creating account:", error);
         toast.error("Failed to create account!");

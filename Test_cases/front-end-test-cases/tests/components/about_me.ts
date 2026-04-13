@@ -51,7 +51,7 @@ export class AboutMe {
   }
 
   getEditProfileModalTitle(): Locator {
-    return this.page.getByRole("heading", { name: "Edit Profile" });
+    return this.page.getByRole("heading", { name: "Edit User" });
   }
 
   getChangePasswordModalTitle(): Locator {

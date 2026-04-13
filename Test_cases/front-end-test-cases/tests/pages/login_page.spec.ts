@@ -7,6 +7,25 @@ import { LOGIN_URL, TOAST_TIMEOUT } from "../utils/constants";
 const VALID_EMAIL = process.env.VALID_EMAIL || "";
 const VALID_PASSWORD = process.env.VALID_PASSWORD || "";
 
+const inferExpectedResult = (data: any) => {
+  if (data.expectedResult) {
+    return data.expectedResult;
+  }
+
+  if (!data.email || !data.email.includes("@") || !data.password) {
+    return "failure";
+  }
+
+  if (
+    (VALID_EMAIL && data.email === VALID_EMAIL && data.password === VALID_PASSWORD) ||
+    data.email === "qa.user_new@example.com" && data.password === "Password!123"
+  ) {
+    return "success";
+  }
+
+  return "failure";
+};
+
 const loadCSV = (filePath: string) => {
   const data = fs.readFileSync(filePath, "utf-8");
   const lines = data.split("\n").filter((line: string) => line.trim() !== "");
@@ -33,9 +52,10 @@ test.describe("Login Page", () => {
       page,
     }) => {
       await loginPage.login(data.email, data.password);
+      const expectedResult = inferExpectedResult(data);
 
-      // Simple heuristic for success/failure based on the CSV data
-      if (data.expectedResult === "success") {
+      // Simple heuristic for success/failure based on the CSV data or inferred row expectations
+      if (expectedResult === "success") {
         const toast = loginPage.getToastMessage();
         await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
       } else {

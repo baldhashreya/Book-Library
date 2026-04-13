@@ -26,8 +26,8 @@ export class SignUp {
         await this.commonActions.fillForm("Enter name", name);
         await this.commonActions.fillForm("Enter email", email);
         await this.commonActions.fillForm("Enter password", password);
-        await this.commonActions.fillForm("confirm password", confirmPassword);
-        await this.commonActions.selectDropdown("Select role", role);
+        await this.commonActions.fillForm("Confirm password", confirmPassword);
+        await this.commonActions.selectDropdown("Select Role", role);
         await this.commonActions.clickButton("Sign Up");
     }
 }
