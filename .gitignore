@@ -46,3 +46,5 @@ __pycache__/
 *$py.class
 venv/
 .pytest_cache/
+
+.zip
