@@ -49,25 +49,31 @@ def perform_login():
         
     return _login
 
-@pytest.fixture(scope="session")
-def auth_token(base_url, login_data, signup_data, perform_login):
-    # Use the shared helper fixture
-    response = perform_login(base_url, login_data)
+@pytest.fixture(scope="session", autouse=True)
+def initialize_global_test_user(base_url, signup_data, login_data, perform_login):
+    """
+    Guarantees the global test user securely exists in the DB before any test classes
+    try to indiscriminately run setups that require them.
+    """
+    resp = perform_login(base_url, login_data)
+    if resp.status_code == 200:
+        return  # User already fully synchronized and active
     
-    if response.status_code == 200:
-        return response.json().get("data", {}).get("access_token")
-    
-    # If login fails, try to signup first and then login again
+    # Needs to be created
     requests.post(f"{base_url}/auth/signup", json=signup_data)
     
-    # Try login again using the shared helper
+    # Wait, lets ensure it successfully registered
+    final_resp = perform_login(base_url, login_data)
+    if final_resp.status_code != 200:
+        pytest.fail(f"CRITICAL: Failed to automatically provision global test user dataset. Code {final_resp.status_code}")
+
+@pytest.fixture(scope="session")
+def auth_token(base_url, login_data, perform_login):
+    # Relies on initialize_global_test_user already having run
     response = perform_login(base_url, login_data)
     if response.status_code == 200:
         return response.json().get("data", {}).get("access_token")
-
     return None
-
-
 
 @pytest.fixture(scope="session")
 def headers(auth_token):

@@ -17,15 +17,15 @@ export const AuthorizationModel = {
     signup: {
     params: {},
     body: {
-      name: Joi.string().min(1).trim().required(),
+      name: Joi.string().min(1).trim().pattern(/^[^<>'"{}]*$/).required(),
       email: Joi.string().email().min(1).trim().required(),
       password: Joi.string().min(1).trim().required(),
-      role: Joi.string().min(1).trim().required(),
+      role: Joi.string().min(1).trim().pattern(/^[0-9a-fA-F]{24}$/).required(),
     },
     query: {},
   },
   refreshToken: {
-    params: { id: Joi.string().required() },
+    params: {},
     body: {
       token: Joi.string().required(),
     },
