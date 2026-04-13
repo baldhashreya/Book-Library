@@ -3,11 +3,11 @@ import time
 import requests as _requests
 from pydantic import ValidationError
 
-from .common import load_csv_data, make_request
-from .schemas.refresh_token_schema import RefreshTokenSuccessResponse, RefreshTokenErrorResponse, RefreshTokenRequest
+from tests.common import load_csv_data, make_request
+from tests.schemas.refresh_token_schema import RefreshTokenSuccessResponse, RefreshTokenErrorResponse, RefreshTokenRequest
 
 # Load scenarios from centralized CSV
-refresh_scenarios = load_csv_data("refresh_token.csv")
+refresh_scenarios = load_csv_data("auth/refresh_token.csv")
 
 
 class TestRefreshToken:
