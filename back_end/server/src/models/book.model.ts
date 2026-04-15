@@ -56,14 +56,14 @@ export const BooksModel = {
       description: Joi.string().optional(),
       isbn: Joi.string().optional(),
       publisher: Joi.number().optional(),
-      quantity: Joi.number().optional(),
+      quantity: Joi.number().min(0).optional(),
       coverImage: Joi.string().optional(),
       status: Joi.string()
         .optional()
         .valid(...Object.values(BookStatusEnum)),
-      offset: Joi.number().optional(),
-      limit: Joi.number().optional(),
-      order: Joi.array().items(Joi.string()).optional(),
+      limit: Joi.number().min(1).optional(),
+      offset: Joi.number().min(0).optional(),
+      order: Joi.array().items(Joi.array().items(Joi.string())).optional(),
     },
     query: {},
   },

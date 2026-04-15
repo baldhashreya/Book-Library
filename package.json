@@ -5,6 +5,18 @@
     "front_end",
     "back_end/common",
     "back_end/server",
-    "Test_cases"
-  ]
+    "Test_cases/front-end-test-cases"
+  ],
+  "scripts": {
+    "setup": "npm install && npm install --prefix back_end/server && npm install --prefix front_end && npm install --prefix Test_cases/front-end-test-cases",
+    "start:backend": "npm start --prefix back_end/server",
+    "start:frontend": "npm run dev --prefix front_end",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "test:backend": "cd Test_cases/backend-test-cases && python run_tests.py",
+    "test:frontend": "cd Test_cases/front-end-test-cases && npx playwright test",
+    "test": "npm run test:backend && npm run test:frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
 }

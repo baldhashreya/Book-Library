@@ -89,3 +89,24 @@ def headers(auth_token):
 @pytest.fixture(scope="session")
 def logout_csv():
     return load_csv_data("auth/logout_test_data.csv")
+
+@pytest.fixture(scope="session")
+def api_client(base_url, headers):
+    import requests
+    class APIClient:
+        def __init__(self, base_url, headers):
+            self.base_url = base_url
+            self.headers = headers
+            self.session = requests.Session()
+            self.session.headers.update(headers)
+            
+        def post(self, endpoint, **kwargs):
+            req_headers = kwargs.pop("headers", self.headers)
+            return self.session.post(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
+            
+        def get(self, endpoint, **kwargs):
+            req_headers = kwargs.pop("headers", self.headers)
+            return self.session.get(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
+            
+    return APIClient(base_url, headers)
+
