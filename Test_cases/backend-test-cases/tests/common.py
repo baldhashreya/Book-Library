@@ -81,15 +81,15 @@ def build_dynamic_payload(data: dict, string_fields: list, numeric_fields: list)
                     payload[field] = csv_val
 
     # Generic Array Parsing
-    if data.get("order"):
+    order_val = data.get("order")
+    if order_val and order_val != "OMIT":
         import json
         try:
-            if data["order"].startswith("["):
-                payload["order"] = json.loads(data["order"].replace("'", '"'))
+            if order_val.startswith("["):
+                payload["order"] = json.loads(order_val.replace("'", '"'))
             else:
-                payload["order"] = [data["order"]]
+                payload["order"] = [order_val]
         except Exception:
-            payload["order"] = data["order"]
+            payload["order"] = order_val
             
     return payload
-

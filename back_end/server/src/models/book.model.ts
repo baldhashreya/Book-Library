@@ -5,18 +5,18 @@ export const BooksModel = {
   Create: {
     params: {},
     body: {
-      title: Joi.string().required(),
-      author: Joi.string().required(),
-      category: Joi.string().required(),
-      description: Joi.string().required(),
-      isbn: Joi.string().allow(null, ""),
-      publisher: Joi.number().allow(null, "").required(),
-      quantity: Joi.number().allow(null, "").required(),
-      coverImage: Joi.string().allow(null, ""),
+      title: Joi.string().trim().required().min(3).max(50).regex(/^[^<>]*$/, "no HTML tags allowed"),
+      author: Joi.string().trim().required(),
+      category: Joi.string().trim().required(),
+      description: Joi.string().trim().required().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      isbn: Joi.string().allow(null, "").trim(),
+      publisher: Joi.number().min(0).integer().required(),
+      quantity: Joi.number().min(0).integer().required(),
+      coverImage: Joi.string().allow(null, "").trim().regex(/^[^<>]*$/, "no HTML tags allowed"),
       status: Joi.string()
-        .required()
         .valid(...Object.values(BookStatusEnum))
-        .required(),
+        .required()
+        .trim(),
     },
     query: {},
   },
@@ -30,8 +30,8 @@ export const BooksModel = {
       category: Joi.string().required(),
       description: Joi.string().required(),
       isbn: Joi.string(),
-      publisher: Joi.number().required(),
-      quantity: Joi.number().required(),
+      publisher: Joi.number().required().min(0).integer(),
+      quantity: Joi.number().required().min(0).integer(),
       coverImage: Joi.string(),
       status: Joi.string()
         .required()
@@ -50,14 +50,14 @@ export const BooksModel = {
   Search: {
     params: {},
     body: {
-      title: Joi.string().optional(),
-      author: Joi.string().optional(),
-      category: Joi.string().optional(),
-      description: Joi.string().optional(),
-      isbn: Joi.string().optional(),
+      title: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      author: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      category: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      description: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      isbn: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
       publisher: Joi.number().optional(),
       quantity: Joi.number().min(0).optional(),
-      coverImage: Joi.string().optional(),
+      coverImage: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
       status: Joi.string()
         .optional()
         .valid(...Object.values(BookStatusEnum)),

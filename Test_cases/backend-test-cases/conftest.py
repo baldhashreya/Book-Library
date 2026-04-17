@@ -33,6 +33,14 @@ def signup_data():
     with open(path) as f:
         return json.load(f)
 
+@pytest.fixture(scope="session")
+def book_mapping():
+    path = os.path.join(os.path.dirname(__file__), "..", "data", "books", "create_book.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path) as f:
+        return json.load(f)
+
 
 @pytest.fixture(scope="session")
 def perform_login():
