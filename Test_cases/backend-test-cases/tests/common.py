@@ -49,3 +49,47 @@ def make_request(
         params=params,
         timeout=timeout,
     )
+
+def build_dynamic_payload(data: dict, string_fields: list, numeric_fields: list) -> dict:
+    """Takes a dictionary (like a CSV row) and gracefully structures it into a type-validated JSON payload dict."""
+    payload = {}
+    for field in string_fields:
+        csv_val = data.get(field, "")
+        api_field = "description" if field == "book_description" else field
+        if csv_val == "OMIT":
+            continue
+        elif csv_val == "NULL":
+            payload[api_field] = None
+        elif csv_val == "LONG_STRING":
+            payload[api_field] = "A" * 10000 
+        else:
+            if csv_val != "":
+                payload[api_field] = str(csv_val)
+
+    for field in numeric_fields:
+        csv_val = data.get(field, "")
+        if csv_val == "OMIT":
+            continue
+        elif csv_val == "NULL":
+            payload[field] = None
+        else:
+            try:
+                val = float(csv_val)
+                payload[field] = int(val) if val.is_integer() else val
+            except ValueError:
+                if csv_val != "":
+                    payload[field] = csv_val
+
+    # Generic Array Parsing
+    order_val = data.get("order")
+    if order_val and order_val != "OMIT":
+        import json
+        try:
+            if order_val.startswith("["):
+                payload["order"] = json.loads(order_val.replace("'", '"'))
+            else:
+                payload["order"] = [order_val]
+        except Exception:
+            payload["order"] = order_val
+            
+    return payload

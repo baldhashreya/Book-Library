@@ -17,8 +17,7 @@ const inferExpectedResult = (data: any) => {
   }
 
   if (
-    (VALID_EMAIL && data.email === VALID_EMAIL && data.password === VALID_PASSWORD) ||
-    data.email === "qa.user_new@example.com" && data.password === "Password!123"
+    VALID_EMAIL && data.email === VALID_EMAIL && data.password === VALID_PASSWORD
   ) {
     return "success";
   }

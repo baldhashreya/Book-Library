@@ -1,40 +1,54 @@
-# Book Library
+# Book Library Project - Handover Guide
 
-A full-stack web application designed for managing a book library. This project is set up as a monorepo containing a frontend application, a backend server, and a comprehensive suite of automated tests.
+This repository contains the full source code and automation suite for the **Book Library** application. This guide is designed to help you set up, run, and test the project with minimal technical effort.
 
-## Project Structure
+## 🚀 Quick Start (Recommended)
 
-The repository is organized into the following main workspaces:
+The project includes automation scripts for both Windows and Linux/macOS. 
 
-- **`front_end/`**: Contains the frontend application code.
-- **`back_end/`**: Contains the backend services, structured as:
-  - `server/`: The main backend logic and API services.
-  - `common/`: Shared code and utilities used across the backend.
-- **`Test_cases/`**: Contains a robust, data-driven automation suite. It includes both backend API validation tests (using pytest/requests) and frontend end-to-end tests (using Playwright).
+### 1. Setup
+Install all dependencies (Node.js, Python, Playwright) and initialize environment variables.
+- **Windows**: Double-click `setup.bat` or run in terminal.
+- **Linux/macOS**: Run `./setup.sh` in terminal.
 
-## Getting Started
+### 2. Run Application
+Start the Backend and Frontend servers simultaneously.
+- **Windows**: Double-click `run.bat` or run in terminal.
+- **Linux/macOS**: Run `./run.sh` in terminal.
+- **Access URL**: [http://localhost:5173](http://localhost:5173)
 
-### Prerequisites
+### 3. Run Tests & Reports
+Execute all Backend (Pytest) and Frontend (Playwright) tests, then generate the Allure report.
+- **Windows**: Double-click `test.bat` or run in terminal.
+- **Linux/macOS**: Run `./test.sh` in terminal.
 
-- [Node.js](https://nodejs.org/) (for frontend and backend services)
-- [Python](https://www.python.org/) (for running Python-based automated tests)
+---
 
-### Installation
+## 🛠️ Prerequisites
+- **Node.js** (v18 or higher)
+- **Python** (3.8 or higher)
+- **MongoDB** (Running locally on default port 27017)
+- **Allure CLI** (To view HTML reports)
 
-This project uses npm workspaces to manage dependencies across the different directories.
+---
 
-1. Clone the repository and navigate to the project root directory:
-   ```bash
-   cd "Book Library"
-   ```
+## 📂 Project Architecture
 
-2. Install dependencies for all workspaces:
-   ```bash
-   npm install
-   ```
+- **`back_end/server`**: Node.js Express API.
+- **`front_end`**: React.js application built with Vite.
+- **`Test_cases/backend-test-cases`**: Python API tests using Pytest.
+- **`Test_cases/front-end-test-cases`**: UI tests using Playwright.
 
-## Testing
+---
 
-The project includes an extensive suite of automated tests focusing on API endpoint validation (e.g., login, signup, reset password) and UI interaction workflows. Test data is managed via CSV files (Data-Driven Testing approach).
+## 🔧 Manual Configuration (Optional)
+Configuration is handled via `.env` files created automatically from `.env.example` during setup:
+- **Backend Port**: 5000 (Default)
+- **Frontend Port**: 5173 (Default)
+- **Database**: `mongodb://127.0.0.1:27017/book-library`
 
-Navigate to the `Test_cases/` directory or respective test folders to execute the test suites according to their specific configurations.
+---
+
+## 🆘 Troubleshooting
+- **MongoDB Error**: Ensure MongoDB is running. The automation scripts will warn you if it's not detected on port 27017.
+- **Command Not Found**: Ensure Node.js and Python are added to your system's PATH.

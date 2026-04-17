@@ -35,6 +35,17 @@ export class BooksService {
   }
 
   private async validateBook(bookData: BooksModel, id?: string) {
+    // XSS check: Block any HTML tags in string fields
+    const xssRegex = /<[^>]+>/;
+    for (const key in bookData) {
+      const val = (bookData as any)[key];
+      if (typeof val === "string" && xssRegex.test(val)) {
+        const err = new Error();
+        err.name = ErrorType.XssDetected;
+        return Promise.reject(err);
+      }
+    }
+
     if (id) {
       const existingBook = await this.booksRepository.getBookById(id);
       if (!existingBook) {
