@@ -163,6 +163,18 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       statusCode = HttpStatusCode.BadRequest;
       errorKey = messages.ValidationError;
       break;
+    case ErrorType.XssDetected:
+      statusCode = HttpStatusCode.BadRequest;
+      errorKey = messages.XssDetected;
+      break;
+    case ErrorType.BookNotFound:
+      statusCode = HttpStatusCode.NotFound;
+      errorKey = messages.BooksMessages.BookNotFound;
+      break;
+    case "CastError":
+      statusCode = HttpStatusCode.BadRequest;
+      errorKey = messages.badRequest;
+      break;
 
     default:
       statusCode = HttpStatusCode.InternalServerError;

@@ -35,8 +35,8 @@ export class BooksRepository {
   public async updateBook(
     id: string,
     bookData: BooksModel,
-  ): Promise<UpdateResult> {
-    return Books.updateOne({ _id: id }, bookData);
+  ): Promise<BooksModel | null> {
+    return Books.findByIdAndUpdate(id, bookData, { new: true });
   }
 
   public async deleteBook(id: string): Promise<BooksModel | null> {

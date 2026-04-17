@@ -1,11 +1,7 @@
 import pytest
-import logging
+import pytest
 import json
 from tests.common import load_csv_data
-
-# Setting up logging for senior QA practices
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 def map_csv_row_to_payload(row, mapping=None):
     """
@@ -51,7 +47,6 @@ def map_csv_row_to_payload(row, mapping=None):
             # Dynamic resolution for author and category
             if field in ["author", "category"] and val in mapping.get(field, {}):
                 resolved_val = mapping[field][val]
-                logger.debug(f"Resolved {field} key '{val}' to '{resolved_val}'")
                 payload[field] = resolved_val
             # Handle numeric casting for specific fields
             elif field in ["publisher", "quantity"]:
@@ -84,25 +79,17 @@ def test_create_book_api(api_client, book_mapping, test_data):
     expected_status = int(test_data["expected_status_code"])
     expected_msg = test_data["expected_result"]
 
-    logger.info(f"--- [START] Test Case: {test_id} ---")
-
     # 1. Arrange: Prepare complex payload from CSV row with dynamic resolution
     payload = map_csv_row_to_payload(test_data, mapping=book_mapping)
-    logger.info(f"Target Endpoint: POST /books")
-    logger.info(f"Request Payload:\n{json.dumps(payload, indent=2, ensure_ascii=False)}")
 
     # 2. Act: Call the Create Book API
     # The api_client uses the headers fixture with auth token
     response = api_client.post("/books", json=payload)
     
-    # Logging for senior-level traceability
-    logger.info(f"Response Code: {response.status_code}")
     try:
         resp_body = response.json()
-        logger.info(f"Response Body:\n{json.dumps(resp_body, indent=2)}")
     except Exception:
         resp_body = response.text
-        logger.info(f"Response Body (Raw): {resp_body}")
 
     # 3. Assert: Comprehensive validation
     assert response.status_code == expected_status, \
@@ -123,5 +110,3 @@ def test_create_book_api(api_client, book_mapping, test_data):
         body_str = str(resp_body).lower()
         assert expected_msg.lower() in body_str, \
             f"Expected error detail '{expected_msg}' not found in response for {test_id}. Response: {resp_body}"
-
-    logger.info(f"--- [PASS] Test Case: {test_id} ---")
