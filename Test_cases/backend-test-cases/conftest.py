@@ -75,19 +75,41 @@ def initialize_global_test_user(base_url, signup_data, login_data, perform_login
     if final_resp.status_code != 200:
         pytest.fail(f"CRITICAL: Failed to automatically provision global test user dataset. Code {final_resp.status_code}")
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def auth_token(base_url, login_data, perform_login):
     # Relies on initialize_global_test_user already having run
     response = perform_login(base_url, login_data)
+    token = None
+    user_id = None
+    
     if response.status_code == 200:
-        return response.json().get("data", {}).get("access_token")
-    return None
+        token = response.json().get("data", {}).get("access_token")
+        if token:
+            import base64
+            import json
+            try:
+                # Decode JWT to get user_id for the logout API
+                payload_str = token.split(".")[1]
+                payload_str += "=" * ((4 - len(payload_str) % 4) % 4)
+                payload = json.loads(base64.b64decode(payload_str).decode('utf-8'))
+                user_id = payload.get("_id")
+            except Exception:
+                pass
+                
+    yield token
+    
+    # Teardown logic: LOGOUT after every testcase
+    if token and user_id:
+        import requests
+        headers = {"Authorization": f"{token}"}
+        requests.get(f"{base_url}/auth/logout/{user_id}", headers=headers)
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def headers(auth_token):
     if auth_token:
+        # Strictly setting auth_token directly, NO "Bearer" prefix added
         return {
-            "Authorization": auth_token,
+            "Authorization": f"{auth_token}",
             "Content-Type": "application/json",
         }
     # Fallback: no auth (tests expecting 401 will still pass)
@@ -98,7 +120,7 @@ def headers(auth_token):
 def logout_csv():
     return load_csv_data("auth/logout_test_data.csv")
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def api_client(base_url, headers):
     import requests
     class APIClient:
@@ -112,9 +134,17 @@ def api_client(base_url, headers):
             req_headers = kwargs.pop("headers", self.headers)
             return self.session.post(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
             
+        def put(self, endpoint, **kwargs):
+            req_headers = kwargs.pop("headers", self.headers)
+            return self.session.put(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
+            
         def get(self, endpoint, **kwargs):
             req_headers = kwargs.pop("headers", self.headers)
             return self.session.get(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
+            
+        def delete(self, endpoint, **kwargs):
+            req_headers = kwargs.pop("headers", self.headers)
+            return self.session.delete(f"{self.base_url}{endpoint}", headers=req_headers, **kwargs)
             
     return APIClient(base_url, headers)
 

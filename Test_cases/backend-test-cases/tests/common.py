@@ -93,3 +93,48 @@ def build_dynamic_payload(data: dict, string_fields: list, numeric_fields: list)
             payload["order"] = order_val
             
     return payload
+
+def read_json(file_name: str) -> dict:
+    """Reads a JSON file from the data directory and returns it."""
+    import json
+    path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", file_name)
+    )
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"[read_json] JSON file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def replace_placeholders(value: str, env_data: dict) -> str:
+    """Takes a key and replaces it with values from env_data if it matches a placeholder."""
+    if not isinstance(value, str):
+        return value
+        
+    if value in env_data:
+        return env_data[value]
+        
+    if value == "EMPTY": return ""
+    if value == "NULL": return None
+    if value == "LONG_STRING": return "A" * 1500
+    
+    return value
+
+def log_request_response(response: requests.Response, prefix="API"):
+    """
+    Standard QA logging helper for printing formatted request/response data.
+    """
+    print(f"\n[{prefix}] ====== REQUEST ======")
+    print(f"Method: {response.request.method}")
+    print(f"URL: {response.request.url}")
+    print(f"Headers: {response.request.headers}")
+    if response.request.body:
+        print(f"Body: {response.request.body}")
+        
+    print(f"\n[{prefix}] ====== RESPONSE ======")
+    print(f"Status Code: {response.status_code}")
+    print(f"Response Time: {response.elapsed.total_seconds()}s")
+    try:
+        print(f"Body: {response.json()}")
+    except ValueError:
+        print(f"Text: {response.text}")
+    print("===============================\n")
