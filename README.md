@@ -45,7 +45,6 @@ Execute all Backend (Pytest) and Frontend (Playwright) tests, then generate the 
 Configuration is handled via `.env` files created automatically from `.env.example` during setup:
 - **Backend Port**: 5000 (Default)
 - **Frontend Port**: 5173 (Default)
-- **Database**: `mongodb://127.0.0.1:27017/book-library`
 
 ---
 

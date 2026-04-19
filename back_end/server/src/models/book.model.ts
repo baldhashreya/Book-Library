@@ -25,14 +25,14 @@ export const BooksModel = {
       id: Joi.string().required(),
     },
     body: {
-      title: Joi.string().required(),
-      author: Joi.string().required(),
-      category: Joi.string().required(),
-      description: Joi.string().required(),
-      isbn: Joi.string(),
+      title: Joi.string().trim().required().min(3).max(50).regex(/^[^<>]*$/, "no HTML tags allowed"),
+      author: Joi.string().trim().required(),
+      category: Joi.string().trim().required(),
+      description: Joi.string().trim().required().regex(/^[^<>]*$/, "no HTML tags allowed"),
+      isbn: Joi.string().allow(null, "").trim(),
       publisher: Joi.number().required().min(0).integer(),
       quantity: Joi.number().required().min(0).integer(),
-      coverImage: Joi.string(),
+      coverImage: Joi.string().allow(null, "").regex(/^[^<>]*$/, "no HTML tags allowed"),
       status: Joi.string()
         .required()
         .valid(...Object.values(BookStatusEnum))

@@ -59,4 +59,5 @@ export const messages = {
     Updated: "Author updated successfully.",
     Deleted: "Author deleted successfully.",
   },
+  XssDetected: "Security Alert: HTML tags are not allowed in string fields.",
 };
