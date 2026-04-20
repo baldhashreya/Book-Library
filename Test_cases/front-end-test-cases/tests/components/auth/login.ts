@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { CommonActions } from "../utils/common";
+import { CommonActions } from "../../utils/common";
 
 export class LoginPage {
   private page: Page;
@@ -8,15 +8,19 @@ export class LoginPage {
     this.page = page;
     this.commonActions = new CommonActions(page);
   }
-  async fillForm(emailPlaceholder:string,   passwordPlaceholder:string,email: string, password: string) {
-    await this.commonActions.fillForm(emailPlaceholder,email);
-    await this.commonActions.fillForm(passwordPlaceholder,password);
+  async fillForm(
+    emailPlaceholder: string,
+    passwordPlaceholder: string,
+    email: string,
+    password: string,
+  ) {
+    await this.commonActions.fillForm(emailPlaceholder, email);
+    await this.commonActions.fillForm(passwordPlaceholder, password);
   }
 
-  async clickButton(buttonText:string) {
+  async clickButton(buttonText: string) {
     await this.commonActions.clickButton(buttonText);
   }
-
 
   getToastMessage(): Locator {
     return this.commonActions.getToastMessage();
@@ -26,10 +30,11 @@ export class LoginPage {
     return this.commonActions.getValidationMessage(message);
   }
 
-  getPasswordValidationMessage(message: string = "Password is required"): Locator {
+  getPasswordValidationMessage(
+    message: string = "Password is required",
+  ): Locator {
     return this.commonActions.getValidationMessage(message);
   }
-
 
   async login(email: string, password: string) {
     await this.commonActions.navigateTo("/login");
@@ -40,7 +45,9 @@ export class LoginPage {
   async forgotPassword(email: string, password: string) {
     await this.commonActions.navigateTo("/login");
     await this.clickButton("Forgot Password?");
-    await expect(this.page.getByRole("heading", { name: "Reset Password" })).toBeVisible();
+    await expect(
+      this.page.getByRole("heading", { name: "Reset Password" }),
+    ).toBeVisible();
     await this.fillForm("Enter email", "Enter new password", email, password);
     await this.clickButton("Update Password");
   }
@@ -48,7 +55,9 @@ export class LoginPage {
   async redirectForgotPasswordToLogin() {
     await this.commonActions.navigateTo("/login");
     await this.clickButton("Forgot Password?");
-    await expect(this.page.getByRole("heading", { name: "Reset Password" })).toBeVisible();
+    await expect(
+      this.page.getByRole("heading", { name: "Reset Password" }),
+    ).toBeVisible();
     await this.clickButton("Back to Login");
     await expect(this.page).toHaveURL("/login");
   }
@@ -57,9 +66,19 @@ export class LoginPage {
     await this.commonActions.navigateTo("/login");
     await this.clickButton("SignUp");
     await expect(this.page).toHaveURL("/signup");
-    await expect(this.page.getByRole("heading", { name: "Create your TatvaLib account", exact: true })).toBeVisible();
+    await expect(
+      this.page.getByRole("heading", {
+        name: "Create your TatvaLib account",
+        exact: true,
+      }),
+    ).toBeVisible();
     await this.clickButton("Sign In");
-    await expect(this.page.getByRole("heading", { name: "Welcome Back To TatvaLib", exact: true })).toBeVisible();
+    await expect(
+      this.page.getByRole("heading", {
+        name: "Welcome Back To TatvaLib",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(this.page).toHaveURL("/login");
   }
 }

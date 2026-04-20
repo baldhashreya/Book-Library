@@ -1,8 +1,8 @@
 import test, { expect } from "@playwright/test";
-import { SignUp } from "../components/sign_up";
+import { SignUp } from "../../components/auth/sign_up";
 import * as fs from "fs";
 import * as path from "path";
-import { TOAST_TIMEOUT } from "../utils/constants";
+import { TOAST_TIMEOUT } from "../../utils/constants";
 
 const loadCSV = (filePath: string) => {
   const data = fs.readFileSync(filePath, "utf-8");
@@ -20,7 +20,9 @@ const loadCSV = (filePath: string) => {
 
 test.describe("Signup Page Data-Driven Testing", () => {
   let signUpPage: SignUp;
-  const testData = loadCSV(path.join(__dirname, "../../../data/auth/sign_up.csv"));
+  const testData = loadCSV(
+    path.join(__dirname, "../../../../data/auth/sign_up.csv"),
+  );
 
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:5173/signup");
@@ -33,15 +35,19 @@ test.describe("Signup Page Data-Driven Testing", () => {
         data.name || "",
         data.email || "",
         data.password || "",
-        data.confirmPassword !== undefined ? data.confirmPassword : (data.password || ""),
-        data.role_name || ""
+        data.confirmPassword !== undefined ?
+          data.confirmPassword
+        : data.password || "",
+        data.role_name || "",
       );
 
-      const isSuccess = data.expected_status_code === "200" || data.expectedResult === "success";
+      const isSuccess =
+        data.expected_status_code === "200" ||
+        data.expectedResult === "success";
       if (isSuccess) {
         const toast = signUpPage.getToastMessage();
         await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
-        const text = await toast.textContent() || "";
+        const text = (await toast.textContent()) || "";
         if (text.toLowerCase().includes("already exists")) {
           return; // Skip failing tests caused by an uncleared local database collision
         }
@@ -49,16 +55,26 @@ test.describe("Signup Page Data-Driven Testing", () => {
       } else {
         let expectedMsg = data.expected_message || data.expectedMessage || "";
         if (expectedMsg === "Validation failed") {
-            const desc = (data.description || "").toLowerCase();
-            if (desc.includes("missing name")) expectedMsg = "Name is required";
-            else if (desc.includes("missing email")) expectedMsg = "Email is required";
-            else if (desc.includes("missing password")) expectedMsg = "Password is required";
-            else if (desc.includes("missing role")) expectedMsg = "Role is required";
-            else if (desc.includes("invalid email")) expectedMsg = "Enter a valid email";
-            else if (desc.includes("whitespace") || desc.includes("injection") || desc.includes("malformed")) return; 
+          const desc = (data.description || "").toLowerCase();
+          if (desc.includes("missing name")) expectedMsg = "Name is required";
+          else if (desc.includes("missing email"))
+            expectedMsg = "Email is required";
+          else if (desc.includes("missing password"))
+            expectedMsg = "Password is required";
+          else if (desc.includes("missing role"))
+            expectedMsg = "Role is required";
+          else if (desc.includes("invalid email"))
+            expectedMsg = "Enter a valid email";
+          else if (
+            desc.includes("whitespace") ||
+            desc.includes("injection") ||
+            desc.includes("malformed")
+          )
+            return;
         }
         if (expectedMsg) {
-          const validationLocator = signUpPage.getValidationMessage(expectedMsg);
+          const validationLocator =
+            signUpPage.getValidationMessage(expectedMsg);
           await expect(validationLocator).toBeVisible();
         }
       }
