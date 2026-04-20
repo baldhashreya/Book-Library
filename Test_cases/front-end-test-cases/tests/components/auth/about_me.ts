@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { CommonActions } from "../utils/common";
+import { CommonActions } from "../../utils/common";
 
 export class AboutMe {
   private page: Page;
