@@ -22,18 +22,29 @@ interface BookModalProps {
 }
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string().required("Title is required"),
+  title: Yup.string()
+    .required("Title is required")
+    .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
+    .matches(/^[^{"$}]*$/, "Invalid input detected"),
   author: Yup.string().required("Author is required"),
   category: Yup.string().required("Category is required"),
   status: Yup.string().required("Status is required"),
-  isbn: Yup.string(),
+  isbn: Yup.string()
+    .required("ISBN is required")
+    .matches(/^\d{13}$/, "ISBN format invalid"),
   publisher: Yup.number()
     .min(1000, "Publisher year must be at least 1000")
-    .max(2024, "Publisher year must be at most 2024")
+    .max(2025, "Publisher year must be at most 2025")
     .nullable()
     .transform((value, originalValue) => (String(originalValue).trim() === "" ? null : value)),
-  quantity: Yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
-  description: Yup.string().nullable(),
+  quantity: Yup.number()
+    .integer("quantity must be an integer")
+    .min(1, "Quantity must be at least 1")
+    .required("Quantity is required"),
+  description: Yup.string()
+    .required("Description is required")
+    .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
+    .matches(/^[^{"$}]*$/, "Invalid input detected"),
 });
 
 const BookModal: React.FC<BookModalProps> = ({
@@ -52,7 +63,7 @@ const BookModal: React.FC<BookModalProps> = ({
       title: "",
       author: "",
       category: "",
-      status: "AVAILABLE",
+      status: "",
       isbn: "",
       publisher: "" as number | "",
       quantity: 1,
@@ -96,7 +107,7 @@ const BookModal: React.FC<BookModalProps> = ({
           title: "",
           author: "",
           category: "",
-          status: "AVAILABLE",
+          status: "",
           isbn: "",
           publisher: "",
           description: "",
@@ -157,6 +168,7 @@ const BookModal: React.FC<BookModalProps> = ({
         <form
           onSubmit={formik.handleSubmit}
           className="book-form"
+          noValidate
         >
           <Grid
             container
@@ -250,6 +262,9 @@ const BookModal: React.FC<BookModalProps> = ({
                 disabled={loading}
                 sx={customInputStyles}
               >
+                <MenuItem value="" disabled sx={{ fontSize: "14px" }}>
+                  <em>-- Select Status --</em>
+                </MenuItem>
                 <MenuItem value="AVAILABLE" sx={{ fontSize: "14px" }}>Available</MenuItem>
                 <MenuItem value="CHECKED_OUT" sx={{ fontSize: "14px" }}>Borrowed</MenuItem>
                 <MenuItem value="RESERVED" sx={{ fontSize: "14px" }}>Maintenance</MenuItem>

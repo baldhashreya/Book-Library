@@ -1,25 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
-import * as dotenv from 'dotenv';
 import path from 'path';
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 export default defineConfig({
   testDir: './tests',
+  /* Global Setup for Authentication */
+  globalSetup: require.resolve('./tests/setup/global.setup'),
+
   /* Maximum time one test can run for. */
   timeout: 60 * 1000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry on failure (critical for parallel load stability) */
+  retries: 1,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 6,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
    reporter: [['allure-playwright'],['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -37,7 +33,20 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      // Run only Guest tests (Anonymous state)
+      testIgnore: /.*(book|about-me).*/,
+      use: { 
+        ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'authenticated-chromium',
+      // Run only Member tests (Authenticated state)
+      testMatch: /.*(book|about-me).*/,
+      use: { 
+        ...devices['Desktop Chrome'],
+        storageState: '.auth/user.json',
+      },
     },
 
     // {

@@ -44,11 +44,12 @@ const BookPage: React.FC = () => {
         order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
         ...filters,
       });
-      console.log("Fata:::::::::::::::", booksData.rows);
       setBooks(booksData.rows);
       setTotalCount(booksData.count);
     } catch (error) {
       console.error("Error loading books:", error);
+      setBooks([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }

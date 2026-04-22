@@ -9,7 +9,13 @@ export const authService = {
       if (!response || !response.data) {
         throw new Error("Login failed");
       }
-      console.log("Login response:", response);
+      if (response.data && response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
+        if (response.data.user) {
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        }
+      }
       return response;
     } catch (error) {
       console.error("Login API error:", error);

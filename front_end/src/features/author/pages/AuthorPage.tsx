@@ -45,6 +45,8 @@ const AuthorPage: React.FC = () => {
       setTotalCount(res.count);
     } catch (error) {
       console.error("Error loading authors:", error);
+      setAuthors([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }

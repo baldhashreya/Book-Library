@@ -1,13 +1,19 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { CommonActions } from "../../utils/common";
+import { CommonActions } from "../../utils/common-actions";
 
 export class LoginPage {
   private page: Page;
   private commonActions: CommonActions;
+
   constructor(page: Page) {
     this.page = page;
     this.commonActions = new CommonActions(page);
   }
+
+  async navigate() {
+    await this.page.goto("/login");
+  }
+
   async fillForm(
     emailPlaceholder: string,
     passwordPlaceholder: string,
@@ -40,6 +46,12 @@ export class LoginPage {
     await this.commonActions.navigateTo("/login");
     await this.fillForm("Enter email", "Enter password", email, password);
     await this.clickButton("Sign In");
+  }
+
+  async logout() {
+    const logoutBtn = this.page.locator('.logout');
+    await logoutBtn.click();
+    await expect(this.page).toHaveURL(/\/login/);
   }
 
   async forgotPassword(email: string, password: string) {

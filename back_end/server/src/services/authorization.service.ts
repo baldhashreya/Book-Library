@@ -39,54 +39,49 @@ export class AuthorizationServices {
   public async loginUser(
     params: UsersModel,
   ): Promise<{ access_token: string; refresh_token: string } | any> {
-    try {
-      const existingUser = await this.authorizationRepository.getUserByEmail(
-        params.email,
-      );
-      console.log(existingUser);
-      if (!existingUser) {
-        const err = new Error();
-        err.name = ErrorType.InvalidCredentials;
-        return Promise.reject(err);
-      }
-      if (existingUser.status !== UserStatusEnum.ACTIVE) {
-        const err = new Error();
-        err.name = ErrorType.UserIsInactive;
-        return Promise.reject(err);
-      }
-
-      const passwordVerified = await verifyPassword(
-        existingUser.password || "",
-        params.password || "",
-      );
-      console.log(passwordVerified);
-      if (!passwordVerified) {
-        const err = new Error();
-        err.name = ErrorType.InvalidCredentials;
-        return Promise.reject(err);
-      }
-
-      const access_token = jwt.sign(
-        { _id: existingUser._id, email: existingUser.email },
-        process.env.ACCESS_TOKEN || "",
-        { expiresIn: "5m" },
-      );
-
-      const refresh_token = jwt.sign(
-        { _id: existingUser._id, email: existingUser.email },
-        process.env.REFRESH_TOKEN || "",
-        { expiresIn: "30m" },
-      );
-
-      await this.commonRepository.updateUser(
-        { refreshToken: refresh_token, lastLogin: new Date() } as UsersModel,
-        existingUser._id as unknown as string,
-      );
-
-      return { access_token, refresh_token };
-    } catch (err) {
-      console.log(err);
+    const existingUser = await this.authorizationRepository.getUserByEmail(
+      params.email,
+    ).then(u => u?.populate("role", "name"));
+    if (!existingUser) {
+      const err = new Error();
+      err.name = ErrorType.InvalidCredentials;
+      return Promise.reject(err);
     }
+    if (existingUser.status !== UserStatusEnum.ACTIVE) {
+      const err = new Error();
+      err.name = ErrorType.UserIsInactive;
+      return Promise.reject(err);
+    }
+
+    const passwordVerified = await verifyPassword(
+      existingUser.password || "",
+      params.password || "",
+    );
+    if (!passwordVerified) {
+      const err = new Error();
+      err.name = ErrorType.InvalidCredentials;
+      return Promise.reject(err);
+    }
+
+    const access_token = jwt.sign(
+      { _id: existingUser._id, email: existingUser.email },
+      process.env.ACCESS_TOKEN || "",
+      { expiresIn: "5m" },
+    );
+
+    const refresh_token = jwt.sign(
+      { _id: existingUser._id, email: existingUser.email },
+      process.env.REFRESH_TOKEN || "",
+      { expiresIn: "30m" },
+    );
+
+    await this.commonRepository.updateUser(
+      { refreshToken: refresh_token, lastLogin: new Date() } as UsersModel,
+      existingUser._id as unknown as string,
+    );
+
+    const { password, ...userProfile } = existingUser.toObject();
+    return { access_token, refresh_token, user: userProfile };
   }
 
   public async logOutUser(id: string): Promise<UpdateResult> {

@@ -1,38 +1,18 @@
-import test, { expect } from "@playwright/test";
-import { ResetPasswordPage } from "../../components/auth/reset_password";
-import * as fs from "fs";
+import { test, expect } from "../../src/fixtures/baseFixture";
 import * as path from "path";
-import { TOAST_TIMEOUT } from "../../utils/constants";
-
-// Helper to dynamically load CSV from backend tests dataset since the format is predefined.
-const loadCSV = (filePath: string) => {
-  const data = fs.readFileSync(filePath, "utf-8");
-  const lines = data.split("\n").filter((line: string) => line.trim() !== "");
-  const headers = lines[0].split(",");
-  return lines.slice(1).map((line: string) => {
-    const values = line.split(",");
-    const record: any = {};
-    headers.forEach((header: string, index: number) => {
-      record[header.trim()] = values[index] ? values[index].trim() : "";
-    });
-    return record;
-  });
-};
+import { loadCSV } from "../../src/utils/csv-reader";
+import { TOAST_TIMEOUT } from "../../src/utils/constants";
 
 test.describe("Reset Password Page UI", () => {
-  let resetPasswordPage: ResetPasswordPage;
   // Make sure the path matches where the CSV lives (e.g. data folder in the root of Test_cases)
   const testData = loadCSV(
-    path.join(__dirname, "../../../../data/auth/reset_password.csv"),
+    path.join(__dirname, "../../../data/auth/reset_password.csv"),
   );
-
-  test.beforeEach(async ({ page }) => {
-    resetPasswordPage = new ResetPasswordPage(page);
-  });
 
   for (const data of testData) {
     test(`${data.test_case_id || data.id} | Reset Password test for email: ${data.email || "empty"}`, async ({
       page,
+      resetPasswordPage,
     }) => {
       let email = data.email || "";
       let password = data.password || "";
