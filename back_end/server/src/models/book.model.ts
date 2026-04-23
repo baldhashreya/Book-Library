@@ -11,9 +11,21 @@ export const BooksModel = {
         .min(3)
         .max(50)
         .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected")
+        .messages({
+          "string.empty": "title cannot be empty",
+          "any.required": "title cannot be empty",
+        }),
+      author: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid author id format")
         .regex(/^[^{"$}]*$/, "invalid input detected"),
-      author: Joi.string().trim().required().regex(/^[0-9a-fA-F]{24}$/, "invalid author id format"),
-      category: Joi.string().trim().required().regex(/^[0-9a-fA-F]{24}$/, "invalid category id format"),
+      category: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid category id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
       description: Joi.string()
         .trim()
         .required()
@@ -21,16 +33,18 @@ export const BooksModel = {
         .regex(/^[^{"$}]*$/, "invalid input detected"),
       isbn: Joi.string().required().length(13).pattern(/^\d+$/).message("isbn format invalid"),
       publisher: Joi.number().min(1000).max(2025).integer().required(),
-      quantity: Joi.number().min(1).integer().required(),
+      quantity: Joi.number()
+        .min(1)
+        .integer()
+        .required()
+        .messages({
+          "number.min": "quantity must be at least 1",
+        }),
       coverImage: Joi.string()
         .allow(null, "")
         .trim()
         .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
         .regex(/^[^{"$}]*$/, "invalid input detected"),
-      status: Joi.string()
-        .valid(...Object.values(BookStatusEnum))
-        .required()
-        .trim(),
     },
     query: {},
   },
@@ -46,8 +60,16 @@ export const BooksModel = {
         .max(50)
         .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
         .regex(/^[^{"$}]*$/, "invalid input detected"),
-      author: Joi.string().trim().required().regex(/^[0-9a-fA-F]{24}$/, "invalid author id format"),
-      category: Joi.string().trim().required().regex(/^[0-9a-fA-F]{24}$/, "invalid category id format"),
+      author: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid author id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      category: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid category id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
       description: Joi.string()
         .trim()
         .required()

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import type { Book, BookFormData } from "../../../types/book";
+import type { Book, BookFormData, BookStatusEnum } from "../../../types/book";
 import type { SearchParams } from "../../../types/role";
 import type { Category } from "../../../types/category";
 import type { Author } from "../../../types/author";
@@ -24,29 +24,59 @@ interface BookModalProps {
 
 const validationSchema = Yup.object().shape({
   title: Yup.string()
-    .required("Title is required")
+    .trim()
+    .required("title cannot be empty")
+    .min(3, "title must be at least 3 characters")
     .max(50, "title exceeds max length")
     .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
-    .matches(/^[^<>{}$"']*$/, "Invalid input detected"),
-  author: Yup.string().required("Author is required"),
-  category: Yup.string().required("Category is required"),
+    .matches(/^[^<>{}$"';]*$/, "Invalid input detected")
+    .test("no-double-dash", "Invalid input detected", (val) => !val || !val.includes("--")),
+  author: Yup.string()
+    .required("Author is required")
+    .matches(/^[^<>{}$"';]*$/, "Invalid input detected")
+    .test("no-double-dash", "Invalid input detected", (val) => !val || !val.includes("--")),
+  category: Yup.string()
+    .required("Category is required")
+    .matches(/^[^<>{}$"';]*$/, "Invalid input detected")
+    .test("no-double-dash", "Invalid input detected", (val) => !val || !val.includes("--")),
   status: Yup.string().required("Status is required"),
   isbn: Yup.string()
     .required("ISBN is required")
     .matches(/^\d{13}$/, "ISBN format invalid"),
-  publisher: Yup.number()
-    .min(1000, "Publisher year must be at least 1000")
-    .max(2025, "Publisher year must be at most 2025")
+  publisher: Yup.string()
     .nullable()
-    .transform((value, originalValue) => (String(originalValue).trim() === "" ? null : value)),
-  quantity: Yup.number()
-    .integer("quantity must be an integer")
-    .min(1, "Quantity must be at least 1")
-    .required("Quantity is required"),
+    .test("no-injection", "Invalid input detected", (val) => !val || !(/[{}""$]|--|;|[<>]/.test(val)))
+    .test("is-year", "Publisher year must be between 1000 and 2025", (val) => {
+      if (!val) return true;
+      const num = Number(val);
+      return !isNaN(num) && num >= 1000 && num <= 2025;
+    }),
+  quantity: Yup.string()
+    .required("Quantity is required")
+    .test("no-injection", "Invalid input detected", (val) => !val || !(/[{}""$]|--|;|[<>]/.test(val)))
+    .test("is-integer", "quantity must be an integer", (val) => {
+      if (!val) return true;
+      // Block scientific notation and decimals
+      if (/[eE.]/.test(val)) return false; 
+      const num = Number(val);
+      return Number.isInteger(num);
+    })
+    .test("is-positive", "quantity must be at least 1", (val) => {
+      if (!val) return true;
+      const num = Number(val);
+      return num >= 1;
+    }),
   description: Yup.string()
+    .trim()
     .required("Description is required")
     .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
-    .matches(/^[^<>{}$"']*$/, "Invalid input detected"),
+    .matches(/^[^<>{}$"';]*$/, "Invalid input detected")
+    .test("no-double-dash", "Invalid input detected", (val) => !val || !val.includes("--")),
+  coverImage: Yup.string()
+    .nullable()
+    .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
+    .matches(/^[^<>{}$"';]*$/, "Invalid input detected")
+    .test("no-double-dash", "Invalid input detected", (val) => !val || !val.includes("--")),
 });
 
 const BookModal: React.FC<BookModalProps> = ({
@@ -65,7 +95,7 @@ const BookModal: React.FC<BookModalProps> = ({
       title: "",
       author: "",
       category: "",
-      status: "",
+      status: "AVAILABLE" as BookStatusEnum,
       isbn: "",
       publisher: "" as number | "",
       quantity: 1,
@@ -75,15 +105,19 @@ const BookModal: React.FC<BookModalProps> = ({
     onSubmit: async (values) => {
       setLoading(true);
       try {
+        const { status, publisher, quantity, ...otherValues } = values;
         const payload: BookFormData = {
-          ...values,
-          publisher: values.publisher === "" ? undefined : (values.publisher as number),
+          ...otherValues,
+          quantity: quantity ? Number(quantity) : 0,
+          publisher: publisher === "" ? undefined : Number(publisher),
+          ...(mode === "edit" ? { status: status as BookStatusEnum } : {}),
         };
         await onSave(payload);
         onClose();
       } catch (error: any) {
         console.error("Error saving book:", error);
-        const errorMsg = error.response?.data?.message || "Error saving book";
+        // The apiService interceptor maps error responses to Error objects with message = errorData.message
+        const errorMsg = error.message || "Error saving book";
         toast.error(errorMsg);
       } finally {
         setLoading(false);
@@ -111,7 +145,7 @@ const BookModal: React.FC<BookModalProps> = ({
           title: "",
           author: "",
           category: "",
-          status: "",
+          status: "AVAILABLE" as BookStatusEnum,
           isbn: "",
           publisher: "",
           description: "",
@@ -263,16 +297,17 @@ const BookModal: React.FC<BookModalProps> = ({
                 onBlur={formik.handleBlur}
                 error={formik.touched.status && Boolean(formik.errors.status)}
                 helperText={formik.touched.status && formik.errors.status}
-                disabled={loading}
+                disabled={loading || mode === "add"}
                 sx={customInputStyles}
               >
-                <MenuItem value="" disabled sx={{ fontSize: "14px" }}>
-                  <em>-- Select Status --</em>
-                </MenuItem>
                 <MenuItem value="AVAILABLE" sx={{ fontSize: "14px" }}>Available</MenuItem>
-                <MenuItem value="CHECKED_OUT" sx={{ fontSize: "14px" }}>Borrowed</MenuItem>
-                <MenuItem value="RESERVED" sx={{ fontSize: "14px" }}>Maintenance</MenuItem>
-                <MenuItem value="LOST" sx={{ fontSize: "14px" }}>Lost</MenuItem>
+                {mode === "edit" && (
+                  <>
+                    <MenuItem value="CHECKED_OUT" sx={{ fontSize: "14px" }}>Borrowed</MenuItem>
+                    <MenuItem value="RESERVED" sx={{ fontSize: "14px" }}>Maintenance</MenuItem>
+                    <MenuItem value="LOST" sx={{ fontSize: "14px" }}>Lost</MenuItem>
+                  </>
+                )}
               </TextField>
             </Grid>
 

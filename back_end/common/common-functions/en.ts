@@ -42,7 +42,7 @@ export const messages = {
   },
   BooksMessages: {
     BookNotFound: "Book not found.",
-    BookIsUnique: "Book already exists",
+    BookIsUnique: "Book title must be unique.",
     Created: "Book created successfully.",
     Fetched: "Books fetched successfully.",
     Updated: "Book updated successfully.",

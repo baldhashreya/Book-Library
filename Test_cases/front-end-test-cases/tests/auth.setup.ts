@@ -7,7 +7,7 @@ const authFile = path.join(__dirname, '../auth.json');
 setup('authenticate', async ({ page, loginPage }) => {
   // Load credentials
   const creds = require('../../data/login.json');
-  
+  console.log(creds);
   // Perform login
   await loginPage.login(creds.email, creds.password);
   

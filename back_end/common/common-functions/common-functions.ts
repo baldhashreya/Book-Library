@@ -171,6 +171,10 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       statusCode = HttpStatusCode.NotFound;
       errorKey = messages.BooksMessages.BookNotFound;
       break;
+    case ErrorType.BookIsUnique:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.BooksMessages.BookIsUnique;
+      break;
     case "CastError":
       statusCode = HttpStatusCode.BadRequest;
       errorKey = messages.badRequest;
