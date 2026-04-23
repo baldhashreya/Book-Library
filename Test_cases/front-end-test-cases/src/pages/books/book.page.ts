@@ -12,7 +12,14 @@ export class BookPage {
 
   async navigateTo() {
     await this.commonActions.navigateTo("/books");
-    await expect(this.page).toHaveURL(/\/books/);
+    try {
+      await expect(this.page).toHaveURL(/\/books/, { timeout: 7000 });
+    } catch (e) {
+      if (this.page.url().includes("/login")) {
+        throw new Error("Navigation to /books failed: Redirected to /login. The session (auth.json) likely expired during the run.");
+      }
+      throw e;
+    }
   }
 
   async clickAddBook() {

@@ -44,7 +44,8 @@ export class LoginPage {
 
   async login(email: string, password: string) {
     await this.commonActions.navigateTo("/login");
-    await this.fillForm("Enter email", "Enter password", email, password);
+    await this.page.getByLabel("Email").fill(email);
+    await this.page.getByLabel("Password").fill(password);
     await this.clickButton("Sign In");
   }
 

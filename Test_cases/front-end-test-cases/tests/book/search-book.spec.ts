@@ -8,39 +8,37 @@ test.describe("Book Search Page UI Testing via POM", () => {
     path.join(__dirname, "../../../data/books/search_books.csv")
   );
 
-  test.beforeEach(async ({ bookPage }) => {
-    // 1. Navigation to the Books/Search page via POM (Authenticated via global storageState)
+  test("Batch Search Books from CSV", async ({ bookPage }) => {
+    // 1. Initial Navigation (Authenticated via global storageState)
     await bookPage.navigateTo();
+
+    for (const data of testData) {
+      // Filter out backend-only edge cases
+      if (data.test_type !== "standard") continue;
+
+      await test.step(`${data.test_case_id} | Search Books: ${data.test_case_name}`, async () => {
+        // Step A: Trigger Filter GUI
+        await bookPage.openFilterDrawer();
+        
+        // Step B: Inject variables matching DOM inputs
+        const title = data.title;
+        const author = data.author;
+        await bookPage.fillSearchFilters(title, author);
+        
+        // Step C: Trigger Backend Fetch
+        await bookPage.applyFilters();
+        
+        // Step D: UI Validation Sequence
+        const rowCount = await bookPage.verifyResultsReturned();
+        
+        // Conditional assertions based on explicit search intent
+        if (title === "NonExistentBook__1234" || title === "<script>alert('xss')</script>") {
+            expect(rowCount).toBe(0); 
+        }
+
+        // Optional: Clear filters to ensure clean state for next iteration
+        // Actually, opening the filter drawer again will overwrite the values if we use fill()
+      });
+    }
   });
-
-  // 3. Execution payload dynamically mapped
-  for (const data of testData) {
-    // The CSV contains many backend Edge Cases (missing_body, wrong_method) that 
-    // cannot be naturally orchestrated via frontend UI DOM interaction. We skip them to prevent false negatives.
-    if (data.test_type !== "standard") continue;
-
-    test(`${data.test_case_id} | Search Books: ${data.test_case_name}`, async ({ bookPage }) => {
-      
-      // Step A: Trigger Filter GUI
-      await bookPage.openFilterDrawer();
-      
-      // Step B: Inject variables matching DOM inputs. 
-      // (CSV holds 'title' and 'author' which UI supports natively)
-      const title = data.title;
-      const author = data.author;
-      await bookPage.fillSearchFilters(title, author);
-      
-      // Step C: Trigger Backend Fetch
-      await bookPage.applyFilters();
-      
-      // Step D: UI Valdation Sequence
-      // For Frontend Testing, we mainly validate if the UI successfully resolved the backend signal
-      // Either dropping rows into the view or popping the native 'No rows' GUI empty-state.
-      const rowCount = await bookPage.verifyResultsReturned();
-      // Conditional assertions based on explicit search intent
-      if (title === "NonExistentBook__1234" || title === "<script>alert('xss')</script>") {
-          expect(rowCount).toBe(0); 
-      }
-    });
-  }
 });

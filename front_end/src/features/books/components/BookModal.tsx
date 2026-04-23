@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 import type { Book, BookFormData } from "../../../types/book";
 import type { SearchParams } from "../../../types/role";
 import type { Category } from "../../../types/category";
@@ -24,8 +25,9 @@ interface BookModalProps {
 const validationSchema = Yup.object().shape({
   title: Yup.string()
     .required("Title is required")
+    .max(50, "title exceeds max length")
     .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
-    .matches(/^[^{"$}]*$/, "Invalid input detected"),
+    .matches(/^[^<>{}$"']*$/, "Invalid input detected"),
   author: Yup.string().required("Author is required"),
   category: Yup.string().required("Category is required"),
   status: Yup.string().required("Status is required"),
@@ -44,7 +46,7 @@ const validationSchema = Yup.object().shape({
   description: Yup.string()
     .required("Description is required")
     .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
-    .matches(/^[^{"$}]*$/, "Invalid input detected"),
+    .matches(/^[^<>{}$"']*$/, "Invalid input detected"),
 });
 
 const BookModal: React.FC<BookModalProps> = ({
@@ -79,8 +81,10 @@ const BookModal: React.FC<BookModalProps> = ({
         };
         await onSave(payload);
         onClose();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error saving book:", error);
+        const errorMsg = error.response?.data?.message || "Error saving book";
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }

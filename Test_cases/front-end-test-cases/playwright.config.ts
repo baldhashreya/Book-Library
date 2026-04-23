@@ -3,25 +3,21 @@ import path from 'path';
 
 export default defineConfig({
   testDir: './tests',
-  /* Global Setup for Authentication */
-  globalSetup: require.resolve('./tests/setup/global.setup'),
-
   /* Maximum time one test can run for. */
-  timeout: 60 * 1000,
+  timeout: 90 * 1000,
   /* Run tests in files in parallel */
-  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on failure (critical for parallel load stability) */
-  retries: 1,
+  retries: 0,
   /* Opt out of parallel tests on CI. */
-  workers: 6,
+  workers: 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
    reporter: [['allure-playwright'],['list']],
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
+
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -29,24 +25,18 @@ export default defineConfig({
     screenshot: 'only-on-failure'
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
-      // Run only Guest tests (Anonymous state)
-      testIgnore: /.*(book|about-me).*/,
-      use: { 
-        ...devices['Desktop Chrome'],
-      },
+      name: 'setup',
+      testMatch: /auth.setup.ts/,
     },
     {
-      name: 'authenticated-chromium',
-      // Run only Member tests (Authenticated state)
-      testMatch: /.*(book|about-me).*/,
+      name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        storageState: '.auth/user.json',
+        storageState: 'auth.json',
       },
+      dependencies: ['setup'],
     },
 
     // {

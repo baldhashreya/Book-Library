@@ -6,14 +6,8 @@ const VALID_PASSWORD = creds.password;
 
 test.describe("About Me Page", () => {
 
-  test.beforeEach(async ({ page, loginPage, aboutMePage }) => {
-    // Login first
-    await loginPage.login(VALID_EMAIL, VALID_PASSWORD);
-
-    // Wait for dashboard to indicate login is complete
-    await expect(page).toHaveURL(/.*dashboard/);
-
-    // Navigate to about-me
+  test.beforeEach(async ({ aboutMePage }) => {
+    // Navigate to about-me (Authenticated via storageState)
     await aboutMePage.navigateTo();
     await expect(aboutMePage.getProfileTitle()).toBeVisible();
   });
