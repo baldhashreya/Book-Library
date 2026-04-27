@@ -25,7 +25,8 @@ interface BookModalProps {
 const validationSchema = Yup.object().shape({
   title: Yup.string()
     .trim()
-    .required("title cannot be empty")
+    
+    .required("title is not allowed to be empty")
     .min(3, "title must be at least 3 characters")
     .max(50, "title exceeds max length")
     .matches(/^[\x20-\x7E]*$/, "Only ASCII characters are allowed")
@@ -398,8 +399,10 @@ const BookModal: React.FC<BookModalProps> = ({
 
           <FormAction
             onClose={onClose}
-            loading={loading}
+            isLoading={loading}
+            onSave={formik.handleSubmit}
             label={mode === "add" ? "Add Book" : "Update Book"}
+            disabled={loading}
           />
         </form>
       </div>

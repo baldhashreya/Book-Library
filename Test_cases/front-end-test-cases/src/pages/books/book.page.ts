@@ -27,6 +27,28 @@ export class BookPage {
     await expect(this.page.getByRole('heading', { name: 'Add Book' })).toBeVisible();
   }
 
+  async openFirstRowEditModal() {
+    const firstRow = this.page.locator('.MuiDataGrid-row').first();
+    await expect(firstRow).toBeVisible({ timeout: 15000 });
+    
+    // Get the Edit button in the first row
+    const editButton = firstRow.getByLabel("Edit");
+    
+    // Ensure the button is in view and ready to be clicked
+    await editButton.scrollIntoViewIfNeeded();
+    
+    // Perform a 'force' click if the standard click is blocked by an overlay or ripple
+    await editButton.click({ force: true });
+    
+    // Wait for the modal to appear (flexible heading check)
+    await expect(this.page.getByRole('heading', { name: /Edit Book|Update Book/i })).toBeVisible({ timeout: 10000 });
+    
+    // Return the ID of the first row (so the spec can use it for interception/validation)
+    const bookId = await firstRow.getAttribute('data-id');
+    console.log(`[BookPage] Successfully opened Edit Modal for Book ID: ${bookId}`);
+    return bookId;
+  }
+
   async openFilterDrawer() {
     await this.commonActions.clickButton("Filter");
     await expect(this.page.getByRole('heading', { name: 'Filters' })).toBeVisible();
@@ -56,5 +78,24 @@ export class BookPage {
     
     expect(hasRows > 0 || emptyOverlay > 0).toBeTruthy();
     return hasRows;
+  }
+
+  async openEditModal(bookId: string, bookTitle?: string) {
+    // Attempt to locate row directly first
+    const row = this.page.locator(`[data-id="${bookId}"]`);
+    
+    if (!(await row.isVisible())) {
+       console.log(`[BookPage] Book ID ${bookId} not found in current view. Applying filters...`);
+       await this.openFilterDrawer();
+       await this.fillSearchFilters(bookTitle || bookId, "");
+       await this.applyFilters();
+       // Wait for grid to reload
+       await this.page.waitForSelector('.MuiDataGrid-loadingOverlay', { state: 'detached' });
+    }
+
+    await row.getByLabel("Edit").click();
+    
+    // Wait for the modal to appear (it could be 'Edit Book' or 'Update Book')
+    await expect(this.page.getByRole('heading', { name: /Edit Book|Update Book/i })).toBeVisible();
   }
 }

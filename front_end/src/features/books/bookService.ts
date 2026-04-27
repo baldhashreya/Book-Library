@@ -15,9 +15,10 @@ export const bookService = {
   },
 
   // Create new book
-  async createBook(bookData: BookFormData): Promise<void> {
+  async createBook(bookData: BookFormData): Promise<any> {
     try {
-      await apiService.post("/books", bookData);
+      const result = await apiService.post("/books", bookData);
+      return result;
     } catch (error) {
       console.error("Error creating book:", error);
       throw error;
@@ -25,9 +26,10 @@ export const bookService = {
   },
 
   // Update book
-  async updateBook(id: string, bookData: BookFormData): Promise<void> {
+  async updateBook(id: string, bookData: BookFormData): Promise<any> {
     try {
-      await apiService.put(`/books/${id}`, bookData);
+      const result = await apiService.put(`/books/${id}`, bookData);
+      return result;
     } catch (error) {
       console.error("Error updating book:", error);
       throw error;
