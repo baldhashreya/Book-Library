@@ -73,12 +73,15 @@ jobs:
           # Cache npm dependencies keyed by package-lock.json hash.
           # Skips `npm ci` download step on cache hit — saves ~30-60s per run.
           cache: "npm"
-          cache-dependency-path: Test_cases/front-end-test-cases/package-lock.json
+          # Using package.json as the cache key because package-lock.json
+          # is excluded from the repo via .gitignore.
+          cache-dependency-path: Test_cases/front-end-test-cases/package.json
 
       # ── 3. Install Node dependencies ────────────────────────────────────────
       - name: Install npm dependencies
         working-directory: Test_cases/front-end-test-cases
-        run: npm ci
+        # Using npm install (not npm ci) because package-lock.json is gitignored.
+        run: npm install
 
       # ── 4. Cache Playwright browser binaries ────────────────────────────────
       # Playwright downloads ~300 MB of browser binaries on first run.
