@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { toast } from "react-toastify";
 import MainLayout from "../../../shared/layouts/MainLayout";
 import BookModal from "../components/BookModal";
 import type { Book, BookFormData } from "../../../types/book";
@@ -44,11 +45,12 @@ const BookPage: React.FC = () => {
         order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
         ...filters,
       });
-      console.log("Fata:::::::::::::::", booksData.rows);
       setBooks(booksData.rows);
       setTotalCount(booksData.count);
     } catch (error) {
       console.error("Error loading books:", error);
+      setBooks([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -128,17 +130,23 @@ const BookPage: React.FC = () => {
 
   const handleSaveBook = useCallback(async (bookData: BookFormData) => {
     try {
+      let result;
       if (modalMode === "add") {
-        await bookService.createBook(bookData);
+        result = await bookService.createBook(bookData);
       } else if (modalMode === "edit" && selectedBook) {
-        await bookService.updateBook(selectedBook._id, bookData);
+        result = await bookService.updateBook(selectedBook._id, bookData);
       }
+
+      const message = result?.message || (modalMode === "add" ? "Book created successfully" : "Book updated successfully");
+      toast.success(message);
 
       await loadBooks();
       setIsModalOpen(false);
       setSelectedBook(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving book:", error);
+      // Errors are already toasted in BookModal via try/catch, 
+      // but if we re-throw, we can handle it here too.
       throw error;
     }
   }, [modalMode, selectedBook, loadBooks]);

@@ -1,58 +1,21 @@
-import test, { expect } from "@playwright/test";
-import { LoginPage } from "../../components/auth/login";
-import * as fs from "fs";
+import { test, expect } from "../../src/fixtures/baseFixture";
 import * as path from "path";
-import { LOGIN_URL, TOAST_TIMEOUT } from "../../utils/constants";
+import { loadCSV } from "../../src/utils/csv-reader";
+import { LOGIN_URL, TOAST_TIMEOUT } from "../../src/utils/constants";
 
-const VALID_EMAIL = process.env.VALID_EMAIL || "";
-const VALID_PASSWORD = process.env.VALID_PASSWORD || "";
-
-const inferExpectedResult = (data: any) => {
-  if (data.expectedResult) {
-    return data.expectedResult;
-  }
-
-  if (!data.email || !data.email.includes("@") || !data.password) {
-    return "failure";
-  }
-
-  if (
-    VALID_EMAIL &&
-    data.email === VALID_EMAIL &&
-    data.password === VALID_PASSWORD
-  ) {
-    return "success";
-  }
-
-  return "failure";
-};
-
-const loadCSV = (filePath: string) => {
-  const data = fs.readFileSync(filePath, "utf-8");
-  const lines = data.split("\n").filter((line: string) => line.trim() !== "");
-  const headers = lines[0].split(",");
-  return lines.slice(1).map((line: string) => {
-    const values = line.split(",");
-    const record: any = {};
-    headers.forEach((header: string, index: number) => {
-      record[header.trim()] = values[index] ? values[index].trim() : "";
-    });
-    return record;
-  });
-};
+const creds = require("../../../data/login.json");
+const VALID_EMAIL = creds.email;
+const VALID_PASSWORD = creds.password;
 
 test.describe("Login Page", () => {
-  let loginPage: LoginPage;
   const testData = loadCSV(
-    path.join(__dirname, "../../../../data/auth/login.csv"),
+    path.join(__dirname, "../../../data/auth/login.csv"),
   );
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-  });
   for (const data of testData) {
     test(`${data.id} | Login test for email: ${data.email || "empty"}`, async ({
       page,
+      loginPage,
     }) => {
       await loginPage.login(data.email, data.password);
       const expectedResult = data.expectedResult || "failure";
@@ -82,15 +45,13 @@ test.describe("Login Page", () => {
 
 test.describe("Forgot Password", () => {
   const testData = loadCSV(
-    path.join(__dirname, "../../../../data/auth/forgot_password.csv"),
+    path.join(__dirname, "../../../data/auth/forgot_password.csv"),
   );
-  let loginPage: LoginPage;
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-  });
+
   for (const data of testData) {
     test(`${data.id} | Forgot Password test for email: ${data.email || "empty"}`, async ({
       page,
+      loginPage,
     }) => {
       await loginPage.forgotPassword(data.email, data.password);
 
@@ -121,16 +82,14 @@ test.describe("Forgot Password", () => {
 
 test.describe("Redirect Login to Forgot Password and Forgot Password to Login", () => {
   test("Redirect Login to Forgot Password and Forgot Password to Login", async ({
-    page,
+    loginPage,
   }) => {
-    const loginPage = new LoginPage(page);
     await loginPage.redirectForgotPasswordToLogin();
   });
 });
 
 test.describe("Redirect Login to Sign up and Sign up to Login", () => {
-  test("Redirect Login to Sign up and Sign up to Login", async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test("Redirect Login to Sign up and Sign up to Login", async ({ loginPage }) => {
     await loginPage.redirectSignUpToLogin();
   });
 });

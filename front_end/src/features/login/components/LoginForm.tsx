@@ -54,10 +54,6 @@ export function LoginForm({
       try {
         const response = await authService.login(values);
         if (response.data && response.data.access_token) {
-          localStorage.setItem("token", response.data.access_token);
-          localStorage.setItem("refresh_token", response.data.refresh_token);
-          const user = await authService.getCurrentUser();
-          localStorage.setItem("user", JSON.stringify(user || { email: values.email }));
           toast.success(response.message);
           navigate("/dashboard");
         } else {
@@ -196,6 +192,7 @@ export function LoginForm({
           <div className="forgot-password">
             <Link
               component="button"
+              type="button"
               variant="body1"
               onClick={handleForgotPassword}
               sx={{ color: "var(--primary-main)", fontWeight: "500", fontSize: "13px" }}

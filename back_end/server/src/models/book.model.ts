@@ -5,18 +5,46 @@ export const BooksModel = {
   Create: {
     params: {},
     body: {
-      title: Joi.string().trim().required().min(3).max(50).regex(/^[^<>]*$/, "no HTML tags allowed"),
-      author: Joi.string().trim().required(),
-      category: Joi.string().trim().required(),
-      description: Joi.string().trim().required().regex(/^[^<>]*$/, "no HTML tags allowed"),
-      isbn: Joi.string().allow(null, "").trim(),
-      publisher: Joi.number().min(0).integer().required(),
-      quantity: Joi.number().min(0).integer().required(),
-      coverImage: Joi.string().allow(null, "").trim().regex(/^[^<>]*$/, "no HTML tags allowed"),
-      status: Joi.string()
-        .valid(...Object.values(BookStatusEnum))
+      title: Joi.string()
+        .trim()
         .required()
-        .trim(),
+        .min(3)
+        .max(50)
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected")
+        .messages({
+          "string.empty": "title cannot be empty",
+          "any.required": "title cannot be empty",
+        }),
+      author: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid author id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      category: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid category id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      description: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      isbn: Joi.string().required().length(13).pattern(/^\d+$/).message("isbn format invalid"),
+      publisher: Joi.number().min(1000).max(2025).integer().required(),
+      quantity: Joi.number()
+        .min(1)
+        .integer()
+        .required()
+        .messages({
+          "number.min": "quantity must be at least 1",
+        }),
+      coverImage: Joi.string()
+        .allow(null, "")
+        .trim()
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
     },
     query: {},
   },
@@ -25,14 +53,35 @@ export const BooksModel = {
       id: Joi.string().required(),
     },
     body: {
-      title: Joi.string().trim().required().min(3).max(50).regex(/^[^<>]*$/, "no HTML tags allowed"),
-      author: Joi.string().trim().required(),
-      category: Joi.string().trim().required(),
-      description: Joi.string().trim().required().regex(/^[^<>]*$/, "no HTML tags allowed"),
-      isbn: Joi.string().allow(null, "").trim(),
-      publisher: Joi.number().required().min(0).integer(),
-      quantity: Joi.number().required().min(0).integer(),
-      coverImage: Joi.string().allow(null, "").regex(/^[^<>]*$/, "no HTML tags allowed"),
+      title: Joi.string()
+        .trim()
+        .required()
+        .min(3)
+        .max(50)
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      author: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid author id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      category: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[0-9a-fA-F]{24}$/, "invalid category id format")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      description: Joi.string()
+        .trim()
+        .required()
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
+      isbn: Joi.string().required().length(13).pattern(/^\d+$/).message("isbn format invalid"),
+      publisher: Joi.number().required().min(1000).max(2025).integer(),
+      quantity: Joi.number().required().min(1).integer(),
+      coverImage: Joi.string()
+        .allow(null, "")
+        .regex(/^[\x20-\x7E]*$/, "only ASCII characters are allowed")
+        .regex(/^[^{"$}]*$/, "invalid input detected"),
       status: Joi.string()
         .required()
         .valid(...Object.values(BookStatusEnum))
@@ -56,7 +105,7 @@ export const BooksModel = {
       description: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
       isbn: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
       publisher: Joi.number().optional(),
-      quantity: Joi.number().min(0).optional(),
+      quantity: Joi.number().min(1).optional(),
       coverImage: Joi.string().optional().regex(/^[^<>]*$/, "no HTML tags allowed"),
       status: Joi.string()
         .optional()

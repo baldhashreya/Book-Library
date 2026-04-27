@@ -11,7 +11,7 @@ export const userService = {
   async testConnection(): Promise<boolean> {
     try {
       console.log("🔍 Testing backend connection...");
-      const response = await fetch("http://localhost:5000/api/health");
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/health`);
       console.log(
         "✅ Backend connection test:",
         response.status,

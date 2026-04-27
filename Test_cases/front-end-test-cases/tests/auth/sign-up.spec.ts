@@ -1,36 +1,15 @@
-import test, { expect } from "@playwright/test";
-import { SignUp } from "../../components/auth/sign_up";
-import * as fs from "fs";
+import { test, expect } from "../../src/fixtures/baseFixture";
 import * as path from "path";
-import { TOAST_TIMEOUT } from "../../utils/constants";
-
-const loadCSV = (filePath: string) => {
-  const data = fs.readFileSync(filePath, "utf-8");
-  const lines = data.split("\n").filter((line: string) => line.trim() !== "");
-  const headers = lines[0].split(",");
-  return lines.slice(1).map((line: string) => {
-    const values = line.split(",");
-    const record: any = {};
-    headers.forEach((header: string, index: number) => {
-      record[header.trim()] = values[index] ? values[index].trim() : "";
-    });
-    return record;
-  });
-};
+import { loadCSV } from "../../src/utils/csv-reader";
+import { TOAST_TIMEOUT } from "../../src/utils/constants";
 
 test.describe("Signup Page Data-Driven Testing", () => {
-  let signUpPage: SignUp;
   const testData = loadCSV(
-    path.join(__dirname, "../../../../data/auth/sign_up.csv"),
+    path.join(__dirname, "../../../data/auth/sign_up.csv"),
   );
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/signup");
-    signUpPage = new SignUp(page);
-  });
-
   for (const data of testData) {
-    test(`${data.id} | ${data.description}`, async ({ page }) => {
+    test(`${data.id} | ${data.description}`, async ({ page, signUpPage }) => {
       await signUpPage.signUp(
         data.name || "",
         data.email || "",

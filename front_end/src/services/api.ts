@@ -42,6 +42,17 @@ class ApiService {
             // that falls out of the range of 2xx
             const errorData: any = error.response.data;
             console.log("Error details:", errorData);
+
+            // Global handling for "Unauthorized access"
+            if (error.response.status === 401 || errorData?.message === "Unauthorized access") {
+                console.warn("Unauthorized access detected. Redirecting to login...");
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("refresh_token");
+                window.location.href = "/login";
+                return Promise.reject(new Error("Session expired. Please login again."));
+            }
+
             throw new Error(errorData?.message || `Request failed with status ${error.response.status}`);
         } else if (error.request) {
             // The request was made but no response was received

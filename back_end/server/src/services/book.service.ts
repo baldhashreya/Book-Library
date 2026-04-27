@@ -35,14 +35,25 @@ export class BooksService {
   }
 
   private async validateBook(bookData: BooksModel, id?: string) {
-    // XSS check: Block any HTML tags in string fields
-    const xssRegex = /<[^>]+>/;
+    // Advanced Security Filter: Block ASCII violations and common Injection patterns
+    const asciiRegex = /^[\x20-\x7E]*$/;
+    const injectionRegex = /[{}""$]|--|;/;
+
     for (const key in bookData) {
       const val = (bookData as any)[key];
-      if (typeof val === "string" && xssRegex.test(val)) {
-        const err = new Error();
-        err.name = ErrorType.XssDetected;
-        return Promise.reject(err);
+      if (typeof val === "string") {
+        if (!asciiRegex.test(val)) {
+          const err = new Error();
+          err.name = ErrorType.ValidationError; 
+          err.message = "only ASCII characters are allowed";
+          return Promise.reject(err);
+        }
+        if (injectionRegex.test(val)) {
+          const err = new Error();
+          err.name = ErrorType.ValidationError;
+          err.message = "invalid input detected";
+          return Promise.reject(err);
+        }
       }
     }
 

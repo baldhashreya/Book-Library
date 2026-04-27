@@ -1,5 +1,5 @@
 import { expect, Locator, Page } from "@playwright/test";
-import { CommonActions } from "../../utils/common";
+import { CommonActions } from "../../utils/common-actions";
 
 export class ResetPasswordPage {
   private page: Page;
@@ -47,7 +47,6 @@ export class ResetPasswordPage {
   async resetPassword(email: string, password: string) {
     await this.commonActions.navigateTo("/login");
     await this.clickButton("Forgot Password?");
-    // Added a short wait for transition or directly fill
     await this.fillForm("Enter email", "Enter new password", email, password);
     await this.clickButton("Update Password");
   }

@@ -1,7 +1,7 @@
 import { Page, Locator } from "@playwright/test";
-import { CommonActions } from "../../utils/common";
+import { CommonActions } from "../../utils/common-actions";
 
-export class SignUp {
+export class SignUpPage {
   private page: Page;
   private commonActions: CommonActions;
 

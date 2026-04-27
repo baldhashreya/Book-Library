@@ -38,6 +38,8 @@ const CategoryPage: React.FC = () => {
       setTotalCount(categoriesData.count);
     } catch (error) {
       console.error("Error loading categories:", error);
+      setCategories([]);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }

@@ -171,6 +171,10 @@ export async function getErrorResult(error: Error): Promise<ErrorStatusAndKey> {
       statusCode = HttpStatusCode.NotFound;
       errorKey = messages.BooksMessages.BookNotFound;
       break;
+    case ErrorType.BookIsUnique:
+      statusCode = HttpStatusCode.ConflictError;
+      errorKey = messages.BooksMessages.BookIsUnique;
+      break;
     case "CastError":
       statusCode = HttpStatusCode.BadRequest;
       errorKey = messages.badRequest;
@@ -206,9 +210,9 @@ export const errorHandler = async (
 
 const argon2Options: Options & { raw?: false } = {
   type: argon2.argon2id,
-  memoryCost: 2 ** 16,
-  timeCost: 3,
-  parallelism: 1,
+  memoryCost: 2 ** 14,
+  timeCost: 1,
+  parallelism: 2,
 };
 
 export async function hashPassword(password: string): Promise<string> {
