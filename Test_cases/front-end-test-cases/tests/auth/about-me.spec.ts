@@ -1,8 +1,8 @@
 import { test, expect } from "../../src/fixtures/baseFixture";
-const creds = require("../../../data/login.json");
+import { getCredentials } from "../../src/utils/credentials";
 
-const VALID_EMAIL = creds.email;
-const VALID_PASSWORD = creds.password;
+const VALID_EMAIL = getCredentials().email;
+const VALID_PASSWORD = getCredentials().password;
 
 test.describe("About Me Page", () => {
 

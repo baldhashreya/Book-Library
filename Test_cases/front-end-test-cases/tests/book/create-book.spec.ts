@@ -1,5 +1,6 @@
 import { test, expect } from '../../src/fixtures/baseFixture';
 import { loadCSV } from '../../src/utils/csv-reader';
+import { getCredentials } from '../../src/utils/credentials';
 import * as path from 'path';
 
 /**
@@ -24,7 +25,7 @@ test.describe("Create Book - Senior Automation Suite", () => {
     // Recovery: lazy login if session expired mid-run
     if (page.url().includes('/login')) {
       console.log("[Setup] Session expired, performing lazy login...");
-      const loginData = require('../../../data/login.json');
+      const loginData = getCredentials();
       await loginPage.login(loginData.email, loginData.password);
       await bookPage.navigateTo();
     }
