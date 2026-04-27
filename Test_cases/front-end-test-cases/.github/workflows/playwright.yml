@@ -1,27 +1,143 @@
-name: Playwright Tests
+# ══════════════════════════════════════════════════════════════════════════════
+# GitHub Actions Workflow — Playwright UI Test Suite
+# Project: Book Library (Front-End Test Cases)
+#
+# ── HOW TO ADD SECRETS ───────────────────────────────────────────────────────
+# Go to your GitHub repository → Settings → Secrets and variables → Actions
+# Click "New repository secret" and add each secret listed in the `env` blocks.
+#
+# ── WHY SECRETS MUST NEVER BE IN THIS FILE ────────────────────────────────────
+# Storing passwords, tokens, or URLs directly in YAML files means they are
+# committed to git history permanently — even if later deleted. Anyone with
+# read access to the repo (or its forks) can extract them. GitHub Secrets are
+# encrypted at rest, masked in logs, and never exposed to forked PRs.
+# ══════════════════════════════════════════════════════════════════════════════
+
+name: Playwright UI Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+
+# Cancel any in-progress run for the same branch when a new push arrives.
+# This prevents wasting CI minutes on stale runs.
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    timeout-minutes: 60
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB: Run Playwright tests against the deployed / running application
+  # ────────────────────────────────────────────────────────────────────────────
+  playwright-tests:
+    name: Playwright UI Test Suite
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    # ── Environment variables ─────────────────────────────────────────────────
+    # All values come from GitHub Secrets — never hardcode here.
+    #
+    # Required secrets to configure in GitHub (Settings → Secrets → Actions):
+    #
+    #   TEST_EMAIL       — The email address of the test user account
+    #   TEST_PASSWORD    — The password of the test user account
+    #   BASE_URL         — The URL of the frontend app (e.g. http://your-host:5173)
+    #   API_BASE_URL     — The URL of the backend API  (e.g. http://your-host:5000/api)
+    #
+    env:
+      CI: true
+      # ── Authentication credentials (loaded by auth.setup.ts at runtime) ─────
+      TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+
+      # ── Application URLs ─────────────────────────────────────────────────────
+      # Referenced by playwright.config.ts via process.env.BASE_URL
+      BASE_URL: ${{ secrets.BASE_URL }}
+      # Referenced by the frontend vite build / apiService via VITE_API_BASE_URL
+      VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      # ── 1. Check out the repository ─────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Node.js with LTS and enable built-in npm caching ──────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          # Cache npm dependencies keyed by package-lock.json hash.
+          # Skips `npm ci` download step on cache hit — saves ~30-60s per run.
+          cache: "npm"
+          cache-dependency-path: Test_cases/front-end-test-cases/package-lock.json
+
+      # ── 3. Install Node dependencies ────────────────────────────────────────
+      - name: Install npm dependencies
+        working-directory: Test_cases/front-end-test-cases
+        run: npm ci
+
+      # ── 4. Cache Playwright browser binaries ────────────────────────────────
+      # Playwright downloads ~300 MB of browser binaries on first run.
+      # Caching them keyed by Playwright version avoids repeated downloads.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('Test_cases/front-end-test-cases/package-lock.json') }}
+          restore-keys: |
+            playwright-browsers-${{ runner.os }}-
+
+      # ── 5. Install Playwright browsers (only if cache missed) ───────────────
+      - name: Install Playwright browsers
+        working-directory: Test_cases/front-end-test-cases
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      # Install system dependencies only (fast, even on cache hit)
+      - name: Install Playwright system dependencies
+        working-directory: Test_cases/front-end-test-cases
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # ── 6. Run Playwright tests ─────────────────────────────────────────────
+      # The auth setup project runs first (as defined in playwright.config.ts),
+      # creates auth.json in the working directory, then chromium tests reuse it.
+      # auth.json is gitignored and lives only in the CI runner's temp filesystem.
+      - name: Run Playwright tests
+        working-directory: Test_cases/front-end-test-cases
+        run: npx playwright test --project=setup --project=chromium
+
+      # ── 7. Upload Playwright HTML report as a build artifact ────────────────
+      # Always upload — even on failure — so you can inspect failed test traces.
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: Test_cases/front-end-test-cases/playwright-report/
+          retention-days: 14
+
+      # ── 8. Upload Allure results for optional Allure Cloud / self-hosted ─────
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results-${{ github.run_number }}
+          path: Test_cases/front-end-test-cases/allure-results/
+          retention-days: 14
+
+      # ── 9. Upload failure screenshots and videos ─────────────────────────────
+      # playwright.config.ts is set to screenshot/video 'only-on-failure'.
+      # These are uploaded separately for quick visual debugging.
+      - name: Upload test failure artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-failure-artifacts-${{ github.run_number }}
+          path: Test_cases/front-end-test-cases/test-results/
+          retention-days: 7

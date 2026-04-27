@@ -5,8 +5,13 @@ import * as fs from 'fs';
 const authFile = path.join(__dirname, '../auth.json');
 
 setup('authenticate', async ({ page, loginPage }) => {
-  // Load credentials
-  const creds = require('../../data/login.json');
+  // In CI, credentials are injected as environment variables via GitHub Secrets.
+  // Locally, they are read from the gitignored data/login.json file.
+  // NEVER hardcode real credentials here.
+  const creds = (process.env.TEST_EMAIL && process.env.TEST_PASSWORD)
+    ? { email: process.env.TEST_EMAIL, password: process.env.TEST_PASSWORD }
+    : require('../../data/login.json');
+
   // Perform login
   await loginPage.login(creds.email, creds.password);
   
