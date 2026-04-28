@@ -8,7 +8,7 @@ export class AuthorizationController {
   }
 
   public loginUser = async (req: Request, res: Response): Promise<Response> => {
-    const { password, ...logData } = req.body;
+    const { ...logData } = req.body;
     addLog(LogLevel.info, "login User", logData);
     const result = await this.authorizationServices.loginUser(req.body);
     return baseController.getResult(res, 200, result, AuthOperations.LOGIN);
