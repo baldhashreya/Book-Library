@@ -5,7 +5,6 @@ import { RolesServices } from "../src/services/roles.service";
 import { RolesModel } from "../src/models/roles.model";
 import { celebrate } from "celebrate";
 import { CommonRepository } from "../src/repositories/common.repository";
-import { authorizationUser } from "common";
 
 const rolesRepository = new RolesRepository();
 const commonRepository = new CommonRepository();
