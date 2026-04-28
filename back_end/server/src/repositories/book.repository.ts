@@ -24,7 +24,6 @@ export class BooksRepository {
   }
 
   public async createBook(bookData: BooksModel): Promise<BooksModel | any> {
-    console.log(bookData);
     return Books.create(bookData);
   }
 
