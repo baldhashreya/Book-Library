@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { AuthorizationRepository } from "../repositories/authorization.repository";
 import { CommonRepository } from "../repositories/common.repository";
-import { UpdateResult } from "mongoose";
+import mongoose, { UpdateResult } from "mongoose";
 import {
   hashPassword,
   verifyPassword,
@@ -80,12 +80,12 @@ export class AuthorizationServices {
       existingUser._id as unknown as string,
     );
 
-    const { password, ...userProfile } = existingUser.toObject();
+    const userProfile = existingUser.toObject();
+    delete userProfile.password;
     return { access_token, refresh_token, user: userProfile };
   }
 
   public async logOutUser(id: string): Promise<UpdateResult> {
-    const mongoose = require("mongoose");
     if (!mongoose.Types.ObjectId.isValid(id)) {
       const err = new Error();
       err.name = ErrorType.ValidationError;
@@ -106,7 +106,7 @@ export class AuthorizationServices {
 
   public async refreshToken(
     token: string,
-    id?: string,
+    _id?: string,
   ): Promise<{ refresh_token: string; access_token: string }> {
     try {
       const verifiedUser = jwt.verify(token, process.env.REFRESH_TOKEN || "") as any;
@@ -137,7 +137,7 @@ export class AuthorizationServices {
       );
 
       return { access_token, refresh_token };
-    } catch (error) {
+    } catch {
       const err = new Error();
       err.name = ErrorType.InvalidCredentials;
       return Promise.reject(err);
