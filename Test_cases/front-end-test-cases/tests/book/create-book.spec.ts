@@ -82,7 +82,7 @@ test.describe("Create Book - Senior Automation Suite", () => {
           }
         });
       }
-      console.log(data.test_case_id);
+      
 
       // Normalize expected messages to match UI wording
       if (
