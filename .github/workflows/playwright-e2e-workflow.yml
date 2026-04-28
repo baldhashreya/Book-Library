@@ -224,7 +224,7 @@ jobs:
       #       status, passed, failed, skipped, total, branch,
       #       commit, run_number, run_url, triggered_by, timestamp
       - name: Notify Zapier → Notion
-        if: always() && secrets.ZAPIER_WEBHOOK_URL != ''
+        if: always()
         env:
           # Webhook URL stored as a GitHub Secret — never hardcode it here
           ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
@@ -234,6 +234,11 @@ jobs:
           SKIPPED: ${{ steps.run_tests.outputs.skipped }}
           TOTAL:   ${{ steps.run_tests.outputs.total   }}
         run: |
+          if [ -z "$ZAPIER_WEBHOOK_URL" ]; then
+            echo "⚠️ ZAPIER_WEBHOOK_URL is not configured in GitHub Secrets. Skipping Notion notification."
+            exit 0
+          fi
+
           # Determine a human-readable status label with emoji
           if [ "$STATUS" = "success" ]; then
             STATUS_LABEL="✅ Passed"
