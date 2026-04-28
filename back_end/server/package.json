@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node app.ts"
+    "start": "nodemon --exec ts-node app.ts",
+    "lint": "npx --prefix ../.. eslint .",
+    "lint:check": "npx --prefix ../.. eslint ."
   },
   "keywords": [],
   "author": "",

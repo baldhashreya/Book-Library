@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "report": "npx allure generate allure-results --clean && npx allure open"
+    "report": "npx allure generate allure-results --clean && npx allure open",
+    "lint": "npx --prefix ../.. eslint .",
+    "lint:check": "npx --prefix ../.. eslint ."
   },
   "keywords": [],
   "author": "",
