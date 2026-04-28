@@ -26,7 +26,7 @@ jobs:
       - name: Execute ESLint
         id: run_eslint
         run: |
-          npm run lint || true
+          npm run lint:json || true
           
           if [ -f "lint-report.json" ]; then
             # Aggregate error and warning counts via jq
