@@ -82,7 +82,8 @@ test.describe("Create Book - Senior Automation Suite", () => {
           }
         });
       }
-      console.log(data)
+
+
 
       // Normalize expected messages to match UI wording
       if (
