@@ -37,7 +37,6 @@ test.describe("Book Search Page UI Testing via POM", () => {
         }
 
         // Optional: Clear filters to ensure clean state for next iteration
-        // Actually, opening the filter drawer again will overwrite the values if we use fill()
       });
     }
   });
