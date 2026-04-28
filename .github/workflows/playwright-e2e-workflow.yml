@@ -32,6 +32,7 @@ name: Playwright UI Test Suite
 #   ✓ Every push to main branches (master, main, develop)
 #   ✓ Every pull request targeting main branches
 #   ✓ Manual trigger via GitHub UI (workflow_dispatch)
+#   ✓ Zapier webhook trigger (repository_dispatch)
 #
 # This ensures ALL code changes are tested before being merged.
 on:
@@ -46,6 +47,8 @@ on:
       - main
       - develop
   workflow_dispatch:  # Manual trigger for re-running tests
+  repository_dispatch:  # Zapier webhook trigger
+    types: [run-tests]
 
 # ── CONCURRENCY CONFIGURATION ──────────────────────────────────────────────────
 # Cancel any in-progress run for the same branch when a new push arrives.
