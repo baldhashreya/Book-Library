@@ -14,9 +14,19 @@
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "test:backend": "cd Test_cases/backend-test-cases && python run_tests.py",
     "test:frontend": "cd Test_cases/front-end-test-cases && npx playwright test",
-    "test": "npm run test:backend && npm run test:frontend"
+    "test": "npm run test:backend && npm run test:frontend",
+    "lint": "eslint . --format json --output-file lint-report.json"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "@typescript-eslint/parser": "^7.10.0",
+    "@typescript-eslint/eslint-plugin": "^7.10.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-playwright": "^1.6.1"
   }
 }

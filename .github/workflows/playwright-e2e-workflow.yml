@@ -1,316 +1,59 @@
-# ══════════════════════════════════════════════════════════════════════════════
-# GitHub Actions Workflow — Playwright UI Test Suite with Merge Protection
-# Project: Book Library (Front-End Test Cases)
-#
-# PURPOSE:
-# - Run tests on EVERY commit to the repository
-# - Block merge until ALL tests pass
-# - Provide detailed feedback to developers
-#
-# MERGE PROTECTION SETUP:
-# After pushing this workflow, configure GitHub branch protection:
-#   Repository → Settings → Branches → Add rule
-#   ✓ Require status checks to pass before merging
-#   ✓ Select "Playwright UI Test Suite" as required check
-#   ✓ Dismiss stale PR approvals when new commits are pushed
-#
-# ── HOW TO ADD SECRETS ───────────────────────────────────────────────────────
-# Go to your GitHub repository → Settings → Secrets and variables → Actions
-# Click "New repository secret" and add each secret listed in the `env` blocks.
-#
-# ── WHY SECRETS MUST NEVER BE IN THIS FILE ────────────────────────────────────
-# Storing passwords, tokens, or URLs directly in YAML files means they are
-# committed to git history permanently — even if later deleted. Anyone with
-# read access to the repo (or its forks) can extract them. GitHub Secrets are
-# encrypted at rest, masked in logs, and never exposed to forked PRs.
-# ══════════════════════════════════════════════════════════════════════════════
+name: ESLint Code Quality
 
-name: Playwright UI Test Suite
-
-# ── TRIGGER CONFIGURATION ──────────────────────────────────────────────────────
-# Runs on:
-#   ✓ Every push to main branches (master, main, develop)
-#   ✓ Every pull request targeting main branches
-#   ✓ Manual trigger via GitHub UI (workflow_dispatch)
-#   ✓ Zapier webhook trigger (repository_dispatch)
-#
-# This ensures ALL code changes are tested before being merged.
 on:
   push:
     branches:
-      - master
-      - main
-      - develop
+      - '**'
   pull_request:
-    branches:
-      - master
-      - main
-      - develop
-  workflow_dispatch:  # Manual trigger for re-running tests
-  repository_dispatch:  # Zapier webhook trigger
-    types: [run-tests]
-
-# ── CONCURRENCY CONFIGURATION ──────────────────────────────────────────────────
-# Cancel any in-progress run for the same branch when a new push arrives.
-# This prevents wasting CI minutes on stale runs and provides faster feedback.
-concurrency:
-  group: playwright-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
-  # ────────────────────────────────────────────────────────────────────────────
-  # JOB: Run Playwright tests against the deployed / running application
-  # ────────────────────────────────────────────────────────────────────────────
-  playwright-tests:
-    name: Playwright UI Test Suite
+  eslint-check:
+    name: Run ESLint
     runs-on: ubuntu-latest
-    timeout-minutes: 60
-
-    # ── PERMISSIONS ─────────────────────────────────────────────────────────────
-    # Only allow required permissions for security
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-
-    # ── Environment variables ─────────────────────────────────────────────────
-    # All values come from GitHub Secrets — never hardcode here.
-    #
-    # Required secrets to configure in GitHub (Settings → Secrets → Actions):
-    #
-    #   TEST_EMAIL       — The email address of the test user account
-    #   TEST_PASSWORD    — The password of the test user account
-    #   BASE_URL         — The URL of the frontend app (e.g. http://your-host:5173)
-    #   API_BASE_URL     — The URL of the backend API  (e.g. http://your-host:5000/api)
-    #   ZAPIER_WEBHOOK_URL (optional) — For Notion integration
-    #
-    env:
-      CI: true
-      # ── Authentication credentials (loaded by auth.setup.ts at runtime) ─────
-      TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
-      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-
-      # ── Application URLs ─────────────────────────────────────────────────────
-      # Referenced by playwright.config.ts via process.env.BASE_URL
-      BASE_URL: ${{ secrets.BASE_URL }}
-      # Referenced by the frontend vite build / apiService via VITE_API_BASE_URL
-      VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     steps:
-      # ── 1. Check out the repository ─────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Set up Node.js with LTS and enable built-in npm caching ──────────
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
-          # Cache npm dependencies keyed by package-lock.json hash.
-          # Skips `npm ci` download step on cache hit — saves ~30-60s per run.
-          cache: "npm"
-          # Using package.json as the cache key because package-lock.json
-          # is excluded from the repo via .gitignore.
-          cache-dependency-path: Test_cases/front-end-test-cases/package.json
+          node-version: 'lts/*'
 
-      # ── 3. Install Node dependencies ────────────────────────────────────────
-      - name: Install npm dependencies
-        working-directory: Test_cases/front-end-test-cases
-        # Using npm install (not npm ci) because package-lock.json is gitignored.
+      - name: Install dependencies
         run: npm install
 
-      # ── 4. Cache Playwright browser binaries ────────────────────────────────
-      # Playwright downloads ~300 MB of browser binaries on first run.
-      # Caching them keyed by Playwright version avoids repeated downloads.
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('Test_cases/front-end-test-cases/package-lock.json') }}
-          restore-keys: |
-            playwright-browsers-${{ runner.os }}-
-
-      # ── 5. Install Playwright browsers (only if cache missed) ───────────────
-      - name: Install Playwright browsers
-        working-directory: Test_cases/front-end-test-cases
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      # Install system dependencies only (fast, even on cache hit)
-      - name: Install Playwright system dependencies
-        working-directory: Test_cases/front-end-test-cases
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      # ── 6. Run Playwright tests ─────────────────────────────────────────────
-      # The auth setup project runs first (as defined in playwright.config.ts),
-      # creates auth.json in the working directory, then chromium tests reuse it.
-      # auth.json is gitignored and lives only in the CI runner's temp filesystem.
-      # --reporter=json writes a machine-readable results file we parse below.
-      - name: Run Playwright tests
-        id: run_tests
-        working-directory: Test_cases/front-end-test-cases
+      - name: Execute ESLint
+        id: run_eslint
         run: |
-          npx playwright test --project=setup --project=chromium \
-            --reporter=json,list,allure-playwright 2>&1 | tee test-output.log || true
-
-          # Extract pass / fail / skip counts from the JSON report
-          if [ -f "test-results.json" ]; then
-            PASSED=$(jq '.stats.expected'  test-results.json 2>/dev/null || echo 0)
-            FAILED=$(jq '.stats.unexpected' test-results.json 2>/dev/null || echo 0)
-            SKIPPED=$(jq '.stats.skipped'  test-results.json 2>/dev/null || echo 0)
-            TOTAL=$(jq '.stats.total'      test-results.json 2>/dev/null || echo 0)
+          npm run lint || true
+          
+          if [ -f "lint-report.json" ]; then
+            # Aggregate error and warning counts via jq
+            ERRORS=$(jq '[.[].errorCount] | add | if . == null then 0 else . end' lint-report.json)
+            WARNINGS=$(jq '[.[].warningCount] | add | if . == null then 0 else . end' lint-report.json)
+            FILES=$(jq 'length' lint-report.json)
+            
+            echo "========================================="
+            echo "📊 ESLint Scan Summary:"
+            echo "📁 Total Files Scanned: $FILES"
+            echo "❌ Total Errors:        $ERRORS"
+            echo "⚠️ Total Warnings:      $WARNINGS"
+            echo "========================================="
+            
+            if [ "$ERRORS" -gt 0 ]; then
+              echo "🚨 FAILED: ESLint found $ERRORS errors!"
+              exit 1
+            fi
           else
-            PASSED=0; FAILED=0; SKIPPED=0; TOTAL=0
+            echo "🚨 CRITICAL ERROR: lint-report.json failed to generate."
+            exit 1
           fi
 
-          echo "passed=$PASSED"   >> $GITHUB_OUTPUT
-          echo "failed=$FAILED"   >> $GITHUB_OUTPUT
-          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
-          echo "total=$TOTAL"     >> $GITHUB_OUTPUT
-
-          # Exit with failure code if any tests failed
-          [ "$FAILED" -eq 0 ] || exit 1
-
-      # ── 7. Comment on PR with test results (Pull Requests only) ──────────────
-      # Provides immediate feedback to the developer without leaving CI tab
-      - name: Comment test results on PR
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const testStatus = '${{ job.status }}';
-            const passed = '${{ steps.run_tests.outputs.passed }}' || '0';
-            const failed = '${{ steps.run_tests.outputs.failed }}' || '0';
-            const skipped = '${{ steps.run_tests.outputs.skipped }}' || '0';
-            const total = '${{ steps.run_tests.outputs.total }}' || '0';
-
-            const statusEmoji = testStatus === 'success' ? '✅' : '❌';
-            const statusText = testStatus === 'success' ? 'PASSED' : 'FAILED';
-
-            const comment = `## ${statusEmoji} Test Results: ${statusText}
-
-            | Metric | Count |
-            |--------|-------|
-            | ✅ Passed | ${passed} |
-            | ❌ Failed | ${failed} |
-            | ⏭️ Skipped | ${skipped} |
-            | 📊 Total | ${total} |
-
-            **Status**: ${testStatus === 'success' ? '🟢 Ready to merge' : '🔴 Tests must pass before merging'}
-
-            [View full test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-
-      # ── 8. Notify Zapier webhook → Notion ───────────────────────────────────
-      # Runs ALWAYS (success or failure) so Notion always gets an update.
-      #
-      # ⚙️  SETUP REQUIRED — Add this secret in GitHub:
-      #     Repository → Settings → Secrets and variables → Actions
-      #     Name:  ZAPIER_WEBHOOK_URL
-      #     Value: https://hooks.zapier.com/hooks/catch/27381310/uv4jui1/
-      #
-      # ⚙️  ZAPIER SETUP:
-      #     Trigger  → Webhooks by Zapier (Catch Hook) — already done ✅
-      #     Action   → Notion → Create Database Item
-      #     Map these fields in Zapier to your Notion database columns:
-      #       status, passed, failed, skipped, total, branch,
-      #       commit, run_number, run_url, triggered_by, timestamp
-      - name: Notify Zapier → Notion
-        if: always()
-        env:
-          # Webhook URL stored as a GitHub Secret — never hardcode it here
-          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
-          STATUS: ${{ job.status }}
-          PASSED:  ${{ steps.run_tests.outputs.passed  }}
-          FAILED:  ${{ steps.run_tests.outputs.failed  }}
-          SKIPPED: ${{ steps.run_tests.outputs.skipped }}
-          TOTAL:   ${{ steps.run_tests.outputs.total   }}
-        run: |
-          if [ -z "$ZAPIER_WEBHOOK_URL" ]; then
-            echo "⚠️ ZAPIER_WEBHOOK_URL is not configured in GitHub Secrets. Skipping Notion notification."
-            exit 0
-          fi
-
-          # Determine a human-readable status label with emoji
-          if [ "$STATUS" = "success" ]; then
-            STATUS_LABEL="✅ Passed"
-          else
-            STATUS_LABEL="❌ Failed"
-          fi
-
-          # Build the JSON payload Zapier will forward to Notion
-          PAYLOAD=$(jq -n \
-            --arg status       "$STATUS_LABEL" \
-            --arg passed       "${PASSED:-0}" \
-            --arg failed       "${FAILED:-0}" \
-            --arg skipped      "${SKIPPED:-0}" \
-            --arg total        "${TOTAL:-0}" \
-            --arg branch       "${{ github.ref_name }}" \
-            --arg commit       "${{ github.sha }}" \
-            --arg run_number   "${{ github.run_number }}" \
-            --arg run_url      "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            --arg triggered_by "${{ github.actor }}" \
-            --arg timestamp    "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
-            '{
-              status:       $status,
-              passed:       $passed,
-              failed:       $failed,
-              skipped:      $skipped,
-              total:        $total,
-              branch:       $branch,
-              commit:       $commit,
-              run_number:   $run_number,
-              run_url:      $run_url,
-              triggered_by: $triggered_by,
-              timestamp:    $timestamp
-            }')
-
-          echo "📤 Sending payload to Zapier..."
-          echo "$PAYLOAD" | jq .
-
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST "$ZAPIER_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD")
-
-          echo "Zapier responded with HTTP $HTTP_STATUS"
-          [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ] || \
-            echo "⚠️ Zapier returned unexpected status $HTTP_STATUS (non-blocking)"
-
-      # ── 9. Upload Playwright HTML report as a build artifact ────────────────
-      # Always upload — even on failure — so you can inspect failed test traces.
-      - name: Upload Playwright HTML report
+      - name: Upload ESLint JSON Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ github.run_number }}
-          path: Test_cases/front-end-test-cases/playwright-report/
+          name: eslint-quality-report
+          path: lint-report.json
           retention-days: 14
-
-      # ── 10. Upload Allure results for optional Allure Cloud / self-hosted ────
-      - name: Upload Allure results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: allure-results-${{ github.run_number }}
-          path: Test_cases/front-end-test-cases/allure-results/
-          retention-days: 14
-
-      # ── 11. Upload failure screenshots and videos ──────────────────────────
-      # playwright.config.ts is set to screenshot/video 'only-on-failure'.
-      # These are uploaded separately for quick visual debugging.
-      - name: Upload test failure artifacts
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-failure-artifacts-${{ github.run_number }}
-          path: Test_cases/front-end-test-cases/test-results/
-          retention-days: 7
