@@ -2,23 +2,14 @@ import { Page, expect, APIRequestContext } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 import { LoginPage } from "../pages/auth/login.page";
+import { getCredentials } from "./credentials";
 
-const loginDataPath = path.join(__dirname, "../../../data/login.json");
-let cachedLoginData: any = null;
-
-const getLoginData = () => {
-  if (!cachedLoginData) {
-    const rawData = fs.readFileSync(loginDataPath, "utf-8");
-    cachedLoginData = JSON.parse(rawData);
-  }
-  return cachedLoginData;
-};
 
 /**
  * Performs a high-speed API login and returns the session state (LocalStorage).
  */
 export const getApiSessionState = async (request: APIRequestContext, baseURL: string) => {
-  const creds = getLoginData();
+  const creds = getCredentials();
   
   const loginResponse = await request.post("/api/auth/login", {
     data: { email: creds.email, password: creds.password },
@@ -79,7 +70,7 @@ export const apiLoginAndSaveState = async (request: APIRequestContext, baseURL: 
  */
 export const executeLogin = async (page: Page) => {
   const loginPage = new LoginPage(page);
-  const data = getLoginData();
+  const data = getCredentials();
   await loginPage.login(data.email, data.password);
   await expect(page).toHaveURL(/\/dashboard/);
 };

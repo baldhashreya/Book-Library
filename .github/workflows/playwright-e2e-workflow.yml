@@ -18,10 +18,10 @@ name: Playwright UI Tests
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 # Cancel any in-progress run for the same branch when a new push arrives.
 # This prevents wasting CI minutes on stale runs.
@@ -73,12 +73,15 @@ jobs:
           # Cache npm dependencies keyed by package-lock.json hash.
           # Skips `npm ci` download step on cache hit — saves ~30-60s per run.
           cache: "npm"
-          cache-dependency-path: Test_cases/front-end-test-cases/package-lock.json
+          # Using package.json as the cache key because package-lock.json
+          # is excluded from the repo via .gitignore.
+          cache-dependency-path: Test_cases/front-end-test-cases/package.json
 
       # ── 3. Install Node dependencies ────────────────────────────────────────
       - name: Install npm dependencies
         working-directory: Test_cases/front-end-test-cases
-        run: npm ci
+        # Using npm install (not npm ci) because package-lock.json is gitignored.
+        run: npm install
 
       # ── 4. Cache Playwright browser binaries ────────────────────────────────
       # Playwright downloads ~300 MB of browser binaries on first run.
@@ -108,9 +111,102 @@ jobs:
       # The auth setup project runs first (as defined in playwright.config.ts),
       # creates auth.json in the working directory, then chromium tests reuse it.
       # auth.json is gitignored and lives only in the CI runner's temp filesystem.
+      # --reporter=json writes a machine-readable results file we parse below.
       - name: Run Playwright tests
+        id: run_tests
         working-directory: Test_cases/front-end-test-cases
-        run: npx playwright test --project=setup --project=chromium
+        run: |
+          npx playwright test --project=setup --project=chromium \
+            --reporter=json,list,allure-playwright 2>&1 | tee test-output.log || true
+
+          # Extract pass / fail / skip counts from the JSON report
+          if [ -f "test-results.json" ]; then
+            PASSED=$(jq '.stats.expected'  test-results.json 2>/dev/null || echo 0)
+            FAILED=$(jq '.stats.unexpected' test-results.json 2>/dev/null || echo 0)
+            SKIPPED=$(jq '.stats.skipped'  test-results.json 2>/dev/null || echo 0)
+            TOTAL=$(jq '.stats.total'      test-results.json 2>/dev/null || echo 0)
+          else
+            PASSED=0; FAILED=0; SKIPPED=0; TOTAL=0
+          fi
+
+          echo "passed=$PASSED"   >> $GITHUB_OUTPUT
+          echo "failed=$FAILED"   >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL"     >> $GITHUB_OUTPUT
+
+          # Exit with failure code if any tests failed
+          [ "$FAILED" -eq 0 ] || exit 1
+
+      # ── 7. Notify Zapier webhook → Notion ───────────────────────────────────
+      # Runs ALWAYS (success or failure) so Notion always gets an update.
+      #
+      # ⚙️  SETUP REQUIRED — Add this secret in GitHub:
+      #     Repository → Settings → Secrets and variables → Actions
+      #     Name:  ZAPIER_WEBHOOK_URL
+      #     Value: https://hooks.zapier.com/hooks/catch/27381310/uv4jui1/
+      #
+      # ⚙️  ZAPIER SETUP:
+      #     Trigger  → Webhooks by Zapier (Catch Hook) — already done ✅
+      #     Action   → Notion → Create Database Item
+      #     Map these fields in Zapier to your Notion database columns:
+      #       status, passed, failed, skipped, total, branch,
+      #       commit, run_number, run_url, triggered_by, timestamp
+      - name: Notify Zapier → Notion
+        if: always()
+        env:
+          # Webhook URL stored as a GitHub Secret — never hardcode it here
+          ZAPIER_WEBHOOK_URL: ${{ secrets.ZAPIER_WEBHOOK_URL }}
+          STATUS: ${{ job.status }}
+          PASSED:  ${{ steps.run_tests.outputs.passed  }}
+          FAILED:  ${{ steps.run_tests.outputs.failed  }}
+          SKIPPED: ${{ steps.run_tests.outputs.skipped }}
+          TOTAL:   ${{ steps.run_tests.outputs.total   }}
+        run: |
+          # Determine a human-readable status label with emoji
+          if [ "$STATUS" = "success" ]; then
+            STATUS_LABEL="✅ Passed"
+          else
+            STATUS_LABEL="❌ Failed"
+          fi
+
+          # Build the JSON payload Zapier will forward to Notion
+          PAYLOAD=$(jq -n \
+            --arg status       "$STATUS_LABEL" \
+            --arg passed       "${PASSED:-0}" \
+            --arg failed       "${FAILED:-0}" \
+            --arg skipped      "${SKIPPED:-0}" \
+            --arg total        "${TOTAL:-0}" \
+            --arg branch       "${{ github.ref_name }}" \
+            --arg commit       "${{ github.sha }}" \
+            --arg run_number   "${{ github.run_number }}" \
+            --arg run_url      "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg triggered_by "${{ github.actor }}" \
+            --arg timestamp    "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
+            '{
+              status:       $status,
+              passed:       $passed,
+              failed:       $failed,
+              skipped:      $skipped,
+              total:        $total,
+              branch:       $branch,
+              commit:       $commit,
+              run_number:   $run_number,
+              run_url:      $run_url,
+              triggered_by: $triggered_by,
+              timestamp:    $timestamp
+            }')
+
+          echo "📤 Sending payload to Zapier..."
+          echo "$PAYLOAD" | jq .
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "$ZAPIER_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          echo "Zapier responded with HTTP $HTTP_STATUS"
+          [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ] || \
+            echo "⚠️ Zapier returned unexpected status $HTTP_STATUS (non-blocking)"
 
       # ── 7. Upload Playwright HTML report as a build artifact ────────────────
       # Always upload — even on failure — so you can inspect failed test traces.

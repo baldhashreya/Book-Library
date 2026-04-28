@@ -2,10 +2,10 @@ import { test, expect } from "../../src/fixtures/baseFixture";
 import * as path from "path";
 import { loadCSV } from "../../src/utils/csv-reader";
 import { LOGIN_URL, TOAST_TIMEOUT } from "../../src/utils/constants";
+import { getCredentials } from "../../src/utils/credentials";
 
-const creds = require("../../../data/login.json");
-const VALID_EMAIL = creds.email;
-const VALID_PASSWORD = creds.password;
+const VALID_EMAIL = getCredentials().email;
+const VALID_PASSWORD = getCredentials().password;
 
 test.describe("Login Page", () => {
   const testData = loadCSV(
