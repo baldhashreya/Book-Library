@@ -152,7 +152,7 @@ jobs:
         id: run_tests
         working-directory: Test_cases/front-end-test-cases
         run: |
-          npx playwright test --project=setup --project=chromium \
+          npx playwright test --project=setup \
             --reporter=json,list,allure-playwright 2>&1 | tee test-output.log || true
 
           # Extract pass / fail / skip counts from the JSON report
