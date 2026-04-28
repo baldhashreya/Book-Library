@@ -34,15 +34,30 @@ jobs:
             WARNINGS=$(jq '[.[].warningCount] | add | if . == null then 0 else . end' lint-report.json)
             FILES=$(jq 'length' lint-report.json)
             
+            # Folder-wise Breakdown
+            FE_ERRORS=$(jq '[.[] | select(.filePath | contains("/front_end/")) | .errorCount] | add // 0' lint-report.json)
+            FE_WARNINGS=$(jq '[.[] | select(.filePath | contains("/front_end/")) | .warningCount] | add // 0' lint-report.json)
+            
+            BE_ERRORS=$(jq '[.[] | select(.filePath | contains("/back_end/")) | .errorCount] | add // 0' lint-report.json)
+            BE_WARNINGS=$(jq '[.[] | select(.filePath | contains("/back_end/")) | .warningCount] | add // 0' lint-report.json)
+            
+            TEST_ERRORS=$(jq '[.[] | select(.filePath | contains("/Test_cases/")) | .errorCount] | add // 0' lint-report.json)
+            TEST_WARNINGS=$(jq '[.[] | select(.filePath | contains("/Test_cases/")) | .warningCount] | add // 0' lint-report.json)
+
             echo "========================================="
-            echo "📊 ESLint Scan Summary:"
+            echo "📊 ESLint Global Summary:"
             echo "📁 Total Files Scanned: $FILES"
             echo "❌ Total Errors:        $ERRORS"
             echo "⚠️ Total Warnings:      $WARNINGS"
             echo "========================================="
+            echo "📂 Folder-wise Breakdown:"
+            echo "🌐 Front-End:  ❌ $FE_ERRORS Errors, ⚠️ $FE_WARNINGS Warnings"
+            echo "🖥️ Back-End:   ❌ $BE_ERRORS Errors, ⚠️ $BE_WARNINGS Warnings"
+            echo "🧪 Test Cases: ❌ $TEST_ERRORS Errors, ⚠️ $TEST_WARNINGS Warnings"
+            echo "========================================="
             
             if [ "$ERRORS" -gt 0 ]; then
-              echo "🚨 FAILED: ESLint found $ERRORS errors!"
+              echo "🚨 FAILED: ESLint found $ERRORS errors across the monorepo!"
               exit 1
             fi
           else
