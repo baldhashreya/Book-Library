@@ -3,7 +3,6 @@ import { AuthorizationController } from "../src/controllers/authorization.contro
 import { AuthorizationServices } from "../src/services/authorization.service";
 import { AuthorizationRepository } from "../src/repositories/authorization.repository";
 import { CommonRepository } from "../src/repositories/common.repository";
-import { UsersRepository } from "../src/repositories/users.repository";
 import { AuthorizationModel } from "../src/models/authorization.model";
 import { celebrate } from "celebrate";
 
