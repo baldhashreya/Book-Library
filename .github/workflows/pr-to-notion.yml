@@ -106,7 +106,6 @@ jobs:
                 "has_column_header": true,
                 "children": [
                   {
-                    "object": "block",
                     "type": "table_row",
                     "table_row": {
                       "cells": [
@@ -116,7 +115,6 @@ jobs:
                     }
                   },
                   {
-                    "object": "block",
                     "type": "table_row",
                     "table_row": {
                       "cells": [
@@ -126,7 +124,6 @@ jobs:
                     }
                   },
                   {
-                    "object": "block",
                     "type": "table_row",
                     "table_row": {
                       "cells": [
