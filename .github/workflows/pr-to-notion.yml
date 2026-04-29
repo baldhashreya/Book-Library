@@ -111,6 +111,19 @@ jobs:
               });
               console.log(`✅ Created Notion page for PR #${prNumber}`);
             }
+
+            // Fail workflow execution if errors are identified
+            if (fs.existsSync('lint-report.json')) {
+              try {
+                const lintReport = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
+                const totalErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
+                if (totalErrors > 0) {
+                  core.setFailed(`🚨 FAILED: ESLint found ${totalErrors} errors across the monorepo!`);
+                }
+              } catch (err) {
+                console.error("⚠️ Error validating thresholds:", err);
+              }
+            }
         env:
           NOTION_TOKEN:       ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
