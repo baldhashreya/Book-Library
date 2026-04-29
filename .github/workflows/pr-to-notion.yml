@@ -133,6 +133,19 @@ jobs:
               }
             };
 
+            let commitMsg = "Latest Commit";
+            try {
+              commitMsg = require('child_process').execSync('git log -1 --pretty=%s').toString().trim();
+            } catch (e) {}
+
+            const headingBlock = {
+              "object": "block",
+              "type": "heading_3",
+              "heading_3": {
+                "rich_text": [ { "type": "text", "text": { "content": `Commit: ${commitMsg}` } } ]
+              }
+            };
+
             if (existing) {
               // Update Properties
               const patchRes = await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
@@ -144,36 +157,20 @@ jobs:
                 console.error("❌ Notion Patch Error:", await patchRes.text());
               }
 
-              // Delete the existing table block to ensure clean state tracking
-              try {
-                const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, { headers });
-                if (blocksRes.ok) {
-                  const blocksData = await blocksRes.json();
-                  for (const block of (blocksData.results || [])) {
-                    if (block.type === "table") {
-                      await fetch(`https://api.notion.com/v1/blocks/${block.id}`, {
-                        method: "DELETE",
-                        headers
-                      });
-                    }
-                  }
+              // Append historical breakdown metrics ONLY if linter successfully ran
+              if (fs.existsSync('lint-report.json')) {
+                const postRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
+                  method: "POST",
+                  headers,
+                  body: JSON.stringify({
+                    children: [headingBlock, tableBlock]
+                  })
+                });
+                if (postRes.ok) {
+                  console.log(`✅ Appended test records for commit "${commitMsg}"`);
+                } else {
+                  console.error("❌ Notion Append Table Error:", await postRes.text());
                 }
-              } catch (err) {
-                console.error("⚠️ Failed to scrub old metrics tables:", err);
-              }
-
-              // Append the refreshed metrics Table
-              const postRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
-                method: "POST",
-                headers,
-                body: JSON.stringify({
-                  children: [tableBlock]
-                })
-              });
-              if (postRes.ok) {
-                console.log(`✅ Updated Notion page for PR #${prNumber} → ${status}`);
-              } else {
-                console.error("❌ Notion Append Table Error:", await postRes.text());
               }
             } else {
               // Create Page with Table Body included
@@ -183,7 +180,7 @@ jobs:
                 body: JSON.stringify({
                   parent: { database_id: NOTION_DATABASE_ID },
                   properties,
-                  children: [tableBlock]
+                  children: [headingBlock, tableBlock]
                 })
               });
               if (createRes.ok) {
