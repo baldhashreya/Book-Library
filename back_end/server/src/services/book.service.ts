@@ -6,6 +6,7 @@ import {
 } from "common";
 import { AssignBook } from "../interface/common.interface";
 import { BooksRepository } from "../repositories/book.repository";
+import logger from "../utils/logger";
 
 export class BooksService {
   constructor(private readonly booksRepository: BooksRepository) {
@@ -164,7 +165,7 @@ export class BooksService {
         issuedBook: (BookModel.issuedBook ? BookModel.issuedBook : 0) + 1,
       } as BooksModel);
     } catch (err) {
-      console.log(err);
+      logger.error(err);
     }
   }
 }

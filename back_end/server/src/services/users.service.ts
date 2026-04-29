@@ -15,6 +15,7 @@ import {
   UpsertUsersModel,
   UsersSearchParams,
 } from "../interface/common.interface";
+import logger from "../utils/logger";
 
 export class UsersServices {
   constructor(
@@ -61,7 +62,7 @@ export class UsersServices {
       addLog(LogLevel.info, "Users Model", data);
       await this.usersRepository.createUsers(data);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
     }
   }
 

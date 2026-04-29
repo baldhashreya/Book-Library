@@ -4,9 +4,6 @@ import { loadCSV } from "../../src/utils/csv-reader";
 import { LOGIN_URL, TOAST_TIMEOUT } from "../../src/utils/constants";
 import { getCredentials } from "../../src/utils/credentials";
 
-const VALID_EMAIL = getCredentials().email;
-const VALID_PASSWORD = getCredentials().password;
-
 test.describe("Login Page", () => {
   const testData = loadCSV(
     path.join(__dirname, "../../../data/auth/login.csv"),
@@ -73,7 +70,9 @@ test.describe("Forgot Password", () => {
           try {
              const toast = loginPage.getToastMessage();
              await expect(toast).toBeVisible({ timeout: TOAST_TIMEOUT });
-          } catch(e) {}
+          } catch(e) {
+            console.log(e.message)
+          }
         }
       }
     });
