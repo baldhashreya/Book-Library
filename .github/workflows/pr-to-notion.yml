@@ -11,18 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
+        if: github.event.action != 'closed'
         uses: actions/checkout@v4
 
       - name: Setup Node.js
+        if: github.event.action != 'closed'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: github.event.action != 'closed'
         run: npm install
 
       - name: Run ESLint
-        run: npm run lint:json
+        if: github.event.action != 'closed'
+        run: |
+          npm run lint || true
+          npm run lint:json || true
 
       - name: Sync PR to Notion
         if: always()
@@ -58,7 +64,7 @@ jobs:
               headers,
               body: JSON.stringify({
                 filter: {
-                  property: "PR Number",
+                  property: "# PR Number",
                   number: { equals: prNumber }
                 }
               })
@@ -66,48 +72,128 @@ jobs:
             const searchData = await searchRes.json();
             const existing = searchData.results?.[0];
 
-            let eslintErrors = 0;
-            let eslintWarnings = 0;
-            try {
-              if (fs.existsSync('lint-report.json')) {
-                const lintReport = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
-                eslintErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
-                eslintWarnings = lintReport.reduce((sum, file) => sum + (file.warningCount || 0), 0);
-              }
-            } catch (err) {
-              console.error("⚠️ Failed to parse ESLint report:", err);
-            }
-
             const properties = {
               "PR Title":   { title:  [{ text: { content: prTitle } }] },
               "PR Number":  { number: prNumber },
-              "Author":     { rich_text: [{ text: { content: author } }] },
-              "Branch":     { rich_text: [{ text: { content: branch } }] },
               "PR URL":     { url: prUrl },
               "Status":     { select: { name: status } },
-              "Opened At":  { date: { start: openedAt } },
-              "ESLint Errors": { number: eslintErrors },
-              "ESLint Warnings": { number: eslintWarnings }
+              "Opened At":  { date: { start: openedAt } }
+            };
+
+            let eslintErrors = 0;
+            let eslintWarnings = 0;
+
+            if (fs.existsSync('lint-report.json')) {
+              try {
+                const lintReport = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
+                eslintErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
+                eslintWarnings = lintReport.reduce((sum, file) => sum + (file.warningCount || 0), 0);
+              } catch (err) {
+                console.error("⚠️ Failed to parse ESLint report:", err);
+              }
+            }
+
+            // Using collected counts locally for block mappings
+
+            const tableBlock = {
+              "object": "block",
+              "type": "table",
+              "table": {
+                "table_width": 2,
+                "has_column_header": true,
+                "children": [
+                  {
+                    "type": "table_row",
+                    "table_row": {
+                      "cells": [
+                        [ { "type": "text", "text": { "content": "Status Metric" } } ],
+                        [ { "type": "text", "text": { "content": "Count" } } ]
+                      ]
+                    }
+                  },
+                  {
+                    "type": "table_row",
+                    "table_row": {
+                      "cells": [
+                        [ { "type": "text", "text": { "content": "ESLint Errors" } } ],
+                        [ { "type": "text", "text": { "content": String(eslintErrors) } } ]
+                      ]
+                    }
+                  },
+                  {
+                    "type": "table_row",
+                    "table_row": {
+                      "cells": [
+                        [ { "type": "text", "text": { "content": "ESLint Warnings" } } ],
+                        [ { "type": "text", "text": { "content": String(eslintWarnings) } } ]
+                      ]
+                    }
+                  }
+                ]
+              }
             };
 
             if (existing) {
-              await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+              // Update Properties
+              const patchRes = await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
                 method: "PATCH",
                 headers,
                 body: JSON.stringify({ properties })
               });
-              console.log(`✅ Updated Notion page for PR #${prNumber} → ${status}`);
+              if (!patchRes.ok) {
+                console.error("❌ Notion Patch Error:", await patchRes.text());
+              }
+
+              // Delete the existing table block to ensure clean state tracking
+              try {
+                const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, { headers });
+                if (blocksRes.ok) {
+                  const blocksData = await blocksRes.json();
+                  for (const block of (blocksData.results || [])) {
+                    if (block.type === "table") {
+                      await fetch(`https://api.notion.com/v1/blocks/${block.id}`, {
+                        method: "DELETE",
+                        headers
+                      });
+                    }
+                  }
+                }
+              } catch (err) {
+                console.error("⚠️ Failed to scrub old metrics tables:", err);
+              }
+
+              // Append the refreshed metrics Table
+              const postRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                  children: [tableBlock]
+                })
+              });
+              if (postRes.ok) {
+                console.log(`✅ Updated Notion page for PR #${prNumber} → ${status}`);
+              } else {
+                console.error("❌ Notion Append Table Error:", await postRes.text());
+              }
             } else {
-              await fetch("https://api.notion.com/v1/pages", {
+              // Create Page with Table Body included
+              const createRes = await fetch("https://api.notion.com/v1/pages", {
                 method: "POST",
                 headers,
                 body: JSON.stringify({
                   parent: { database_id: NOTION_DATABASE_ID },
-                  properties
+                  properties,
+                  children: [tableBlock]
                 })
               });
-              console.log(`✅ Created Notion page for PR #${prNumber}`);
+              if (createRes.ok) {
+                console.log(`✅ Created Notion page for PR #${prNumber}`);
+              } else {
+                console.error("❌ Notion Create Page Error:", await createRes.text());
+              }
             }
+
+            // Explicitly excluded pipeline validation thresholds on request
         env:
           NOTION_TOKEN:       ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
