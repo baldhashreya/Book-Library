@@ -1,18 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../features/login/authService";
 
+export interface User {
+  email: string;
+  name?: string;
+  role?: string;
+}
 
 interface AuthContextType {
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean }>;
   logout: () => void;
   loading: boolean;
-  setUserData: React.Dispatch<React.SetStateAction<any>>;
+  setUserData: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -32,7 +38,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
