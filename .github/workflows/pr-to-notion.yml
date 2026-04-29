@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - master        # 👈 change this to your global branch name
-    types: [opened, closed, reopened]
+    types: [opened, closed, reopened, synchronize]
 
 jobs:
   sync-to-notion:
@@ -67,10 +67,12 @@ jobs:
             const existing = searchData.results?.[0];
 
             let eslintErrors = 0;
+            let eslintWarnings = 0;
             try {
               if (fs.existsSync('lint-report.json')) {
                 const lintReport = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
                 eslintErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
+                eslintWarnings = lintReport.reduce((sum, file) => sum + (file.warningCount || 0), 0);
               }
             } catch (err) {
               console.error("⚠️ Failed to parse ESLint report:", err);
@@ -84,7 +86,8 @@ jobs:
               "PR URL":     { url: prUrl },
               "Status":     { select: { name: status } },
               "Opened At":  { date: { start: openedAt } },
-              "ESLint Errors": { number: eslintErrors }
+              "ESLint Errors": { number: eslintErrors },
+              "ESLint Warnings": { number: eslintWarnings }
             };
 
             if (existing) {
