@@ -2,8 +2,6 @@ name: Sync PR to Notion
 
 on:
   pull_request:
-    branches:
-      - master        # 👈 change this to your global branch name
     types: [opened, closed, reopened, synchronize]
 
 jobs:
@@ -13,6 +11,8 @@ jobs:
       - name: Checkout code
         if: github.event.action != 'closed'
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js
         if: github.event.action != 'closed'

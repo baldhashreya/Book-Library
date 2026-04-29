@@ -1,29 +1,33 @@
 import {
   DataGrid,
   GridActionsCellItem,
+  type GridColDef,
+  type GridSortModel,
+  type GridFilterModel,
+  type GridRowParams,
 } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-interface DataTableProps {
-  rows: any[];
-  columns: any[];
+interface DataTableProps<T extends { _id: string | number }> {
+  rows: T[];
+  columns: GridColDef[];
   paginationModel: { page: number; pageSize: number };
   onPaginationChange: (model: { page: number; pageSize: number }) => void;
-  sortModel?: any;
-  onSortModelChange?: (model: any) => void;
+  sortModel?: GridSortModel;
+  onSortModelChange?: (model: GridSortModel) => void;
   rowCount: number;
-  onEdit: (row: any) => void;
-  onDelete: (row: any) => void;
+  onEdit: (row: T) => void;
+  onDelete: (row: T) => void;
   loading: boolean;
   checkboxSelection?: boolean;
   disableMultipleRowSelection?: boolean;
   onRowSelect?: (ids: string[]) => void;
-  onFilterModelChange?: (model: any) => void;
+  onFilterModelChange?: (model: GridFilterModel) => void;
 }
 
-export default function DataTable({
+export default function DataTable<T extends { _id: string | number }>({
   rows,
   columns,
   paginationModel,
@@ -38,13 +42,13 @@ export default function DataTable({
   disableMultipleRowSelection,
   onRowSelect,
   onFilterModelChange
-}: DataTableProps) {
+}: DataTableProps<T>) {
   const actionColumn = {
     field: "actions",
     type: "actions",
     headerName: "Actions",
     width: 120,
-    getActions: (params: any) => [
+    getActions: (params: GridRowParams<T>) => [
       <GridActionsCellItem
         icon={<EditIcon color="primary" />}
         label="Edit"

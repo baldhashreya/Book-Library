@@ -10,16 +10,10 @@ export const userService = {
   // Test backend connection
   async testConnection(): Promise<boolean> {
     try {
-      console.log("🔍 Testing backend connection...");
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/health`);
-      console.log(
-        "✅ Backend connection test:",
-        response.status,
-        response.statusText,
-      );
-      return response.ok;
+        return response.ok;
     } catch (error) {
-      console.error("💥 Backend connection failed:", error);
+      console.error("Backend connection failed:", error);
       return false;
     }
   },
@@ -28,7 +22,6 @@ export const userService = {
   async getUsers(params: UsersSearchParams) {
     try {
       const result = await apiService.post("/users/search", params);
-      console.log("userService.getUsers() result:", result);
       return JSON.parse(JSON.stringify(result.data)) || {};
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -49,7 +42,6 @@ export const userService = {
   // Create new user
   async createUser(userData: UserFormData){
     try {
-      console.log("userService.createUser() called:", userData);
       const data = await apiService.post("/users", userData);
       return data.user;
     } catch (error) {
@@ -61,7 +53,6 @@ export const userService = {
   // Update user
   async updateUser(id: string, userData: UserFormData){
     try {
-      console.log(`userService.updateUser(${id}) called:`, userData);
       const data = await apiService.put(`/users/${id}`, userData);
       return data;
     } catch (error) {
@@ -73,7 +64,6 @@ export const userService = {
   async deleteUser(id: string): Promise<void> {
     // Delete user
     try {
-      console.log(`userService.deleteUser(${id}) called`);
       await apiService.delete(`/users/${id}`);
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -84,7 +74,6 @@ export const userService = {
   // Get roles for dropdown
   async getRolesForDropdown() {
     try {
-      console.log("userService.getRolesForDropdown() called");
       const result = await apiService.post("/roles/search", {});
       return (result.data || []).map((role: any) => ({
         value: role._id,
@@ -98,7 +87,6 @@ export const userService = {
 
   async changeUserStatus(id: string): Promise<void> {
     try {
-      console.log(`userService.changeUserStatus(${id}) called`);
       await apiService.patch(`/users/${id}/status`, {} as FormData);
     } catch (error) {
       console.error("Error deleting user:", error);

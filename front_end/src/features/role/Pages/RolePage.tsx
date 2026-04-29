@@ -9,6 +9,21 @@ import "../../../shared/styles/button.css";
 import DataTable from "../../../shared/components/DataTable";
 import { toast } from "react-toastify";
 
+interface SortModelItem {
+  field: string;
+  sort: 'asc' | 'desc' | null;
+}
+
+interface RoleSearchResponse {
+  data?: {
+    rows: Role[];
+    count: number;
+  };
+  rows?: Role[];
+  count?: number;
+  message?: string;
+}
+
 const RolePage: React.FC = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -22,7 +37,7 @@ const RolePage: React.FC = () => {
     pageSize: 5,
   });
 
-  const [sortModel, setSortModel] = useState<any[]>([]);
+  const [sortModel, setSortModel] = useState<SortModelItem[]>([]);
 
   const loadRoles = useCallback(async () => {
     try {
@@ -32,8 +47,9 @@ const RolePage: React.FC = () => {
         limit: paginationModel.pageSize,
         order: sortModel.length > 0 ? [[sortModel[0].field, sortModel[0].sort]] : [],
       } as RoleSearchParams);
-      setRoles((roleData as any).data?.rows || (roleData as any).rows || []);
-      setTotalCount((roleData as any).data?.count || (roleData as any).count || 0);
+      const res = roleData as RoleSearchResponse;
+      setRoles(res.data?.rows || res.rows || []);
+      setTotalCount(res.data?.count || res.count || 0);
     } catch (error) {
       console.error("RolePage: Error loading roles:", error);
       setRoles([]);
@@ -66,9 +82,10 @@ const RolePage: React.FC = () => {
         await roleService.deleteRole(roleId);
         toast.success("Role deleted successfully");
         await loadRoles();
-      } catch (error: any) {
-        console.error("Delete error:", error);
-        toast.error(error.message || "Deletion failed.");
+      } catch (error) {
+        const err = error as { message?: string };
+        console.error("Delete error:", err);
+        toast.error(err.message || "Deletion failed.");
       }
     }
   }, [loadRoles]);
@@ -77,16 +94,19 @@ const RolePage: React.FC = () => {
     try {
       if (modalMode === "edit" && selectedRole?._id) {
         const response = await roleService.updateRole(selectedRole._id, data);
-        toast.success((response as any).message || "Role updated successfully");
+        const res = response as RoleSearchResponse;
+        toast.success(res.message || "Role updated successfully");
       } else {
         const response = await roleService.createRole(data);
-        toast.success((response as any).message || "Role created successfully");
+        const res = response as RoleSearchResponse;
+        toast.success(res.message || "Role created successfully");
       }
       setIsModalOpen(false);
       await loadRoles();
-    } catch (err: any) {
-      console.error("Save role error:", err);
-      toast.error(err.message || "An error occurred while saving the role");
+    } catch (err) {
+      const errorObj = err as { message?: string };
+      console.error("Save role error:", errorObj);
+      toast.error(errorObj.message || "An error occurred while saving the role");
     }
   };
 
@@ -126,13 +146,13 @@ const RolePage: React.FC = () => {
                   field: "name",
                   headerName: "Name",
                   flex: 1,
-                  valueGetter: (_value: any, row: any) => row.name || "N/A",
+                  valueGetter: (_value: unknown, row: Role) => row.name || "N/A",
                 },
                 {
                   field: "description",
                   headerName: "Description",
                   flex: 1,
-                  valueGetter: (_value: any, row: any) => row.description || "N/A",
+                  valueGetter: (_value: unknown, row: Role) => row.description || "N/A",
                 },
               ]}
             />
