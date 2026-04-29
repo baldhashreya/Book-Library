@@ -64,7 +64,7 @@ jobs:
               headers,
               body: JSON.stringify({
                 filter: {
-                  property: "# PR Number",
+                  property: "PR Number",
                   number: { equals: prNumber }
                 }
               })
