@@ -164,7 +164,9 @@ export class BooksService {
         issuedBook: (BookModel.issuedBook ? BookModel.issuedBook : 0) + 1,
       } as BooksModel);
     } catch (err) {
-      console.log(err);
+      const err1 = new Error();
+      err1.name = ErrorType.ValidationError;
+      return Promise.reject(err);
     }
   }
 }
