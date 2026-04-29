@@ -77,7 +77,10 @@ jobs:
               "PR Number":  { number: prNumber },
               "PR URL":     { url: prUrl },
               "Status":     { select: { name: status } },
-              "Opened At":  { date: { start: openedAt } }
+              "Opened At":  { date: { start: openedAt } },
+              "Author":     { rich_text: [{ text: { content: author } }] },
+              "Branch":     { rich_text: [{ text: { content: branch } }] },
+              "Updated At": { date: { start: new Date().toISOString() } }
             };
 
             let eslintErrors = 0;
