@@ -138,11 +138,14 @@ jobs:
 
             if (existing) {
               // Update Properties
-              await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
+              const patchRes = await fetch(`https://api.notion.com/v1/pages/${existing.id}`, {
                 method: "PATCH",
                 headers,
                 body: JSON.stringify({ properties })
               });
+              if (!patchRes.ok) {
+                console.error("❌ Notion Patch Error:", await patchRes.text());
+              }
 
               // Delete the existing table block to ensure clean state tracking
               try {
@@ -163,18 +166,21 @@ jobs:
               }
 
               // Append the refreshed metrics Table
-              await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
+              const postRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
                 method: "POST",
                 headers,
                 body: JSON.stringify({
                   children: [tableBlock]
                 })
               });
-              
-              console.log(`✅ Updated Notion page for PR #${prNumber} → ${status}`);
+              if (postRes.ok) {
+                console.log(`✅ Updated Notion page for PR #${prNumber} → ${status}`);
+              } else {
+                console.error("❌ Notion Append Table Error:", await postRes.text());
+              }
             } else {
               // Create Page with Table Body included
-              await fetch("https://api.notion.com/v1/pages", {
+              const createRes = await fetch("https://api.notion.com/v1/pages", {
                 method: "POST",
                 headers,
                 body: JSON.stringify({
@@ -183,7 +189,11 @@ jobs:
                   children: [tableBlock]
                 })
               });
-              console.log(`✅ Created Notion page for PR #${prNumber}`);
+              if (createRes.ok) {
+                console.log(`✅ Created Notion page for PR #${prNumber}`);
+              } else {
+                console.error("❌ Notion Create Page Error:", await createRes.text());
+              }
             }
 
             // Explicitly excluded pipeline validation thresholds on request
