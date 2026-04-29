@@ -3,7 +3,7 @@ name: Sync PR to Notion
 on:
   pull_request:
     branches:
-      - main        # 👈 change this to your global branch name
+      - master        # 👈 change this to your global branch name
     types: [opened, closed, reopened]
 
 jobs:
