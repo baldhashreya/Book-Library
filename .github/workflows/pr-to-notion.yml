@@ -160,7 +160,7 @@ jobs:
               // Append historical breakdown metrics ONLY if linter successfully ran
               if (fs.existsSync('lint-report.json')) {
                 const postRes = await fetch(`https://api.notion.com/v1/blocks/${existing.id}/children`, {
-                  method: "POST",
+                  method: "PATCH",
                   headers,
                   body: JSON.stringify({
                     children: [headingBlock, tableBlock]
