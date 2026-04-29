@@ -74,29 +74,26 @@ jobs:
 
             const properties = {
               "PR Title":   { title:  [{ text: { content: prTitle } }] },
-              "# PR Number": { number: prNumber },
-              "Author":     { rich_text: [{ text: { content: author } }] },
-              "Branch":     { rich_text: [{ text: { content: branch } }] },
+              "PR Number":  { number: prNumber },
               "PR URL":     { url: prUrl },
               "Status":     { select: { name: status } },
               "Opened At":  { date: { start: openedAt } }
             };
 
+            let eslintErrors = 0;
+            let eslintWarnings = 0;
+
             if (fs.existsSync('lint-report.json')) {
               try {
                 const lintReport = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
-                const eslintErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
-                const eslintWarnings = lintReport.reduce((sum, file) => sum + (file.warningCount || 0), 0);
-                
-                properties["ESLint Errors"] = { number: eslintErrors };
-                properties["ESLint Warnings"] = { number: eslintWarnings };
+                eslintErrors = lintReport.reduce((sum, file) => sum + (file.errorCount || 0), 0);
+                eslintWarnings = lintReport.reduce((sum, file) => sum + (file.warningCount || 0), 0);
               } catch (err) {
                 console.error("⚠️ Failed to parse ESLint report:", err);
               }
             }
 
-            const eslintErrors = properties["ESLint Errors"] ? properties["ESLint Errors"].number : 0;
-            const eslintWarnings = properties["ESLint Warnings"] ? properties["ESLint Warnings"].number : 0;
+            // Using collected counts locally for block mappings
 
             const tableBlock = {
               "object": "block",
