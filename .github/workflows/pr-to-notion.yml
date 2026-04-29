@@ -28,7 +28,6 @@ jobs:
         if: github.event.action != 'closed'
         run: |
           npm run lint || true
-          npm run lint:json || true
 
       - name: Sync PR to Notion
         if: always()
