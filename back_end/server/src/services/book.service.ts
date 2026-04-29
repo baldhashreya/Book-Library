@@ -150,6 +150,7 @@ export class BooksService {
         err.name = ErrorType.BookIsOutOfStock;
         return Promise.reject(err);
       }
+      console.log(UsersModel);
       
       const borrowRecords = {
         bookId: params.bookId,
