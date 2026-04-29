@@ -64,7 +64,7 @@ jobs:
               headers,
               body: JSON.stringify({
                 filter: {
-                  property: "PR Number",
+                  property: "# PR Number",
                   number: { equals: prNumber }
                 }
               })
@@ -74,7 +74,7 @@ jobs:
 
             const properties = {
               "PR Title":   { title:  [{ text: { content: prTitle } }] },
-              "PR Number":  { number: prNumber },
+              "# PR Number": { number: prNumber },
               "Author":     { rich_text: [{ text: { content: author } }] },
               "Branch":     { rich_text: [{ text: { content: branch } }] },
               "PR URL":     { url: prUrl },
