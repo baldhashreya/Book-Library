@@ -1,0 +1,50 @@
+name: CI/CD Test Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Run Automated Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm run setup
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: Test_cases/front-end-test-cases
+
+      - name: 🚀 Run Backend Tests
+        run: npm run test:backend
+
+      - name: 🧪 Run Frontend Tests (Dev Environment)
+        run: npm run test:frontend
+        env:
+          ENV: dev
+          TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          BASE_URL: http://localhost:5173 # Adjust if you have a dev server step
+
+      - name: 📊 Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            Test_cases/front-end-test-cases/playwright-report/
+            Test_cases/front-end-test-cases/allure-results/
+            back_end/server/mochawesome-report/
