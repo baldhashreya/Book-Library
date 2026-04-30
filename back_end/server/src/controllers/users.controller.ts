@@ -10,73 +10,106 @@ export class UsersControllers {
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "create User", req.body);
-    const result = await this.usersServices.createUser(req.body);
-    return baseController.getResult(res, 200, result, UsersOperations.CREATE);
+    try {
+      addLog(LogLevel.info, "create User", req.body);
+      const result = await this.usersServices.createUser(req.body);
+      return baseController.getResult(res, 200, result, UsersOperations.CREATE);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.CREATE);
+    }
   };
 
   public createUsers = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "create Users", req.body);
-    const result = await this.usersServices.createUsers();
-    return baseController.getResult(
-      res,
-      200,
-      result,
-      UsersOperations.USERS_CREATED,
-    );
+    try {
+      addLog(LogLevel.info, "create Users", req.body);
+      const result = await this.usersServices.createUsers();
+      return baseController.getResult(
+        res,
+        200,
+        result,
+        UsersOperations.USERS_CREATED,
+      );
+    } catch (err) {
+      return baseController.getResult(
+        res,
+        500,
+        null,
+        UsersOperations.USERS_CREATED,
+      );
+    }
   };
 
   public updateUsers = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "update User", req.body);
-    const result = await this.usersServices.updateUser(
-      req.body,
-      req.params.id as string,
-    );
-    return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    try {
+      addLog(LogLevel.info, "update User", req.body);
+      const result = await this.usersServices.updateUser(
+        req.body,
+        req.params.id as string,
+      );
+      return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.UPDATED);
+    }
   };
   public deleteUser = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "delete User", req.body);
-    const result = await this.usersServices.deleteUser(req.params.id as string);
-    return baseController.getResult(res, 200, result, UsersOperations.DELETED);
+    try {
+      addLog(LogLevel.info, "delete User", req.body);
+      const result = await this.usersServices.deleteUser(req.params.id as string);
+      return baseController.getResult(res, 200, result, UsersOperations.DELETED);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.DELETED);
+    }
   };
 
   public searchUsers = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "search User", req.body);
-    const result = await this.usersServices.searchUsers(req.body);
-    return baseController.getResult(res, 200, result, UsersOperations.SEARCH);
+    try {
+      addLog(LogLevel.info, "search User", req.body);
+      const result = await this.usersServices.searchUsers(req.body);
+      return baseController.getResult(res, 200, result, UsersOperations.SEARCH);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.SEARCH);
+    }
   };
 
   public getUserById = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "get User", req.body);
-    const result = await this.usersServices.getUserById(
-      req.params.id as string,
-    );
-    return baseController.getResult(res, 200, result, UsersOperations.GET);
+    try {
+      addLog(LogLevel.info, "get User", req.body);
+      const result = await this.usersServices.getUserById(
+        req.params.id as string,
+      );
+      return baseController.getResult(res, 200, result, UsersOperations.GET);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.GET);
+    }
   };
 
   public updateUserStatus = async (
     req: Request,
     res: Response,
   ): Promise<Response> => {
-    addLog(LogLevel.info, "update User Status", req.body);
-    const result = await this.usersServices.updateUserStatus(
-      req.params.id as string,
-    );
-    return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    try {
+      addLog(LogLevel.info, "update User Status", req.body);
+      const result = await this.usersServices.updateUserStatus(
+        req.params.id as string,
+      );
+      return baseController.getResult(res, 200, result, UsersOperations.UPDATED);
+    } catch (err) {
+      return baseController.getResult(res, 500, null, UsersOperations.UPDATED);
+    }
   };
 }

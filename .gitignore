@@ -17,7 +17,9 @@ logs
 *.sln
 *.sw?
 
-# Allure results
+# Reports
+mochawesome-report/
+**/mochawesome-report/
 allure-results/
 allure-report/
 
