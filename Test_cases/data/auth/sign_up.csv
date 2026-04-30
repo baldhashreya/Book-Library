@@ -1,0 +1,17 @@
+test_case_name,description,name,email,password,role,role_name,expected_status_code,expected_message
+TC-SIGNUP-01,Valid signup for Admin user,John Doe,john.doe@example.com,Password!123,690c71ec375b27b523fbb5ca,Admin,200,Signup successful
+TC-SIGNUP-02,Valid signup for Librarian,Jane Staff,jane.staff@example.com,Secure@456,690c71ec375b27b523fbb5ca,Librarian,200,Signup successful
+TC-SIGNUP-03,Signup with missing name,,missingname@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-04,Signup with missing email,No Email,,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-05,Signup with missing password,No Pass,nopass@example.com,,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-06,Signup with missing role,No Role,norole@example.com,Pass123,,,400,Validation failed
+TC-SIGNUP-07,Invalid email format (no @),Invalid Email,invalidemail.com,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-08,Invalid email format (no domain),Invalid Domain,user@,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-09,Duplicate email registration,Duplicate,duplicate@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,409,User already exists
+TC-SIGNUP-10,Short name (Edge Case),A,short@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,200,Signup successful
+TC-SIGNUP-11,Very long name,A long name that exceeds standard expectations but might be valid,long@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,200,Signup successful
+TC-SIGNUP-12,SQL Injection payload,' OR '1'='1,sqli@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-13,XSS payload,<script>alert(1)</script>,xss@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-14,NoSQL Injection payload,{"$gt": ""},nosql@example.com,Pass123,690c71ec375b27b523fbb5ca,Admin,400,Validation failed
+TC-SIGNUP-15,Invalid Role ID (Malformed),Wrong Role,wrongrole@example.com,Pass123,invalid_role_id,,400,Validation failed
+TC-SIGNUP-16,Whitespace-only password,Space Pass,space@example.com,   ,690c71ec375b27b523fbb5ca,Admin,400,Validation failed

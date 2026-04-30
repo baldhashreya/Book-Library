@@ -1,0 +1,9 @@
+id,email,password,expectedResult,expectedMessage
+TC-01,shreya.baldha123@tatvasoft.com,Shreya!123,success,Login successful
+TC-02,shreya.baldha123@tatvasoft.com,WrongPass@999,failure,Login failed
+TC-03,notregistered@example.com,Password!123,failure,Login failed
+TC-04,,Password!123,failure,Email is required
+TC-05,shreya.baldha123@tatvasoft.com,,failure,Password is required
+TC-06,,,failure,Email is required
+TC-07,not-an-email,Password!123,failure,Enter a valid email
+TC-08,' OR '1'='1,' OR '1'='1,failure,Enter a valid email

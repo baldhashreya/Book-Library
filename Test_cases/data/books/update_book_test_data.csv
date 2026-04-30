@@ -1,0 +1,59 @@
+test_case_id,test_case_name,book_id,title,author,category,description,isbn,publisher,quantity,coverImage,status,expected_status_code,expected_result,test_type
+TC_UP_01,Update All fields,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,New Description,978-0132350884,101,10,https://example.com/new.jpg,AVAILABLE,200,success,functional
+TC_UP_02,Non-existent ID,NON_EXISTENT_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,404,Book not found.,boundary
+TC_UP_03,Malformed ID format,MALFORMED_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,400,Bad request,boundary
+TC_UP_04,Missing title,VALID_BOOK_ID,OMIT,AUTHOR_1,FICTION,New Description,isbn,101,10,image,AVAILABLE,400,title is required,validation
+TC_UP_05,Empty title,VALID_BOOK_ID,"",AUTHOR_1,FICTION,New Description,isbn,101,10,image,AVAILABLE,400,title is not allowed to be empty,validation
+TC_UP_06,Invalid status enum,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,New Description,isbn,101,10,image,INVALID_STATUS,400,status must be one of,validation
+TC_UP_07,Negative quantity,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,New Description,isbn,101,-5,image,AVAILABLE,400,quantity must be greater than or equal to 0,validation
+TC_UP_08,String quantity,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,New Description,isbn,101,NotANumber,image,AVAILABLE,400,quantity must be a number,validation
+TC_UP_09,XSS payload Title,VALID_BOOK_ID,<script>alert(1)</script>,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,400,no HTML tags allowed,security
+TC_UP_10,SQL Injection Title,VALID_BOOK_ID,' OR 1=1 --,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,200,success,security
+TC_UP_11,NoSQL Injection Title,VALID_BOOK_ID,{"$gt": ""},AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,200,success,security
+TC_UP_12,Long string title,VALID_BOOK_ID,LONG_STRING,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,400,length,functional
+TC_UP_13,Null ISBN,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,NULL,101,10,image,AVAILABLE,200,success,functional
+TC_UP_14,Extra Fields in Body,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,400,is not allowed,functional
+TC_UP_15,Valid Author Mapping,VALID_BOOK_ID,Clean Code Updated,AUTHOR_2,FICTION,Description,isbn,101,10,image,AVAILABLE,200,success,functional
+TC_UP_16,Valid Category Mapping,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,PROGRAMMING,Description,isbn,101,10,image,AVAILABLE,200,success,functional
+TC_UP_17,Update Quantity to Zero,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,isbn,101,0,image,AVAILABLE,200,success,boundary
+TC_UP_18,Update Status to RESERVED,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Description,isbn,101,10,image,RESERVED,200,success,functional
+TC_UP_19,Update Description to minimal,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,A,isbn,101,10,image,AVAILABLE,200,success,boundary
+TC_UP_20,UTF-8 characters,VALID_BOOK_ID,🚀 Book Title,AUTHOR_1,FICTION,Description,isbn,101,10,image,AVAILABLE,200,success,functional
+TC_UP_21,Missing author,VALID_BOOK_ID,Clean Code Updated,OMIT,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,author is required,validation
+TC_UP_22,Missing category,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,OMIT,Desc,isbn,101,10,image,AVAILABLE,400,category is required,validation
+TC_UP_23,Missing description,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,OMIT,isbn,101,10,image,AVAILABLE,400,description is required,validation
+TC_UP_24,Missing publisher,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,OMIT,10,image,AVAILABLE,400,publisher is required,validation
+TC_UP_25,Missing quantity,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,OMIT,image,AVAILABLE,400,quantity is required,validation
+TC_UP_26,Missing status,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,OMIT,400,status is required,validation
+TC_UP_27,Publisher negative,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,-1,10,image,AVAILABLE,400,publisher must be >= 0,validation
+TC_UP_28,Publisher string,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,NotANumber,10,image,AVAILABLE,400,publisher must be a number,validation
+TC_UP_29,Publisher decimal,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,10.5,10,image,AVAILABLE,400,publisher must be integer,validation
+TC_UP_30,Publisher null,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,NULL,10,image,AVAILABLE,400,publisher is required,validation
+TC_UP_31,Quantity decimal,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10.5,image,AVAILABLE,400,quantity must be integer,validation
+TC_UP_32,Quantity null,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,NULL,image,AVAILABLE,400,quantity is required,validation
+TC_UP_33,Quantity large value,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,999999999999,image,AVAILABLE,200,success,boundary
+TC_UP_34,Status lowercase,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,available,400,invalid enum,validation
+TC_UP_35,Status empty,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,"",400,status empty,validation
+TC_UP_36,Status null,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,NULL,400,status required,validation
+TC_UP_37,Status with spaces,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image," AVAILABLE ",400,invalid enum,validation
+TC_UP_38,ISBN empty string,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,"",101,10,image,AVAILABLE,200,success,functional
+TC_UP_39,ISBN long string,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,LONG_STRING,101,10,image,AVAILABLE,400,length,validation
+TC_UP_40,Invalid coverImage URL,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,invalid_url,AVAILABLE,400,invalid url,validation
+TC_UP_41,Long coverImage URL,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,LONG_URL,AVAILABLE,400,length,validation
+TC_UP_42,Empty ID,"",Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,id required,validation
+TC_UP_43,Null ID,NULL,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,id required,validation
+TC_UP_44,Special char ID,@@@###,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,invalid id,validation
+TC_UP_45,Long ID,LONG_STRING,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,invalid id,validation
+TC_UP_46,Whitespace title,VALID_BOOK_ID,"   ",AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,invalid title,validation
+TC_UP_47,Whitespace author,VALID_BOOK_ID,Clean Code Updated,"   ",FICTION,Desc,isbn,101,10,image,AVAILABLE,400,invalid author,validation
+TC_UP_48,Array as title,VALID_BOOK_ID,["array"],AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,type error,validation
+TC_UP_49,Object as author,VALID_BOOK_ID,Clean Code Updated,{"name":"abc"},FICTION,Desc,isbn,101,10,image,AVAILABLE,400,type error,validation
+TC_UP_50,Extra nested field,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,is not allowed,validation
+TC_UP_51,Protected field injection,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,not allowed,security
+TC_UP_52,Partial payload only title,VALID_BOOK_ID,Clean Code Updated,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,400,all fields required,validation
+TC_UP_53,Invalid JSON body,VALID_BOOK_ID,INVALID_JSON,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,400,invalid json,api
+TC_UP_54,Wrong content type,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,415,unsupported media type,api
+TC_UP_55,Large payload,VALID_BOOK_ID,LONG_STRING,AUTHOR_1,FICTION,LONG_STRING,isbn,101,10,image,AVAILABLE,413,payload too large,api
+TC_UP_56,No auth token,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,401,unauthorized,security
+TC_UP_57,Invalid auth token,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,401,invalid token,security
+TC_UP_58,Unauthorized role,VALID_BOOK_ID,Clean Code Updated,AUTHOR_1,FICTION,Desc,isbn,101,10,image,AVAILABLE,403,forbidden,security

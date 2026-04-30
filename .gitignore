@@ -39,13 +39,11 @@ auth.json
 **/.auth/
 
 # ─── SECURITY: Test credential data files ────────────────────────────────────
-# Never commit real credentials — use environment variables instead.
-Test_cases/data/login.json
-Test_cases/data/signup.json
-Test_cases/data/books/update_book.json
+# Ignore all JSON files in the data directory (sensitive data)
+Test_cases/data/**/*.json
 
-# Data
-data/
+# Explicitly allow CSV files (non-sensitive test data)
+!Test_cases/data/**/*.csv
 
 # Python
 __pycache__/

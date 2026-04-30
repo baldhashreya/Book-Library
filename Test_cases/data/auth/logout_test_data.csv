@@ -1,0 +1,19 @@
+test_case_name,description,user_id,expected_status_code,expected_message,http_method,send_auth
+TC-LOGOUT-01,Valid logout for authenticated user,VALID_USER_ID,200,Logout successful,GET,True
+TC-LOGOUT-03,Logout with a non-existent user ID,000000000000000000000000,400,User not found,GET,True
+TC-LOGOUT-04,Logout with a very large numeric ID,99999999999999999999999999999999,400,Validation Error,GET,True
+TC-LOGOUT-05,Logout with special characters in ID,!@#$%^&*(),400,Validation Error,GET,True
+TC-LOGOUT-07,Logout with URL-encoded value in ID,%3Cscript%3Ealert(1)%3C%2Fscript%3E,400,Validation Error,GET,True
+TC-LOGOUT-08,Logout with SQL injection in ID,' OR '1'='1,400,Validation Error,GET,True
+TC-LOGOUT-09,Logout with path traversal attempt in ID,../../../etc/passwd,404,Cannot GET,GET,True
+TC-LOGOUT-10,Logout without Authorization header (unauthorized),VALID_USER_ID,401,Unauthorized access,GET,False
+TC-LOGOUT-11,Logout with invalid/expired Bearer token,VALID_USER_ID,401,Unauthorized access,GET,invalid_token
+TC-LOGOUT-12,Logout using POST method instead of GET,VALID_USER_ID,404,Cannot POST,POST,True
+TC-LOGOUT-13,Logout using PUT method instead of GET,VALID_USER_ID,404,Cannot PUT,PUT,True
+TC-LOGOUT-14,Logout using DELETE method instead of GET,VALID_USER_ID,404,Cannot DELETE,DELETE,True
+TC-LOGOUT-15,Logout with empty user ID in path,<empty>,404,Cannot GET,GET,True
+TC-LOGOUT-16,Logout with whitespace-only ID,   ,400,Validation Error,GET,True
+TC-LOGOUT-17,Logout with null string as ID,null,400,Validation Error,GET,True
+TC-LOGOUT-18,Independent logout test A,VALID_USER_ID,200,Logout successful,GET,True
+TC-LOGOUT-19,Independent logout test B,VALID_USER_ID,200,Logout successful,GET,True
+TC-LOGOUT-20,Independent logout test C,VALID_USER_ID,200,Logout successful,GET,True
