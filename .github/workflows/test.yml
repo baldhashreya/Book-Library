@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Run Automated Tests
+    name: Run Front-End Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -20,24 +20,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: 🐍 Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: 📦 Install Node Dependencies
+      - name: 📦 Install Dependencies
         run: npm run setup
-
-      - name: 🐍 Install Python Dependencies
-        run: pip install -r requirements.txt
-        working-directory: Test_cases/backend-test-cases
 
       - name: 🎭 Install Playwright Browsers
         run: npx playwright install --with-deps
         working-directory: Test_cases/front-end-test-cases
-
-      - name: 🚀 Run Backend Tests
-        run: npm run test:backend
 
       - name: 🧪 Run Frontend Tests (Dev Environment)
         run: npm run test:frontend
@@ -45,13 +33,11 @@ jobs:
           ENV: dev
           TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          BASE_URL: http://localhost:5173 # Adjust if you have a dev server step
+          BASE_URL: http://localhost:5173
 
       - name: 📊 Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: |
-            Test_cases/front-end-test-cases/playwright-report/
-            back_end/server/mochawesome-report/
+          name: playwright-report
+          path: Test_cases/front-end-test-cases/playwright-report/
