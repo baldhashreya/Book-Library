@@ -54,5 +54,4 @@ jobs:
           name: test-reports
           path: |
             Test_cases/front-end-test-cases/playwright-report/
-            Test_cases/front-end-test-cases/allure-results/
             back_end/server/mochawesome-report/
