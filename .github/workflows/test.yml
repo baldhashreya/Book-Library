@@ -20,8 +20,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: 📦 Install Dependencies
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Install Node Dependencies
         run: npm run setup
+
+      - name: 🐍 Install Python Dependencies
+        run: pip install -r requirements.txt
+        working-directory: Test_cases/backend-test-cases
 
       - name: 🎭 Install Playwright Browsers
         run: npx playwright install --with-deps
