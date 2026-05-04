@@ -1,14 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 import dotenv from 'dotenv';
+import { getConfig } from './src/utils/config-loader';
 
 // Load environment variables from .env file
 dotenv.config();
 
+const config = getConfig();
+
 export default defineConfig({
   testDir: './tests',
   /* Maximum time one test can run for. */
-  timeout: 90 * 1000,
+  timeout: config.timeout || 90 * 1000,
   /* Run tests in files in parallel */
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -17,10 +20,10 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: 4,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-   reporter: [['allure-playwright'],['list']],
+  reporter: process.env.CI ? 'list' : [['list'], ['html', { open: 'never' }]],
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+    baseURL: config.baseURL || 'http://localhost:5173',
 
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */

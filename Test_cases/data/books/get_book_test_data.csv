@@ -1,0 +1,22 @@
+test_case_id,test_case_name,book_id,http_method,expected_status_code,expected_result,test_type,auth_type
+TC-GB01,Valid ID returns 200,VALID_BOOK_ID,GET,200,success,Functional,Valid
+TC-GB02,Idempotency check,VALID_BOOK_ID,GET,200,success,Functional,Valid
+TC-GB03,Missing ID,OMIT,GET,400,error,Params Validation,Valid
+TC-GB04,Empty string ID,EMPTY,GET,404,error,Params Validation,Valid
+TC-GB05,Null ID,NULL,GET,404,error,Params Validation,Valid
+TC-GB06,Numeric ID instead of string,12345,GET,400,error,Params Validation,Valid
+TC-GB07,Special characters,@#$%,GET,400,error,Params Validation,Valid
+TC-GB08,Very long ID,LONG_STRING,GET,400,error,Params Validation,Valid
+TC-GB09,Non-existent ID,NON_EXISTENT_ID,GET,200,success,Edge Case,Valid
+TC-GB10,Extremely long valid ID format,VALID_BOOK_ID_LONG,GET,400,error,Edge Case,Valid
+TC-GB11,Leading whitespace in ID, VALID_BOOK_ID,GET,400,error,Edge Case,Valid
+TC-GB12,Trailing whitespace in ID,VALID_BOOK_ID ,GET,400,error,Edge Case,Valid
+TC-GB13,SQL Injection ID,' OR 1=1 --,GET,400,error,Security,Valid
+TC-GB14,NoSQL Injection ID,{"$gt": ""},GET,400,error,Security,Valid
+TC-GB15,XSS in ID,<script>alert(1)</script>,GET,404,error,Security,Valid
+TC-GB16,Path traversal attempt,../../etc/passwd,GET,404,error,Security,Valid
+TC-GB17,No token,VALID_BOOK_ID,GET,401,error,Authorization,None
+TC-GB18,Invalid token,VALID_BOOK_ID,GET,401,error,Authorization,Invalid
+TC-GB19,Expired token,VALID_BOOK_ID,GET,401,error,Authorization,Expired
+TC-GB20,Invalid HTTP method POST,VALID_BOOK_ID,POST,404,error,Behavior,Valid
+TC-GB21,Invalid HTTP method PUT,VALID_BOOK_ID,PUT,404,error,Behavior,Valid

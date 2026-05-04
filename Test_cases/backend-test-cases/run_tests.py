@@ -25,14 +25,12 @@ def run_pytest(env="local", clean=False, report=False, extra_args=None):
             shutil.rmtree(allure_report)
 
     # Prepare pytest command
-    cmd = [
-        "pytest",
-        f"--alluredir={allure_results}",
-        "--clean-alluredir" if clean else ""
-    ]
+    cmd = ["pytest"]
     
-    # Remove empty strings from cmd
-    cmd = [c for c in cmd if c]
+    if report:
+        cmd.append(f"--alluredir={allure_results}")
+        if clean:
+            cmd.append("--clean-alluredir")
 
     if extra_args:
         cmd.extend(extra_args)

@@ -1,0 +1,26 @@
+test_case_id,description,token,expected_status,expected_message,http_method
+TC-REFRESH-01,Valid refresh token,VALID_TOKEN,200,Refresh token successful,PATCH
+TC-REFRESH-02,Expired token,EXPIRED_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-03,Revoked token (logged out user),REVOKED_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-04,Multiple refresh attempts (reuse),USED_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-05,Missing token,MISSING_TOKEN,400,Validation failed,PATCH
+TC-REFRESH-06,Null token,NULL_TOKEN,400,Validation failed,PATCH
+TC-REFRESH-07,Empty string token,EMPTY_TOKEN,400,Validation failed,PATCH
+TC-REFRESH-08,Whitespace token,WHITESPACE_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-09,Invalid format token,INVALID_FORMAT,401,Invalid username or password,PATCH
+TC-REFRESH-10,Malformed JWT token,MALFORMED_JWT,401,Invalid username or password,PATCH
+TC-REFRESH-11,Wrong data type (integer),12345,400,Validation failed,PATCH
+TC-REFRESH-12,Tampered token signature,TAMPERED_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-13,Replay attack (same captured token),VALID_TOKEN,200,Refresh token successful,PATCH
+TC-REFRESH-14,SQL injection payload,' OR '1'='1,401,Invalid username or password,PATCH
+TC-REFRESH-15,Script injection (XSS) payload,<script>alert(1)</script>,401,Invalid username or password,PATCH
+TC-REFRESH-16,Large payload,LARGE_PAYLOAD,401,Invalid username or password,PATCH
+TC-REFRESH-17,Special characters,!@#$%^&*(),401,Invalid username or password,PATCH
+TC-REFRESH-18,Missing claims,MISSING_CLAIMS,401,Invalid username or password,PATCH
+TC-REFRESH-19,Token expires at request time,EXPIRED_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-20,Clock skew,FUTURE_TOKEN,401,Invalid username or password,PATCH
+TC-REFRESH-21,Wrong HTTP method (GET instead of PATCH),VALID_TOKEN,404,Cannot GET,GET
+TC-REFRESH-22,Wrong HTTP method (POST instead of PATCH),VALID_TOKEN,404,Cannot POST,POST
+TC-REFRESH-23,Invalid JSON body,INVALID_JSON,500,Internal server error,PATCH
+TC-REFRESH-24,Missing headers,VALID_TOKEN_NO_HEADERS,500,Internal server error,PATCH
+TC-REFRESH-25,Extra fields in request,VALID_TOKEN_EXTRA_FIELDS,400,Validation failed,PATCH

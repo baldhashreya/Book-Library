@@ -2,7 +2,6 @@ import { test, expect } from "../../src/fixtures/baseFixture";
 import { getCredentials } from "../../src/utils/credentials";
 
 const VALID_EMAIL = getCredentials().email;
-const VALID_PASSWORD = getCredentials().password;
 
 test.describe("About Me Page", () => {
 

@@ -1,0 +1,33 @@
+test_case_id,title,author,category,description,isbn,publisher,quantity,coverImage,status,expected_status_code,expected_result
+TC_01,Valid Book,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,https://example.com/img.jpg,AVAILABLE,200,Book created successfully
+TC_02,,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,title is required
+TC_03," ",6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,title cannot be empty
+TC_04,Valid Title,,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,author is required
+TC_05,Valid Title,6916da875ab92ec345563154,,Valid description,9780132350884,2020,10,url,AVAILABLE,400,category is required
+TC_06,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,,9780132350884,2020,10,url,AVAILABLE,400,description is required
+TC_07,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,,2020,10,url,AVAILABLE,400,isbn is required
+TC_08,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,INVALID_ISBN,2020,10,url,AVAILABLE,400,isbn format invalid
+TC_09,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2025,10,url,AVAILABLE,200,Book created successfully
+TC_10,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,abc,url,AVAILABLE,400,quantity must be an integer
+TC_11,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,0,url,AVAILABLE,400,quantity must be at least 1
+TC_12,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,-5,url,AVAILABLE,400,quantity must be positive
+TC_13,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,1000000,url,AVAILABLE,200,Book created successfully
+TC_15,LONG_STRING_EXCEEDING_LIMIT,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,title exceeds max length
+TC_16,Duplicate Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,409,book title must be unique
+TC_17,Valid Title,RandomAuthor_xyz,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,404,author not found
+TC_18,Valid Title,6916da875ab92ec345563154,invalid_category_id,Valid description,9780132350884,2020,10,url,AVAILABLE,404,category not found
+TC_20,"' OR 1=1 --",6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_21,"<script>alert(1)</script>",6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_22,"{""$gt"":""""}",6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_23,Valid Title,6916da875ab92ec345563154,"{""$ne"":null}",Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_24,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,../../etc/passwd,AVAILABLE,400,invalid input detected
+TC_25,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,"; rm -rf /",10,url,AVAILABLE,400,invalid input detected
+TC_26,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,image%00.png,AVAILABLE,400,invalid input detected
+TC_27,كتاب تجريبي,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,only ASCII characters are allowed
+TC_28,测试书籍,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,only ASCII characters are allowed
+TC_29,🚀 Book Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,only ASCII characters are allowed
+TC_30,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,1e2,url,AVAILABLE,400,quantity must be an integer
+TC_31,Valid Title,6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10.5,url,AVAILABLE,400,quantity must be an integer
+TC_32,{"nested":"value"},6916da875ab92ec345563154,6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_33,Valid Title,"{""$gt"":""""}",6912d933c967bb359fadfcb9,Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected
+TC_34,Valid Title,6916da875ab92ec345563154,"{""$gt"":""""}",Valid description,9780132350884,2020,10,url,AVAILABLE,400,invalid input detected

@@ -20,15 +20,16 @@
     "lint:json": "eslint . --format json --output-file lint-report.json"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "concurrently": "^9.1.2",
     "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
-    "@typescript-eslint/parser": "^8.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-playwright": "^1.6.1",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-playwright": "^1.6.1"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

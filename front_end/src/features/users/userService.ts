@@ -13,6 +13,7 @@ export const userService = {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/health`);
         return response.ok;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Backend connection failed:", error);
       return false;
     }
@@ -24,6 +25,7 @@ export const userService = {
       const result = await apiService.post("/users/search", params);
       return JSON.parse(JSON.stringify(result.data)) || {};
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error fetching users:", error);
       throw error;
     }
@@ -34,6 +36,7 @@ export const userService = {
       const result = await apiService.get(`/users/${id}`);
       return result;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error fetching user:", error);
       throw error;
     }
@@ -45,6 +48,7 @@ export const userService = {
       const data = await apiService.post("/users", userData);
       return data.user;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error creating user:", error);
       throw error;
     }
@@ -56,6 +60,7 @@ export const userService = {
       const data = await apiService.put(`/users/${id}`, userData);
       return data;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error updating user:", error);
       throw error;
     }
@@ -66,6 +71,7 @@ export const userService = {
     try {
       await apiService.delete(`/users/${id}`);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error deleting user:", error);
       throw error;
     }
@@ -80,6 +86,7 @@ export const userService = {
         label: role.name,
       }));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error fetching roles:", error);
       return [];
     }
@@ -89,6 +96,7 @@ export const userService = {
     try {
       await apiService.patch(`/users/${id}/status`, {} as FormData);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error deleting user:", error);
       throw error;
     }

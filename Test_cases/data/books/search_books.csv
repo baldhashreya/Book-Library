@@ -1,0 +1,26 @@
+test_case_id,test_case_name,title,author,category,description,isbn,coverImage,status,publisher,quantity,offset,limit,order,expected_status,test_type
+TC-01,Search No filters,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,0,10,OMIT,200,standard
+TC-02,Search Single filter,Clean Code,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-03,Search Multiple filters,Clean Code,OMIT,OMIT,Description,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-04,Case-insensitive search,clean code,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-05,Non-existent data,NonExistentBook__1234,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-06,Invalid quantity,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,-5,OMIT,OMIT,OMIT,400,standard
+TC-07,Invalid enum,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,INVALID_ENUM_STATE,OMIT,OMIT,OMIT,OMIT,OMIT,400,standard
+TC-08,Wrong data type,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,String Not Number,OMIT,OMIT,OMIT,OMIT,400,standard
+TC-09,Valid enum,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,AVAILABLE,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-10,Pagination valid offset limit,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,0,5,OMIT,200,standard
+TC-11,Pagination negative limit,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,0,-1,OMIT,400,standard
+TC-12,Pagination negative offset,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,-5,10,OMIT,400,standard
+TC-13,Pagination zero limit,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,0,0,OMIT,400,standard
+TC-14,Pagination excessive offset,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,999999,10,OMIT,200,standard
+TC-15,Sorting single field,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,"[['title', 'asc']]",200,standard
+TC-16,Sorting invalid field,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,"[['invalid_field', 'asc']]",200,standard
+TC-17,Sorting invalid array,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,not_an_array_string,400,standard
+TC-18,Missing body,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,missing_body
+TC-19,Wrong method,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,500,wrong_method
+TC-20,Malformed json,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,500,malformed_json
+TC-21,SQL Injection,' OR 1=1 --,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-22,NoSQL Injection,{"$gt": ""},OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-23,XSS payload,<script>alert('xss')</script>,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,400,standard
+TC-24,Command Injection,$(touch /tmp/hacked),OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,200,standard
+TC-25,Very large limit,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,OMIT,100000,OMIT,200,standard

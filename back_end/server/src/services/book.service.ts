@@ -6,6 +6,7 @@ import {
 } from "common";
 import { AssignBook } from "../interface/common.interface";
 import { BooksRepository } from "../repositories/book.repository";
+import logger from "../utils/logger";
 
 export class BooksService {
   constructor(private readonly booksRepository: BooksRepository) {

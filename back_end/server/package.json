@@ -6,10 +6,31 @@
   "scripts": {
     "start": "nodemon --exec ts-node app.ts",
     "lint": "npx --prefix ../.. eslint .",
-    "lint:check": "npx --prefix ../.. eslint ."
+    "lint:check": "npx --prefix ../.. eslint .",
+    "generate-test": "ts-node generate-test-groq.ts",
+    "test": "mocha --node-option no-experimental-strip-types --require ts-node/register \"src/**/*.test.ts\"",
+    "test:report": "mocha --node-option no-experimental-strip-types --require ts-node/register --reporter mochawesome \"src/**/*.test.ts\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/express": "^5.0.6",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.12.7",
+    "@types/sinon": "^21.0.1",
+    "@types/sinon-chai": "^3.2.12",
+    "axios": "^1.15.2",
+    "chai": "^4.4.1",
+    "chai-http": "^4.4.0",
+    "dotenv": "^16.4.5",
+    "mocha": "^10.7.3",
+    "mochawesome": "^7.1.4",
+    "sinon": "^17.0.1",
+    "sinon-chai": "^3.7.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
 }
