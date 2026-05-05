@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "app.ts", ".env"],
+  "ext": "ts,json",
+  "ignore": ["node_modules", ".nyc_output", "coverage", "mochawesome-report", "test_cases"],
+  "exec": "ts-node app.ts"
+}
