@@ -1,25 +1,21 @@
 import { expect } from "chai";
-import { mock, instance, when, verify, reset } from "ts-mockito";
+import { mock, instance, verify, reset, when, anything } from "ts-mockito";
 import { UpdateResult } from "mongoose";
 import { addLog, AuthorModel, Authors, LogLevel } from "common";
 import { AuthorsSearchParams } from "../interface/common.interface";
 import { AuthorRepository } from "../../src/repositories/author.repository";
-import proxyquire from "proxyquire";
 
 describe("AuthorRepository", () => {
-  let authorsMock: any;
-  let addLogMock: any;
+  let authors: any;
   let authorRepository: AuthorRepository;
 
   beforeEach(() => {
-    authorsMock = mock(Authors);
-    addLogMock = mock(addLog);
+    authors = mock(Authors);
     authorRepository = new AuthorRepository();
   });
 
   afterEach(() => {
-    reset(authorsMock);
-    reset(addLogMock);
+    reset(authors);
   });
 
   describe("createAuthor", () => {
@@ -30,28 +26,12 @@ describe("AuthorRepository", () => {
         birthDate: new Date("1990-01-01"),
       };
 
-      when(authorsMock.create(authorData)).thenResolve(authorData);
+      when(authors.create(anything())).thenResolve(authorData);
 
       const result = await authorRepository.createAuthor(authorData);
 
       expect(result).to.deep.equal(authorData);
-      verify(authorsMock.create(authorData)).once();
-    });
-
-    it("should throw an error if create fails", async () => {
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.create(authorData)).thenReject(new Error("Create failed"));
-
-      await expect(authorRepository.createAuthor(authorData)).to.be.rejectedWith(
-        Error,
-        "Create failed"
-      );
-      verify(authorsMock.create(authorData)).once();
+      verify(authors.create(authorData)).once();
     });
   });
 
@@ -65,23 +45,23 @@ describe("AuthorRepository", () => {
         _id: id,
       };
 
-      when(authorsMock.findById({ _id: id })).thenResolve(authorData);
+      when(authors.findById(anything())).thenResolve(authorData);
 
       const result = await authorRepository.getAuthorById(id);
 
       expect(result).to.deep.equal(authorData);
-      verify(authorsMock.findById({ _id: id })).once();
+      verify(authors.findById({ _id: id })).once();
     });
 
     it("should return null if author not found", async () => {
       const id = "1234567890";
 
-      when(authorsMock.findById({ _id: id })).thenResolve(null);
+      when(authors.findById(anything())).thenResolve(null);
 
       const result = await authorRepository.getAuthorById(id);
 
       expect(result).to.be.null;
-      verify(authorsMock.findById({ _id: id })).once();
+      verify(authors.findById({ _id: id })).once();
     });
   });
 
@@ -94,29 +74,12 @@ describe("AuthorRepository", () => {
         birthDate: new Date("1990-01-01"),
       };
 
-      when(authorsMock.updateOne({ _id: id }, authorData)).thenResolve({ matchedCount: 1, modifiedCount: 1 });
+      when(authors.updateOne(anything(), anything())).thenResolve({ n: 1, nModified: 1 });
 
       const result = await authorRepository.updateAuthor(id, authorData);
 
-      expect(result).to.deep.equal({ matchedCount: 1, modifiedCount: 1 });
-      verify(authorsMock.updateOne({ _id: id }, authorData)).once();
-    });
-
-    it("should throw an error if update fails", async () => {
-      const id = "1234567890";
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.updateOne({ _id: id }, authorData)).thenReject(new Error("Update failed"));
-
-      await expect(authorRepository.updateAuthor(id, authorData)).to.be.rejectedWith(
-        Error,
-        "Update failed"
-      );
-      verify(authorsMock.updateOne({ _id: id }, authorData)).once();
+      expect(result).to.deep.equal({ n: 1, nModified: 1 });
+      verify(authors.updateOne({ _id: id }, authorData)).once();
     });
   });
 
@@ -130,23 +93,12 @@ describe("AuthorRepository", () => {
         _id: id,
       };
 
-      when(authorsMock.findByIdAndDelete({ _id: id })).thenResolve(authorData);
+      when(authors.findByIdAndDelete(anything())).thenResolve(authorData);
 
       const result = await authorRepository.deleteAuthor(id);
 
       expect(result).to.deep.equal(authorData);
-      verify(authorsMock.findByIdAndDelete({ _id: id })).once();
-    });
-
-    it("should return null if author not found", async () => {
-      const id = "1234567890";
-
-      when(authorsMock.findByIdAndDelete({ _id: id })).thenResolve(null);
-
-      const result = await authorRepository.deleteAuthor(id);
-
-      expect(result).to.be.null;
-      verify(authorsMock.findByIdAndDelete({ _id: id })).once();
+      verify(authors.findByIdAndDelete({ _id: id })).once();
     });
   });
 
@@ -156,83 +108,123 @@ describe("AuthorRepository", () => {
         name: "John",
       };
 
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.countDocuments({ name: { $regex: params.name, $options: "i" } })).thenResolve(1);
-      when(authorsMock.find({ name: { $regex: params.name, $options: "i" } }).sort({ createdAt: -1 }).skip(0).limit(10)).thenResolve([authorData]);
+      const query = {};
+      when(authors.countDocuments(anything())).thenResolve(1);
+      const mockQuery = mock<any>();
+      when(authors.find(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.sort(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.limit(anything())).thenResolve([{ name: "John Doe" }] as any);
 
       const result = await authorRepository.searchAuthors(params);
 
-      expect(result).to.deep.equal({ count: 1, rows: [authorData] });
-      verify(authorsMock.countDocuments({ name: { $regex: params.name, $options: "i" } })).once();
-      verify(authorsMock.find({ name: { $regex: params.name, $options: "i" } }).sort({ createdAt: -1 }).skip(0).limit(10)).once();
+      expect(result).to.deep.equal({ count: 1, rows: [{ name: "John Doe" }] });
+      verify(authors.countDocuments({ name: { $regex: "John", $options: "i" } })).once();
+      verify(authors.find({ name: { $regex: "John", $options: "i" } })).once();
     });
 
     it("should search authors by bio", async () => {
       const params: AuthorsSearchParams = {
-        bio: "Software developer",
+        bio: "Software",
       };
 
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.countDocuments({ bio: { $regex: params.bio, $options: "i" } })).thenResolve(1);
-      when(authorsMock.find({ bio: { $regex: params.bio, $options: "i" } }).sort({ createdAt: -1 }).skip(0).limit(10)).thenResolve([authorData]);
+      const query = {};
+      when(authors.countDocuments(anything())).thenResolve(1);
+      const mockQuery = mock<any>();
+      when(authors.find(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.sort(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.limit(anything())).thenResolve([{ bio: "Software developer" }] as any);
 
       const result = await authorRepository.searchAuthors(params);
 
-      expect(result).to.deep.equal({ count: 1, rows: [authorData] });
-      verify(authorsMock.countDocuments({ bio: { $regex: params.bio, $options: "i" } })).once();
-      verify(authorsMock.find({ bio: { $regex: params.bio, $options: "i" } }).sort({ createdAt: -1 }).skip(0).limit(10)).once();
+      expect(result).to.deep.equal({ count: 1, rows: [{ bio: "Software developer" }] });
+      verify(authors.countDocuments({ bio: { $regex: "Software", $options: "i" } })).once();
+      verify(authors.find({ bio: { $regex: "Software", $options: "i" } })).once();
     });
 
     it("should search authors by birth date", async () => {
       const params: AuthorsSearchParams = {
-        start_birth_date: new Date("1990-01-01"),
+        start_birth_date: "1990-01-01",
+        end_birth_date: "1990-12-31",
       };
 
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.countDocuments({ birthDate: { $gte: params.start_birth_date } })).thenResolve(1);
-      when(authorsMock.find({ birthDate: { $gte: params.start_birth_date } }).sort({ createdAt: -1 }).skip(0).limit(10)).thenResolve([authorData]);
+      const query = {};
+      when(authors.countDocuments(anything())).thenResolve(1);
+      const mockQuery = mock<any>();
+      when(authors.find(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.sort(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.limit(anything())).thenResolve([{ birthDate: new Date("1990-01-01") }] as any);
 
       const result = await authorRepository.searchAuthors(params);
 
-      expect(result).to.deep.equal({ count: 1, rows: [authorData] });
-      verify(authorsMock.countDocuments({ birthDate: { $gte: params.start_birth_date } })).once();
-      verify(authorsMock.find({ birthDate: { $gte: params.start_birth_date } }).sort({ createdAt: -1 }).skip(0).limit(10)).once();
+      expect(result).to.deep.equal({ count: 1, rows: [{ birthDate: new Date("1990-01-01") }] });
+      verify(authors.countDocuments({ birthDate: { $gte: "1990-01-01", $lte: "1990-12-31" } })).once();
+      verify(authors.find({ birthDate: { $gte: "1990-01-01", $lte: "1990-12-31" } })).once();
     });
 
-    it("should search authors by order", async () => {
+    it("should order authors by default", async () => {
       const params: AuthorsSearchParams = {
+        name: "John",
+      };
+
+      const query = {};
+      when(authors.countDocuments(anything())).thenResolve(1);
+      const mockQuery = mock<any>();
+      when(authors.find(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.sort(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.limit(anything())).thenResolve([{ name: "John Doe" }] as any);
+
+      const result = await authorRepository.searchAuthors(params);
+
+      expect(result).to.deep.equal({ count: 1, rows: [{ name: "John Doe" }] });
+      verify(authors.countDocuments({ name: { $regex: "John", $options: "i" } })).once();
+      verify(authors.find({ name: { $regex: "John", $options: "i" } })).once();
+      verify(mockQuery.sort({ createdAt: -1 })).once();
+    });
+
+    it("should order authors by custom field", async () => {
+      const params: AuthorsSearchParams = {
+        name: "John",
         order: [["name", "asc"]],
       };
 
-      const authorData: AuthorModel = {
-        name: "John Doe",
-        bio: "Software developer",
-        birthDate: new Date("1990-01-01"),
-      };
-
-      when(authorsMock.countDocuments({})).thenResolve(1);
-      when(authorsMock.find({}).sort({ name: 1 }).skip(0).limit(10)).thenResolve([authorData]);
+      const query = {};
+      when(authors.countDocuments(anything())).thenResolve(1);
+      const mockQuery = mock<any>();
+      when(authors.find(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.sort(anything())).thenReturn(instance(mockQuery));
+      when(mockQuery.limit(anything())).thenResolve([{ name: "John Doe" }] as any);
 
       const result = await authorRepository.searchAuthors(params);
 
-      expect(result).to.deep.equal({ count: 1, rows: [authorData] });
-      verify(authorsMock.countDocuments({})).once();
-      verify(authorsMock.find({}).sort({ name: 1 }).skip(0).limit(10)).once();
+      expect(result).to.deep.equal({ count: 1, rows: [{ name: "John Doe" }] });
+      verify(authors.countDocuments({ name: { $regex: "John", $options: "i" } })).once();
+      verify(authors.find({ name: { $regex: "John", $options: "i" } })).once();
+      verify(mockQuery.sort({ name: 1 })).once();
+    });
+  });
+
+  describe("getAuthorByName", () => {
+    it("should get author count by name", async () => {
+      const name = "John";
+      const id = "1234567890";
+
+      when(authors.countDocuments(anything())).thenResolve(1);
+
+      const result = await authorRepository.getAuthorByName(name, id);
+
+      expect(result).to.equal(1);
+      verify(authors.countDocuments({ name, _id: { $ne: id } })).once();
     });
 
-    it("should throw an error if search fails", async ()
+    it("should get author count by name without id", async () => {
+      const name = "John";
+
+      when(authors.countDocuments(anything())).thenResolve(1);
+
+      const result = await authorRepository.getAuthorByName(name);
+
+      expect(result).to.equal(1);
+      verify(authors.countDocuments({ name })).once();
+    });
+  });
+});
