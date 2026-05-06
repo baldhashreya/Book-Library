@@ -1,44 +1,43 @@
-import { expect } from 'chai';
-import { mock, instance, when, verify, anything } from 'ts-mockito';
+import { mock, instance, when, verify, reset } from 'ts-mockito';
 import { AuthorizationRepository } from '../../src/repositories/authorization.repository';
 import { UsersModel, Users } from 'common';
+import { expect } from 'chai';
+import { mock as mockquire } from 'proxyquire';
 
 describe('AuthorizationRepository', () => {
   let authorizationRepository: AuthorizationRepository;
-  let usersModelMock: UsersModel;
+  let usersModel: any;
 
   beforeEach(() => {
-    usersModelMock = mock<UsersModel>();
-    authorizationRepository = new AuthorizationRepository(instance(usersModelMock));
+    usersModel = mock<any>();
+    const mockUsers = mockquire('common', { UsersModel: usersModel });
+    authorizationRepository = new AuthorizationRepository();
   });
 
   afterEach(() => {
-    verifyNoOutstandingExpectation();
+    reset(usersModel);
   });
 
-  it('should find a user by email', async () => {
+  it('should return a user by email', async () => {
     const email = 'test@example.com';
-    const birthDate = new Date('1990-01-01');
-    const dummyUser: Users = { email, birthDate };
-    const mockQuery = mock<UsersModel>();
-    when(usersModelMock.findOne(anything())).thenReturn(mockQuery);
-    when(mockQuery.exec()).thenReturn(dummyUser);
+    const user = { email } as UsersModel;
+
+    when(usersModel.findOne(anything())).thenReturn(user);
 
     const result = await authorizationRepository.getUserByEmail(email);
-    expect(result).to.deep.equal(dummyUser);
-    verify(usersModelMock.findOne({ email: email })).once();
-    verify(mockQuery.exec()).once();
+
+    expect(result).to.deep.equal(user);
+    verify(usersModel.findOne({ email: email })).once();
   });
 
-  it('should return null when no user is found', async () => {
+  it('should return null if no user is found', async () => {
     const email = 'test@example.com';
-    const mockQuery = mock<UsersModel>();
-    when(usersModelMock.findOne(anything())).thenReturn(mockQuery);
-    when(mockQuery.exec()).thenReturn(null);
+
+    when(usersModel.findOne(anything())).thenReturn(null);
 
     const result = await authorizationRepository.getUserByEmail(email);
+
     expect(result).to.be.null;
-    verify(usersModelMock.findOne({ email: email })).once();
-    verify(mockQuery.exec()).once();
+    verify(usersModel.findOne({ email: email })).once();
   });
 });
