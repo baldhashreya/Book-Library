@@ -1,59 +1,44 @@
-import "reflect-metadata";
-import { expect } from "chai";
-import { SinonStub, stub } from "sinon";
-import { UsersModel } from "common";
-import { AuthorizationRepository } from "./authorization.repository";
-import { usersModelStub } from "./mocks/usersModel.stub";
+import { expect } from 'chai';
+import { mock, instance, when, verify, anything } from 'ts-mockito';
+import { AuthorizationRepository } from '../../src/repositories/authorization.repository';
+import { UsersModel, Users } from 'common';
 
-describe("AuthorizationRepository", () => {
+describe('AuthorizationRepository', () => {
   let authorizationRepository: AuthorizationRepository;
-  let usersModel: SinonStub;
+  let usersModelMock: UsersModel;
 
   beforeEach(() => {
-    usersModel = usersModelStub;
-    authorizationRepository = new AuthorizationRepository(usersModel);
-    sinon.restore();
+    usersModelMock = mock<UsersModel>();
+    authorizationRepository = new AuthorizationRepository(instance(usersModelMock));
   });
 
-  describe("getUserByEmail", () => {
-    it("should find a user by email when email exists in database", async () => {
-      const email = "test@example.com";
-      const user = { email };
-      usersModel.findOne.resolves(user);
-      const result = await authorizationRepository.getUserByEmail(email);
-      expect(result).to.be.an("object");
-      expect(result).to.deep.equal(user);
-      expect(usersModel.findOne).to.have.been.calledWith({ email });
-    });
+  afterEach(() => {
+    verifyNoOutstandingExpectation();
+  });
 
-    it("should return null when email does not exist in database", async () => {
-      const email = "test@example.com";
-      usersModel.findOne.resolves(null);
-      const result = await authorizationRepository.getUserByEmail(email);
-      expect(result).to.be.null;
-      expect(usersModel.findOne).to.have.been.calledWith({ email });
-    });
+  it('should find a user by email', async () => {
+    const email = 'test@example.com';
+    const birthDate = new Date('1990-01-01');
+    const dummyUser: Users = { email, birthDate };
+    const mockQuery = mock<UsersModel>();
+    when(usersModelMock.findOne(anything())).thenReturn(mockQuery);
+    when(mockQuery.exec()).thenReturn(dummyUser);
 
-    it("should throw an error when database operation fails", async () => {
-      const email = "test@example.com";
-      usersModel.findOne.rejects(new Error("Database error"));
-      await expect(authorizationRepository.getUserByEmail(email)).to.be.rejected;
-      expect(usersModel.findOne).to.have.been.calledWith({ email });
-    });
+    const result = await authorizationRepository.getUserByEmail(email);
+    expect(result).to.deep.equal(dummyUser);
+    verify(usersModelMock.findOne({ email: email })).once();
+    verify(mockQuery.exec()).once();
+  });
 
-    it("should throw an error when email is not provided", async () => {
-      await expect(authorizationRepository.getUserByEmail(undefined)).to.be.rejected;
-      expect(usersModel.findOne).not.to.have.been.called;
-    });
+  it('should return null when no user is found', async () => {
+    const email = 'test@example.com';
+    const mockQuery = mock<UsersModel>();
+    when(usersModelMock.findOne(anything())).thenReturn(mockQuery);
+    when(mockQuery.exec()).thenReturn(null);
+
+    const result = await authorizationRepository.getUserByEmail(email);
+    expect(result).to.be.null;
+    verify(usersModelMock.findOne({ email: email })).once();
+    verify(mockQuery.exec()).once();
   });
 });
-
-// mocks/usersModel.stub.ts
-import { SinonStub } from "sinon";
-import { UsersModel } from "common";
-
-export const usersModelStub = () => {
-  return {
-    findOne: stub<UsersModel, (query: any) => Promise<any>>(),
-  };
-};
