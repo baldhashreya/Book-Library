@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { mock, instance, verify, when, anything, reset } from 'ts-mockito';
+import { mock, instance, when, verify, anything, reset } from 'ts-mockito';
 import { BooksRepository } from '../../src/repositories/book.repository';
 import { Books, BorrowRecords, Users, UsersModel, BorrowRecordsModel } from 'common';
 
@@ -24,91 +24,105 @@ describe('BooksRepository', () => {
 
   describe('getBookByTitle', () => {
     it('should return count of books with given title and exclude given id', async () => {
+      const id = '1234567890';
       const title = 'Test Title';
-      const id = 'test-id';
       when(booksModel.countDocuments(anything())).thenResolve(10);
-      when(booksModel.countDocuments({ title, _id: { $ne: id } })).thenResolve(5);
+
       const result = await booksRepository.getBookByTitle(title, id);
-      expect(result).to.equal(5);
-      verify(booksModel.countDocuments(anything())).calledOnce();
-      verify(booksModel.countDocuments({ title, _id: { $ne: id } })).calledOnce();
+      expect(result).to.equal(10);
+      verify(booksModel.countDocuments({ title, _id: { $ne: id } })).once();
     });
 
     it('should return count of books with given title', async () => {
       const title = 'Test Title';
       when(booksModel.countDocuments(anything())).thenResolve(10);
-      when(booksModel.countDocuments({ title })).thenResolve(5);
+
       const result = await booksRepository.getBookByTitle(title);
-      expect(result).to.equal(5);
-      verify(booksModel.countDocuments(anything())).calledOnce();
-      verify(booksModel.countDocuments({ title })).calledOnce();
+      expect(result).to.equal(10);
+      verify(booksModel.countDocuments({ title })).once();
     });
   });
 
   describe('getAuthorById', () => {
     it('should return count of authors with given id', async () => {
-      const id = 'test-id';
+      const id = '1234567890';
       when(booksModel.countDocuments(anything())).thenResolve(10);
-      when(booksModel.countDocuments({ _id: id })).thenResolve(5);
+
       const result = await booksRepository.getAuthorById(id);
-      expect(result).to.equal(5);
-      verify(booksModel.countDocuments(anything())).calledOnce();
-      verify(booksModel.countDocuments({ _id: id })).calledOnce();
+      expect(result).to.equal(10);
+      verify(booksModel.countDocuments({ _id: id })).once();
     });
   });
 
   describe('getCategoryById', () => {
     it('should return count of categories with given id', async () => {
-      const id = 'test-id';
+      const id = '1234567890';
       when(booksModel.countDocuments(anything())).thenResolve(10);
-      when(booksModel.countDocuments({ _id: id })).thenResolve(5);
+
       const result = await booksRepository.getCategoryById(id);
-      expect(result).to.equal(5);
-      verify(booksModel.countDocuments(anything())).calledOnce();
-      verify(booksModel.countDocuments({ _id: id })).calledOnce();
+      expect(result).to.equal(10);
+      verify(booksModel.countDocuments({ _id: id })).once();
     });
   });
 
   describe('createBook', () => {
     it('should create a new book', async () => {
-      const bookData = { title: 'Test Title', author: 'Test Author' };
+      const bookData = {
+        title: 'Test Title',
+        author: 'Test Author',
+        category: 'Test Category',
+        publisher: 'Test Publisher',
+      };
       when(booksModel.create(anything())).thenResolve(bookData);
+
       const result = await booksRepository.createBook(bookData);
       expect(result).to.deep.equal(bookData);
-      verify(booksModel.create(anything())).calledOnce();
+      verify(booksModel.create(bookData)).once();
     });
   });
 
   describe('getBookById', () => {
     it('should return book with given id', async () => {
-      const id = 'test-id';
-      const bookData = { title: 'Test Title', author: 'Test Author' };
+      const id = '1234567890';
+      const bookData = {
+        title: 'Test Title',
+        author: 'Test Author',
+        category: 'Test Category',
+        publisher: 'Test Publisher',
+      };
       when(booksModel.findById(anything())).thenResolve(bookData);
+
       const result = await booksRepository.getBookById(id);
       expect(result).to.deep.equal(bookData);
-      verify(booksModel.findById(anything())).calledOnce();
+      verify(booksModel.findById({ _id: id })).once();
     });
   });
 
   describe('updateBook', () => {
     it('should update book with given id', async () => {
-      const id = 'test-id';
-      const bookData = { title: 'Test Title', author: 'Test Author' };
+      const id = '1234567890';
+      const bookData = {
+        title: 'Test Title',
+        author: 'Test Author',
+        category: 'Test Category',
+        publisher: 'Test Publisher',
+      };
       when(booksModel.findByIdAndUpdate(anything(), anything(), { new: true })).thenResolve(bookData);
+
       const result = await booksRepository.updateBook(id, bookData);
       expect(result).to.deep.equal(bookData);
-      verify(booksModel.findByIdAndUpdate(anything(), anything(), { new: true })).calledOnce();
+      verify(booksModel.findByIdAndUpdate(id, bookData, { new: true })).once();
     });
   });
 
   describe('deleteBook', () => {
     it('should delete book with given id', async () => {
-      const id = 'test-id';
-      const bookData = { title: 'Test Title', author: 'Test Author' };
-      when(booksModel.findByIdAndDelete(anything())).thenResolve(bookData);
+      const id = '1234567890';
+      when(booksModel.findByIdAndDelete(anything())).thenResolve({});
+
       const result = await booksRepository.deleteBook(id);
-      expect(result).to.deep.equal(bookData);
-      verify(booksModel.findByIdAndDelete(anything())).calledOnce();
+      expect(result).to.deep.equal({});
+      verify(booksModel.findByIdAndDelete({ _id: id })).once();
     });
   });
 
@@ -131,34 +145,62 @@ describe('BooksRepository', () => {
       };
       const order = { title: 1 };
       const count = 10;
-      const rows = [{ title: 'Test Title', author: 'Test Author' }];
+      const rows = [
+        {
+          title: 'Test Title',
+          author: 'Test Author',
+          category: 'Test Category',
+          publisher: 'Test Publisher',
+        },
+      ];
       when(booksModel.countDocuments(anything())).thenResolve(count);
-      when(booksModel.find(anything()).populate(anything()).sort(anything()).skip(anything()).limit(anything())).thenResolve(rows);
+      when(booksModel.find(anything()).sort(anything()).skip(anything()).limit(anything())).thenResolve(rows);
+
       const result = await booksRepository.searchBooks(params);
       expect(result).to.deep.equal({ count, rows });
-      verify(booksModel.countDocuments(anything())).calledOnce();
-      verify(booksModel.find(anything()).populate(anything()).sort(anything()).skip(anything()).limit(anything())).calledOnce();
+      verify(booksModel.countDocuments(query)).once();
+      verify(booksModel.find(query).sort(order).skip(params.offset || 0).limit(params.limit || 10)).once();
     });
   });
 
   describe('getUsersByIds', () => {
     it('should return users with given ids', async () => {
-      const ids = ['test-id1', 'test-id2'];
-      const users = [{ _id: 'test-id1', role: { name: 'Test Role' } }, { _id: 'test-id2', role: { name: 'Test Role' } }];
+      const ids = ['1234567890', '2345678901'];
+      const users = [
+        {
+          _id: '1234567890',
+          role: {
+            name: 'Test Role',
+          },
+        },
+        {
+          _id: '2345678901',
+          role: {
+            name: 'Test Role',
+          },
+        },
+      ];
       when(usersModel.find(anything()).populate(anything())).thenResolve(users);
+
       const result = await booksRepository.getUsersByIds(ids);
       expect(result).to.deep.equal(users);
-      verify(usersModel.find(anything()).populate(anything())).calledOnce();
+      verify(usersModel.find({ _id: { $in: ids } }).populate('role', 'name')).once();
     });
   });
 
   describe('createBorrowRecords', () => {
     it('should create a new borrow record', async () => {
-      const model = { book: 'Test Book', user: 'Test User' };
+      const model = {
+        book: 'Test Book',
+        user: 'Test User',
+        borrowDate: '2022-01-01',
+        returnDate: '2022-01-15',
+      };
       when(borrowRecordsModel.create(anything())).thenResolve(model);
+
       const result = await booksRepository.createBorrowRecords(model);
       expect(result).to.deep.equal(model);
-      verify(borrowRecordsModel.create(anything())).calledOnce();
+      verify(borrowRecordsModel.create(model)).once();
     });
   });
 });
