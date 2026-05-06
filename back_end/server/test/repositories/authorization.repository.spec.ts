@@ -1,51 +1,59 @@
-import { expect } from 'chai';
-import sinon from 'sinon';
-import 'sinon-mongoose';
-import { Users } from 'common';
-import { AuthorizationRepository } from './authorization.repository';
-import { UsersModel } from 'common/mongoose';
+import "reflect-metadata";
+import { expect } from "chai";
+import { SinonStub, stub } from "sinon";
+import { UsersModel } from "common";
+import { AuthorizationRepository } from "./authorization.repository";
+import { usersModelStub } from "./mocks/usersModel.stub";
 
-describe('AuthorizationRepository', () => {
+describe("AuthorizationRepository", () => {
   let authorizationRepository: AuthorizationRepository;
-  let usersModelStub: sinon.SinonStubbedInstance<UsersModel>;
-  let usersStub: sinon.SinonStubbedInstance<Users>;
+  let usersModel: SinonStub;
 
   beforeEach(() => {
-    usersModelStub = sinon.stub(Users, 'model').returns(sinon.createStubInstance(UsersModel));
-    authorizationRepository = new AuthorizationRepository();
-  });
-
-  afterEach(() => {
+    usersModel = usersModelStub;
+    authorizationRepository = new AuthorizationRepository(usersModel);
     sinon.restore();
   });
 
-  describe('getUserByEmail', () => {
-    it('should return user when email is found', async () => {
-      const email = 'test@example.com';
-      const expectedUser = { email, password: 'password' };
-
-      usersModelStub.findOne.resolves({ email, password: 'password' } as any);
+  describe("getUserByEmail", () => {
+    it("should find a user by email when email exists in database", async () => {
+      const email = "test@example.com";
+      const user = { email };
+      usersModel.findOne.resolves(user);
       const result = await authorizationRepository.getUserByEmail(email);
-
-      expect(result).to.deep.equal(expectedUser);
+      expect(result).to.be.an("object");
+      expect(result).to.deep.equal(user);
+      expect(usersModel.findOne).to.have.been.calledWith({ email });
     });
 
-    it('should return null when email is not found', async () => {
-      const email = 'test@example.com';
-      const expectedUser = null;
-
-      usersModelStub.findOne.resolves(null);
+    it("should return null when email does not exist in database", async () => {
+      const email = "test@example.com";
+      usersModel.findOne.resolves(null);
       const result = await authorizationRepository.getUserByEmail(email);
-
-      expect(result).to.deep.equal(expectedUser);
+      expect(result).to.be.null;
+      expect(usersModel.findOne).to.have.been.calledWith({ email });
     });
 
-    it('should throw error when Users.findOne throws an error', async () => {
-      const email = 'test@example.com';
-      const error = new Error('Test error');
+    it("should throw an error when database operation fails", async () => {
+      const email = "test@example.com";
+      usersModel.findOne.rejects(new Error("Database error"));
+      await expect(authorizationRepository.getUserByEmail(email)).to.be.rejected;
+      expect(usersModel.findOne).to.have.been.calledWith({ email });
+    });
 
-      usersModelStub.findOne.rejects(error);
-      await expect(authorizationRepository.getUserByEmail(email)).to.be.rejectedWith(error);
+    it("should throw an error when email is not provided", async () => {
+      await expect(authorizationRepository.getUserByEmail(undefined)).to.be.rejected;
+      expect(usersModel.findOne).not.to.have.been.called;
     });
   });
 });
+
+// mocks/usersModel.stub.ts
+import { SinonStub } from "sinon";
+import { UsersModel } from "common";
+
+export const usersModelStub = () => {
+  return {
+    findOne: stub<UsersModel, (query: any) => Promise<any>>(),
+  };
+};
