@@ -4,7 +4,7 @@ import { UpdateResult } from "mongoose";
 import { addLog, AuthorModel, Authors, LogLevel } from "common";
 import { AuthorsSearchParams } from "../interface/common.interface";
 import { AuthorRepository } from "../../src/repositories/author.repository";
-import { proxyquire } from "proxyquire";
+import proxyquire from "proxyquire";
 
 describe("AuthorRepository", () => {
   let authorsMock: any;
@@ -47,17 +47,16 @@ describe("AuthorRepository", () => {
 
       when(authorsMock.create(authorData)).thenReject(new Error("Create failed"));
 
-      try {
-        await authorRepository.createAuthor(authorData);
-        expect.fail("Expected an error to be thrown");
-      } catch (error) {
-        expect(error.message).to.equal("Create failed");
-      }
+      await expect(authorRepository.createAuthor(authorData)).to.be.rejectedWith(
+        Error,
+        "Create failed"
+      );
+      verify(authorsMock.create(authorData)).once();
     });
   });
 
   describe("getAuthorById", () => {
-    it("should return an author by id", async () => {
+    it("should get an author by id", async () => {
       const id = "1234567890";
       const authorData: AuthorModel = {
         name: "John Doe",
@@ -95,11 +94,11 @@ describe("AuthorRepository", () => {
         birthDate: new Date("1990-01-01"),
       };
 
-      when(authorsMock.updateOne({ _id: id }, authorData)).thenResolve({ modifiedCount: 1 });
+      when(authorsMock.updateOne({ _id: id }, authorData)).thenResolve({ matchedCount: 1, modifiedCount: 1 });
 
       const result = await authorRepository.updateAuthor(id, authorData);
 
-      expect(result).to.deep.equal({ modifiedCount: 1 });
+      expect(result).to.deep.equal({ matchedCount: 1, modifiedCount: 1 });
       verify(authorsMock.updateOne({ _id: id }, authorData)).once();
     });
 
@@ -113,12 +112,11 @@ describe("AuthorRepository", () => {
 
       when(authorsMock.updateOne({ _id: id }, authorData)).thenReject(new Error("Update failed"));
 
-      try {
-        await authorRepository.updateAuthor(id, authorData);
-        expect.fail("Expected an error to be thrown");
-      } catch (error) {
-        expect(error.message).to.equal("Update failed");
-      }
+      await expect(authorRepository.updateAuthor(id, authorData)).to.be.rejectedWith(
+        Error,
+        "Update failed"
+      );
+      verify(authorsMock.updateOne({ _id: id }, authorData)).once();
     });
   });
 
@@ -237,5 +235,4 @@ describe("AuthorRepository", () => {
       verify(authorsMock.find({}).sort({ name: 1 }).skip(0).limit(10)).once();
     });
 
-    it("should throw an error if search fails", async () => {
-      const params
+    it("should throw an error if search fails", async ()
